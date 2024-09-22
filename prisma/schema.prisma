@@ -19,6 +19,25 @@ model User {
   referrals Referral[]
   image_comments ImageComment[]
 
+  comments Comments[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Comments { 
+  id String @unique @default(cuid())
+
+  commenter_id String
+  commenter User @relation(fields: [commenter_id], references: [id])
+
+  receiver_id String
+
+  content String
+  
+  hidden Boolean
+  flagged Boolean
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
