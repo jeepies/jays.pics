@@ -24,44 +24,21 @@ export default function Register() {
 
   return (
     <Form method="post">
-      <div className="text-center pt-2">
-        <span className="text-4xl font-bold">jays.host</span>
-        <HR />
-      </div>
-      <div className="py-2">
-        <div>
-          <TextInput id="username" type="text" placeholder="Username" />
-          <Label className="bg-red-500 rounded" htmlFor="username">
-            {actionData?.fieldErrors.username}
-          </Label>
-        </div>
-        <div>
-          <TextInput id="password" type="password" placeholder="Password" />
-          <Label className="bg-red-500 rounded" htmlFor="password">
-            {actionData?.fieldErrors.password}
-          </Label>
-        </div>
-        <Button type="submit">Login</Button>
-      </div>
+      <div>{actionData?.formErrors}</div>
+      <p>
+        <input type="text" name="username"></input>
+        <div>{actionData?.fieldErrors.username}</div>
+      </p>
+      <p>
+        <input type="password" name="password"></input>
+        <div>{actionData?.fieldErrors.password}</div>
+      </p>
+      <p>
+        <input type="text" name="referralCode"></input>
+        <div>{actionData?.fieldErrors.referralCode}</div>
+      </p>
+      <button type="submit">Sign Up</button>
     </Form>
-
-
-    // <Form method="post">
-    //   <div>{actionData?.formErrors}</div>
-    //   <p>
-    //     <input type="text" name="username"></input>
-    //     <div>{actionData?.fieldErrors.username}</div>
-    //   </p>
-    //   <p>
-    //     <input type="password" name="password"></input>
-    //     <div>{actionData?.fieldErrors.password}</div>
-    //   </p>
-    //   <p>
-    //     <input type="text" name="referralCode"></input>
-    //     <div>{actionData?.fieldErrors.referralCode}</div>
-    //   </p>
-    //   <button type="submit">Sign Up</button>
-    // </Form>
   );
 }
 
@@ -115,7 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
     data: { username: result.data.username, password: hashedPassword },
   });
 
-  await prisma.referrals.create({
+  await prisma.referral.create({
     data: {
       referred_id: user.id,
       referrer_id: referrer.id,

@@ -35,13 +35,13 @@ export default function Login() {
       </div>
       <div className="py-2">
         <div>
-          <TextInput id="username" type="text" placeholder="Username" />
+          <TextInput name="username" type="text" placeholder="Username" />
           <Label className="bg-red-500 rounded" htmlFor="username">
             {actionData?.fieldErrors.username}
           </Label>
         </div>
         <div>
-          <TextInput id="password" type="password" placeholder="Password" />
+          <TextInput name="password" type="password" placeholder="Password" />
           <Label className="bg-red-500 rounded" htmlFor="password">
             {actionData?.fieldErrors.password}
           </Label>
