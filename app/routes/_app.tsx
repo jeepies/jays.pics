@@ -1,10 +1,10 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
-import { destroySession, getSession } from "~/services/session.server";
+import { destroySession, getSession, getUserBySession } from "~/services/session.server";
 import { Sidebar } from "flowbite-react";
 import { HiCog, HiHome, HiLogout } from "react-icons/hi";
 import { HiPhoto, HiUserCircle } from "react-icons/hi2";
-import { prisma } from "~/database.server";
+import { prisma } from "~/services/database.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,14 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (!session.has("userID")) return redirect("/");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.get("userID") },
-    select: {
-      username: true,
-      images: true,
-      referral_code: true,
-    },
-  });
+  const user = await getUserBySession(session)
 
   if (user === null)
     return redirect("/", {
@@ -38,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Application() {
-  const actionData = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -51,7 +44,7 @@ export default function Application() {
             <Sidebar.Item
               href="/dashboard/images"
               icon={HiPhoto}
-              label={actionData.user.images.length}
+              label={loaderData.user.images.length}
               labelColor="dark"
             >
               Images
@@ -61,7 +54,7 @@ export default function Application() {
             </Sidebar.Item>
             <div className="absolute bottom-2">
               <Sidebar.Item href="/profile/me" icon={HiUserCircle}>
-                {actionData.user.username}
+                {loaderData.user.username}
               </Sidebar.Item>
               <Sidebar.Item href="/logout" icon={HiLogout}>
                 Log out
@@ -70,7 +63,7 @@ export default function Application() {
           </Sidebar.ItemGroup>
         </Sidebar.Items>
       </Sidebar>
-      <div className="">
+      <div className="rounded w-full h-full m-5">
         <Outlet />
       </div>
     </>

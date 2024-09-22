@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { prisma } from "../database.server";
+import { prisma } from "../services/database.server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { commitSession, getSession } from "~/services/session.server";
