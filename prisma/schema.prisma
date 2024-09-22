@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -8,17 +9,57 @@ datasource db {
 }
 
 model User {
-  id String @unique @default(cuid())
-  username String @unique
-  password String
+  id            String @unique @default(cuid())
+  username      String @unique
+  password      String
   referral_code String @unique @default(uuid())
 
-  referrals Referrals[]
+  images Image[]
+
+  referrals Referral[]
+  image_comments ImageComment[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
-model Referrals {
-  referrer_id String 
-  referrer User @relation(fields: [referrer_id], references: [id])
-  
+model Referral {
+  referrer_id String
+  referrer    User   @relation(fields: [referrer_id], references: [id])
+
   referred_id String @unique
+
+  created_at DateTime @default(now())
+}
+
+model Image {
+  id String @unique @default(cuid())
+
+  uploader_id String
+  uploader    User   @relation(fields: [uploader_id], references: [id])
+
+  display_name String
+  identifier String
+  size Int
+
+  comments ImageComment[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ImageComment {
+  id String @unique @default(cuid())
+  image_id String
+  image Image @relation(fields: [image_id], references: [id])
+  commenter_id String
+  commenter User @relation(fields: [commenter_id], references: [id])
+
+  content String
+  
+  hidden Boolean
+  flagged Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }

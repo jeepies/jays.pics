@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Outlet, redirect } from "@remix-run/react";
 import { getSession } from "~/services/session.server";
+import bcrypt from 'bcryptjs'
 
 export const meta: MetaFunction = () => {
   return [

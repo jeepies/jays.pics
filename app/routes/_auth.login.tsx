@@ -5,6 +5,14 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { commitSession, getSession } from "~/services/session.server";
 
+import {
+  Button,
+  Label,
+  Popover,
+  TextInput,
+  HR,
+} from "flowbite-react";
+
 const schema = z.object({
   username: z
     .string({ required_error: "Username is required" })
@@ -21,16 +29,25 @@ export default function Login() {
 
   return (
     <Form method="post">
-      <div>{actionData?.formErrors}</div>
-      <p>
-        <input type="text" name="username"></input>
-        <div>{actionData?.fieldErrors.username}</div>
-      </p>
-      <p>
-        <input type="password" name="password"></input>
-        <div>{actionData?.fieldErrors.password}</div>
-      </p>
-      <button type="submit">Log in</button>
+      <div className="text-center pt-2">
+        <span className="text-4xl font-bold">jays.host</span>
+        <HR />
+      </div>
+      <div className="py-2">
+        <div>
+          <TextInput id="username" type="text" placeholder="Username" />
+          <Label className="bg-red-500 rounded" htmlFor="username">
+            {actionData?.fieldErrors.username}
+          </Label>
+        </div>
+        <div>
+          <TextInput id="password" type="password" placeholder="Password" />
+          <Label className="bg-red-500 rounded" htmlFor="password">
+            {actionData?.fieldErrors.password}
+          </Label>
+        </div>
+        <Button type="submit">Login</Button>
+      </div>
     </Form>
   );
 }

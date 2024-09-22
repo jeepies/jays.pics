@@ -20,7 +20,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Auth() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Outlet />
+      <div className="bg-gray-800 rounded p-6 w-1/4 h-1/2">
+        <Outlet />
+      </div>
     </div>
   );
 }

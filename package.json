@@ -8,7 +8,8 @@
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "setup": "npx prisma migrate dev && npx prisma generate"
   },
   "dependencies": {
     "@conform-to/react": "^1.2.2",
@@ -18,9 +19,12 @@
     "@remix-run/react": "^2.12.1",
     "@remix-run/serve": "^2.12.1",
     "bcryptjs": "^2.4.3",
+    "flowbite": "^2.5.1",
+    "flowbite-react": "^0.10.1",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.3.0",
     "remix-auth": "^3.7.0",
     "remix-auth-form": "^1.5.0",
     "zod": "^3.23.8"
