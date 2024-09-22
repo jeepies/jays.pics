@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @unique @default(cuid())
+  username String @unique
+  password String
+  referral_code String @unique @default(uuid())
+
+  referrals Referrals[]
+}
+
+model Referrals {
+  referrer_id String 
+  referrer User @relation(fields: [referrer_id], references: [id])
+  
+  referred_id String @unique
+}
