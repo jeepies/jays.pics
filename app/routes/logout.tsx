@@ -1,4 +1,3 @@
-import { Action } from "@prisma/client/runtime/library";
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { destroySession, getSession } from "~/services/session.server";
 
