@@ -11,6 +11,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@conform-to/react": "^1.2.2",
+    "@conform-to/zod": "^1.2.2",
     "@prisma/client": "^5.19.1",
     "@remix-run/node": "^2.12.1",
     "@remix-run/react": "^2.12.1",

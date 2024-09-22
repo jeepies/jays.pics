@@ -8,8 +8,6 @@ import { commitSession, getSession } from "~/services/session.server";
 export default function Register() {
   const actionData = useActionData<typeof action>();
 
-  console.log(actionData);
-
   return (
     <Form method="post">
       <p>

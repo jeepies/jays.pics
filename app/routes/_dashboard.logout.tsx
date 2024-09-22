@@ -6,11 +6,7 @@ export async function action({ request }: ActionFunctionArgs) {
   
   return redirect("/", {
     headers: {
-      Cookie: await destroySession(session),
+      "Set-Cookie": await destroySession(session),
     },
   });
-}
-
-export function Logout() {
-  return <></>;
 }
