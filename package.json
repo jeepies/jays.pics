@@ -12,12 +12,16 @@
     "setup": "npx prisma migrate dev && npx prisma generate"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.654.0",
+    "@aws-sdk/lib-storage": "^3.654.0",
+    "@aws-sdk/types": "^3.654.0",
     "@conform-to/react": "^1.2.2",
     "@conform-to/zod": "^1.2.2",
     "@prisma/client": "^5.19.1",
     "@remix-run/node": "^2.12.1",
     "@remix-run/react": "^2.12.1",
     "@remix-run/serve": "^2.12.1",
+    "aws-sdk": "^2.1691.0",
     "bcryptjs": "^2.4.3",
     "flowbite": "^2.5.1",
     "flowbite-react": "^0.10.1",
