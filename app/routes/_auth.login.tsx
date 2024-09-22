@@ -6,20 +6,14 @@ import { z } from "zod";
 import { commitSession, getSession } from "~/services/session.server";
 
 const schema = z.object({
-  username: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z
-      .string({ required_error: "Username is required" })
-      .min(3, "Must be 3 or more characters")
-      .max(20, "Must be 20 or less characters")
-  ),
-  password: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z
-      .string({ required_error: "Password is required" })
-      .min(8, "Must be 8 or more characters")
-      .max(256, "Must be 256 or less characters")
-  ),
+  username: z
+    .string({ required_error: "Username is required" })
+    .min(3, "Must be 3 or more characters")
+    .max(20, "Must be 20 or less characters"),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(8, "Must be 8 or more characters")
+    .max(256, "Must be 256 or less characters"),
 });
 
 export default function Login() {
