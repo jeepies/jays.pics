@@ -5,27 +5,32 @@ import {
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import {
+  getAllReferrals,
   getSession,
   getUserByID,
   getUserBySession,
 } from "~/services/session.server";
 
 export let meta: MetaFunction = () => {
-  return [
-    { name: "description", content: "Invite-only Image Hosting" },
-  ];
+  return [{ name: "description", content: "Invite-only Image Hosting" }];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
 
   if (params.id === "me") return redirect(`/profile/${session.get("userID")}`);
+  const id = params.id ?? session.get("userID");
 
-  const user = await getUserByID(params.id ?? session.get("userID"));
+  const user = await getUserByID(id);
+  const referrals = await getAllReferrals(id);
 
-  return { user };
+  if (user === null) return redirect("/profile/me");
+
+  return { user, referrals };
 }
 
 export default function Profile() {
   const loaderData = useLoaderData<typeof loader>();
+
+  return <></>;
 }

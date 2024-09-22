@@ -4,7 +4,6 @@ import { destroySession, getSession, getUserBySession } from "~/services/session
 import { Sidebar } from "flowbite-react";
 import { HiCog, HiHome, HiLogout } from "react-icons/hi";
 import { HiPhoto, HiUserCircle } from "react-icons/hi2";
-import { prisma } from "~/services/database.server";
 
 export const meta: MetaFunction = () => {
   return [

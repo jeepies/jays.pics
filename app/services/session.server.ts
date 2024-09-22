@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { createCookieSessionStorage, Session } from "@remix-run/node";
 import { prisma } from "~/services/database.server";
 
@@ -30,9 +30,14 @@ export async function getUserByID(id: string) {
     select: {
       username: true,
       images: true,
-      referral_code: true,
     },
   });
+}
+
+export async function getAllReferrals(referrer_id: string) {
+  return await prisma.referral.findMany({
+    where: { referrer_id: referrer_id }
+  })
 }
 
 export let { getSession, commitSession, destroySession } = sessionStorage;
