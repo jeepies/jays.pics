@@ -8,7 +8,6 @@ import {
   getAllReferrals,
   getSession,
   getUserByID,
-  getUserBySession,
 } from "~/services/session.server";
 
 export let meta: MetaFunction = () => {
@@ -24,7 +23,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await getUserByID(id);
   const referrals = await getAllReferrals(id);
 
-  if (user === null) return redirect("/profile/me");
+  if (user === null) return redirect(`/profile/${session.get("userID")}`);
 
   return { user, referrals };
 }

@@ -1,7 +1,3 @@
 export default function Dashboard() {
-  return (
-    <>
-    shit
-    </>
-  )
+  return <>dashboard</>;
 }
