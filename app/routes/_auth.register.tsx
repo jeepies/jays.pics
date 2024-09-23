@@ -1,6 +1,9 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { prisma } from "../services/database.server";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
+import { prisma } from "~/services/database.server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { commitSession, getSession } from "~/services/session.server";
@@ -23,21 +26,51 @@ export default function Register() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <Form method="post">
-      <div>{actionData?.formErrors}</div>
-      <p>
-        <input type="text" name="username"></input>
-        <div>{actionData?.fieldErrors.username}</div>
+    <Form className="space-y-4" method="post">
+      <div className="space-y-1">
+        <Label htmlFor="username">Username</Label>
+        <Input id="username" name="username" placeholder="jeepies" required />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.username}
+        </div>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="*********"
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.password}
+        </div>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="referralCode">Referral Code</Label>
+        <Input
+          id="referralCode"
+          name="referralCode"
+          placeholder="JX7s..."
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.referralCode}
+        </div>
+      </div>
+      <Button className="w-full" type="submit">
+        Sign Up
+      </Button>
+      <p className="mt-4 text-center text-sm">
+        Already have an account?
+        <a
+          href="/login"
+          className="ml-1 text-primary hover:underline focus:outline-none"
+        >
+          Log in
+        </a>
       </p>
-      <p>
-        <input type="password" name="password"></input>
-        <div>{actionData?.fieldErrors.password}</div>
-      </p>
-      <p>
-        <input type="text" name="referralCode"></input>
-        <div>{actionData?.fieldErrors.referralCode}</div>
-      </p>
-      <button type="submit">Sign Up</button>
     </Form>
   );
 }
@@ -87,7 +120,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  var hashedPassword = bcrypt.hashSync(result.data.password, 10);
+  const hashedPassword = bcrypt.hashSync(result.data.password, 10);
   const user = await prisma.user.create({
     data: { username: result.data.username, password: hashedPassword },
   });

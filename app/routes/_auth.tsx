@@ -1,6 +1,8 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Outlet, redirect } from "@remix-run/react";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { Outlet, redirect, useLocation } from "@remix-run/react";
 import { getSession } from "~/services/session.server";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,10 +20,57 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Auth() {
+  const [showEmoji, setShowEmoji] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const emojiTimer = setTimeout(() => setShowEmoji(false), 2000);
+    const contentTimer = setTimeout(() => setShowContent(true), 2500);
+    return () => {
+      clearTimeout(emojiTimer);
+      clearTimeout(contentTimer);
+    };
+  }, []);
+
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="bg-gray-800 rounded p-6 w-1/4 h-1/2">
-        <Outlet />
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="relative w-full max-w-md">
+        <AnimatePresence>
+          {showEmoji && (
+            <motion.div
+              initial={{ opacity: 1 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                rotate: [0, -10, 10, -10, 10, 0],
+              }}
+              exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.5 } }}
+              transition={{ duration: 2, ease: "easeInOut" }}
+              className="absolute inset-0 flex items-center justify-center text-9xl"
+            >
+              👋
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showContent && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="w-full"
+            >
+              <h2 className="text-2xl font-bold text-center mb-6">
+                {location.pathname.includes("register")
+                  ? "Create an Account"
+                  : "Log In"}
+              </h2>
+              <Outlet />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -1,17 +1,12 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { prisma } from "../services/database.server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { commitSession, getSession } from "~/services/session.server";
-
-import {
-  Button,
-  Label,
-  Popover,
-  TextInput,
-  HR,
-} from "flowbite-react";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
 
 const schema = z.object({
   username: z
@@ -28,26 +23,45 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <Form method="post">
-      <div className="text-center pt-2">
-        <span className="text-4xl font-bold">jays.host</span>
-        <HR />
-      </div>
-      <div className="py-2">
-        <div>
-          <TextInput name="username" type="text" placeholder="Username" />
-          <Label className="bg-red-500 rounded" htmlFor="username">
-            {actionData?.fieldErrors.username}
-          </Label>
+    <Form className="space-y-4" method="post">
+      <div className="space-y-1">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          placeholder="Username"
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.username}
         </div>
-        <div>
-          <TextInput name="password" type="password" placeholder="Password" />
-          <Label className="bg-red-500 rounded" htmlFor="password">
-            {actionData?.fieldErrors.password}
-          </Label>
-        </div>
-        <Button type="submit">Login</Button>
       </div>
+      <div className="space-y-1">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.password}
+        </div>
+      </div>
+      <Button className="w-full" type="submit">
+        Login
+      </Button>
+      <p className="mt-4 text-center text-sm">
+        Don&apos;t have an account?
+        <a
+          href="/register"
+          className="ml-1 text-primary hover:underline focus:outline-none"
+        >
+          Sign up
+        </a>
+      </p>
     </Form>
   );
 }
