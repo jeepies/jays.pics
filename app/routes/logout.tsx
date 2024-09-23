@@ -5,7 +5,7 @@ import {
 } from "@remix-run/node";
 import { destroySession, getSession } from "~/services/session.server";
 
-async function logout(request: Request) {
+export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
 
   return redirect("/", {
@@ -15,10 +15,12 @@ async function logout(request: Request) {
   });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  logout(request);
-}
-
 export async function loader({ request }: LoaderFunctionArgs) {
-  logout(request);
+  const session = await getSession(request.headers.get("Cookie"));
+
+  return redirect("/", {
+    headers: {
+      "Set-Cookie": await destroySession(session),
+    },
+  });
 }

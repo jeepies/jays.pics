@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Outlet, redirect } from "@remix-run/react";
 import { getSession } from "~/services/session.server";
-import bcrypt from 'bcryptjs'
+import bcrypt from "bcryptjs";
+import { Button } from "flowbite-react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Index() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Outlet />
+      <Button href="/login">Login</Button> <Button href="/register">Register</Button>
     </div>
   );
 }
