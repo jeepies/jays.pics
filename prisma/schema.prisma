@@ -23,6 +23,8 @@ model User {
 
   badges String @default("user")
 
+  isAdmin Boolean @default(false) // will later be replaced with a permission integer, or RBAC
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }

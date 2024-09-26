@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { Cog, Home, Image, LogOut, User } from "lucide-react";
+import { Cog, Home, Image, LogOut, User, Shield } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
 
@@ -10,6 +10,7 @@ interface SidebarProps {
   user: {
     username: string;
     images: any[];
+    isAdmin: boolean;
   };
 }
 
@@ -28,7 +29,7 @@ export function Sidebar({ className, user }: SidebarProps) {
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/dashboard">
+              <Link to="/dashboard/index">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard
               </Link>
@@ -61,6 +62,23 @@ export function Sidebar({ className, user }: SidebarProps) {
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
+          {user.isAdmin ? (
+            <>
+              {" "}
+              <Button
+                asChild
+                variant="ghost"
+                className="w-full justify-start text-gray-900 dark:text-gray-100"
+              >
+                <Link to="/admin">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Admin Dashboard
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <></>
+          )}
           <Button
             asChild
             variant="ghost"

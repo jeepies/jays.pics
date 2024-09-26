@@ -26,5 +26,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Images() {
   // render images on a grid
-  return <>images</>;
+  return <h1>images</h1>;
 }

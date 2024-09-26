@@ -8,7 +8,8 @@ async function main() {
     data: {
       username: "system",
       password: await bcrypt.hash(process.env.ADMIN_PASSWORD ?? "", 10),
-      badges: "system"
+      badges: "system",
+      isAdmin: true,
     },
   });
 }

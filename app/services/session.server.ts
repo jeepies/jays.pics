@@ -21,6 +21,7 @@ export async function getUserBySession(session: Session) {
       username: true,
       images: true,
       referral_code: true,
+      isAdmin: true,
     },
   });
 }
