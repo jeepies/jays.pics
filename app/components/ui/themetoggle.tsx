@@ -1,5 +1,6 @@
-import { Moon, Sun } from "lucide-react";
+import { Ghost, Link, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "./button";
 
 export function ThemeToggle() {
   if (typeof window === "undefined") return null;
@@ -22,8 +23,22 @@ export function ThemeToggle() {
   };
 
   return (
-    <button onClick={toggleDarkMode} className="p-2">
-      {isDarkMode ? <Sun /> : <Moon />}
-    </button>
+    <Button
+      onClick={toggleDarkMode}
+      variant="ghost"
+      className="w-full justify-start"
+    >
+      {isDarkMode ? (
+        <>
+          <Sun className="mr-2 h-4 w-4" />
+          Light Mode
+        </>
+      ) : (
+        <>
+          <Moon className="mr-2 h-4 w-4" />
+          Dark Mode
+        </>
+      )}
+    </Button>
   );
 }

@@ -2,6 +2,8 @@ import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Cog, Home, Image, LogOut, User } from "lucide-react";
+import { ThemeToggle } from "./themetoggle";
+import { Separator } from "./separator";
 
 interface SidebarProps {
   className?: string;
@@ -19,6 +21,7 @@ export function Sidebar({ className, user }: SidebarProps) {
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             jays.host
           </h2>
+          <Separator className="my-4" />
           <div className="space-y-1">
             <Button
               asChild
@@ -67,6 +70,13 @@ export function Sidebar({ className, user }: SidebarProps) {
               <User className="mr-2 h-4 w-4" />
               {user.username}
             </Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <ThemeToggle />
           </Button>
           <Button
             asChild
