@@ -3,12 +3,25 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
+import { useState } from "react";
 import {
   getAllReferrals,
   getSession,
   getUserByID,
 } from "~/services/session.server";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+
+import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
 
 export let meta: MetaFunction = () => {
   return [{ name: "description", content: "Invite-only Image Hosting" }];
@@ -23,13 +36,108 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await getUserByID(id);
   const referrals = await getAllReferrals(id);
 
-  if (user === null) return redirect(`/profile/${session.get("userID")}`);
+  if (user === null) return redirect(`/profile/${session.get("userID")}`); // Who the fuck wrote this piece of shit???
 
   return { user, referrals };
 }
 
 export default function Profile() {
-  const loaderData = useLoaderData<typeof loader>();
+  const { user, referrals } = useLoaderData<typeof loader>();
+  const [activeTab, setActiveTab] = useState("images");
 
-  return <></>;
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <Avatar className="h-24 w-24">
+              <AvatarImage
+                src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
+                alt={user.username}
+              />
+              <AvatarFallback>
+                {user.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold">{user.username}</h1>
+              <p className="text-sm text-muted-foreground">
+                <CalendarIcon className="mr-1 inline-block h-4 w-4" />
+                Joined {new Date(user.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Images</CardTitle>
+            <ImageIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{user.images.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Referrals</CardTitle>
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{referrals.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+        <TabsList>
+          <TabsTrigger value="images">Images</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
+        </TabsList>
+        <TabsContent value="images" className="mt-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {user.images.map((image) => (
+              <Card key={image.id}>
+                <CardContent className="p-2">
+                  <img
+                    src={`/api/images/${image.id}`}
+                    alt={image.display_name}
+                    className="aspect-square w-full rounded-md object-cover"
+                  />
+                  <p className="mt-2 truncate text-sm font-medium">
+                    {image.display_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(image.created_at).toLocaleDateString()}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="about" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>About {user.username}</CardTitle>
+              <CardDescription>
+                More information about this user
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>
+                This user has been a member since{" "}
+                {new Date(user.created_at).toLocaleDateString()}.
+              </p>
+              <p className="mt-2">
+                They have uploaded {user.images.length} images and have{" "}
+                {referrals.length} referrals.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }

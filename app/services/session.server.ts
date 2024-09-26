@@ -17,6 +17,7 @@ export async function getUserBySession(session: Session) {
   return await prisma.user.findUnique({
     where: { id: session.get("userID") },
     select: {
+      id: true,
       username: true,
       images: true,
       referral_code: true,
@@ -28,16 +29,18 @@ export async function getUserByID(id: string) {
   return await prisma.user.findUnique({
     where: { id: id },
     select: {
+      id: true,
       username: true,
       images: true,
+      created_at: true,
     },
   });
 }
 
 export async function getAllReferrals(referrer_id: string) {
   return await prisma.referral.findMany({
-    where: { referrer_id: referrer_id }
-  })
+    where: { referrer_id: referrer_id },
+  });
 }
 
 export let { getSession, commitSession, destroySession } = sessionStorage;
