@@ -28,11 +28,10 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  const usersCount = await prisma.user.count();
 
   if (session.has("userID")) return redirect("/dashboard/index");
 
-  return { firstTime: usersCount === 0 };
+  return null;
 }
 
 export default function Index() {
