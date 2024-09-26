@@ -43,10 +43,10 @@ model Comments {
 }
 
 model Referral {
-  referrer_id String
+  referrer_id String // Suggestion: rename to author_id
   referrer    User   @relation(fields: [referrer_id], references: [id])
 
-  referred_id String @unique
+  referred_id String @unique // Suggestion: rename to recipient_id
 
   created_at DateTime @default(now())
 }

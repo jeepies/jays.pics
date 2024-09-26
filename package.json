@@ -9,7 +9,11 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
-    "setup": "npx prisma migrate dev && npx prisma generate"
+    "setup": "npx prisma migrate dev && npx prisma generate",
+    "db:generate": "prisma migrate dev",
+    "db:migrate": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.654.0",
@@ -28,8 +32,6 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "flowbite": "^2.5.1",
-    "flowbite-react": "^0.10.1",
     "framer-motion": "^11.5.6",
     "isbot": "^4.1.0",
     "lucide-react": "^0.445.0",

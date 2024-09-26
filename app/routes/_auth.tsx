@@ -22,16 +22,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Auth() {
   const [showEmoji, setShowEmoji] = useState(true);
   const [showContent, setShowContent] = useState(false);
+  const [hasShownEmoji, setHasShownEmoji] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const emojiTimer = setTimeout(() => setShowEmoji(false), 2000);
-    const contentTimer = setTimeout(() => setShowContent(true), 2500);
-    return () => {
-      clearTimeout(emojiTimer);
-      clearTimeout(contentTimer);
-    };
-  }, []);
+    if (!hasShownEmoji) {
+      const emojiTimer = setTimeout(() => setShowEmoji(false), 2000);
+      const contentTimer = setTimeout(() => setShowContent(true), 2500);
+      setHasShownEmoji(true);
+      return () => {
+        clearTimeout(emojiTimer);
+        clearTimeout(contentTimer);
+      };
+    } else {
+      setShowEmoji(false);
+      setShowContent(true);
+    }
+  }, [hasShownEmoji]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

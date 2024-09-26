@@ -1,11 +1,7 @@
 import type { Config } from "tailwindcss";
-import flowbite from "flowbite-react/tailwind"; // @ TODO: Remove flowbite.
 
 const config: Config = {
-  content: [
-    "./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}",
-    flowbite.content(),
-  ],
+  content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
   darkMode: ["class"],
   theme: {
     extend: {

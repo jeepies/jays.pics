@@ -135,6 +135,6 @@ function handleBrowserRequest(
       }
     );
 
-    setTimeout(abort, ABORT_DELAY);
+    setTimeout(abort, ABORT_DELAY); // Synk believes this is a high priority issue (Has a vulnerability?)
   });
 }
