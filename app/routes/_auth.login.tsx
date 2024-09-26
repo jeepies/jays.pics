@@ -80,6 +80,17 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
+  if(result.data.username === "system") {
+    return {
+      payload,
+      formErrors: [],
+      fieldErrors: {
+        username: "Invalid account",
+        password: "",
+      },
+    }
+  }
+
   const user = await prisma.user.findFirst({
     where: { username: result.data.username },
   });

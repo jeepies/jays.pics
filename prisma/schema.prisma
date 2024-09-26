@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["omitApi"]
 }
 
@@ -16,26 +16,28 @@ model User {
 
   images Image[]
 
-  referrals Referral[]
+  referrals      Referral[]
   image_comments ImageComment[]
 
-  comments Comments[]
+  comments Comment[]
+
+  badges String @default("user")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
-model Comments { 
+model Comment {
   id String @unique @default(cuid())
 
   commenter_id String
-  commenter User @relation(fields: [commenter_id], references: [id])
+  commenter    User   @relation(fields: [commenter_id], references: [id])
 
   receiver_id String
 
   content String
-  
-  hidden Boolean
+
+  hidden  Boolean
   flagged Boolean
 
   created_at DateTime @default(now())
@@ -43,10 +45,10 @@ model Comments {
 }
 
 model Referral {
-  referrer_id String // Suggestion: rename to author_id
+  referrer_id String
   referrer    User   @relation(fields: [referrer_id], references: [id])
 
-  referred_id String @unique // Suggestion: rename to recipient_id
+  referred_id String @unique
 
   created_at DateTime @default(now())
 }
@@ -58,8 +60,8 @@ model Image {
   uploader    User   @relation(fields: [uploader_id], references: [id])
 
   display_name String
-  identifier String
-  size Int
+  identifier   String
+  size         Int
 
   comments ImageComment[]
 
@@ -68,15 +70,15 @@ model Image {
 }
 
 model ImageComment {
-  id String @unique @default(cuid())
-  image_id String
-  image Image @relation(fields: [image_id], references: [id])
+  id           String @unique @default(cuid())
+  image_id     String
+  image        Image  @relation(fields: [image_id], references: [id])
   commenter_id String
-  commenter User @relation(fields: [commenter_id], references: [id])
+  commenter    User   @relation(fields: [commenter_id], references: [id])
 
   content String
-  
-  hidden Boolean
+
+  hidden  Boolean
   flagged Boolean
 
   created_at DateTime @default(now())
