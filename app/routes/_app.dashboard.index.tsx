@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Upload, Plus } from "lucide-react";
+import { Upload, Plus, PictureInPicture } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -153,12 +153,12 @@ export default function Dashboard() {
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {user.images.slice(0, 5).map((image) => (
+          {user.images.slice(Math.max(user.images.length - 5, 0)).reverse().map((image) => (
             <Card key={image.id}>
               <CardContent className="p-2">
                 <img
-                  src={`/api/images/${image.id}`}
-                  alt={image.display_name}
+                  src={`/i/${image.id}/raw`}
+                  alt="Image"
                   className="w-full h-24 object-cover rounded-md"
                 />
                 <p className="mt-2 text-sm font-medium truncate">
