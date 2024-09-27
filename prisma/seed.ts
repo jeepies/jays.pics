@@ -7,7 +7,7 @@ async function main() {
   await prisma.user.create({
     data: {
       username: "system",
-      password: await bcrypt.hash(process.env.ADMIN_PASSWORD ?? "", 10),
+      password: "",
       badges: "system",
       isAdmin: true,
     },
