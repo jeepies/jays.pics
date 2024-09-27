@@ -1,4 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   destroySession,
   getSession,
@@ -25,6 +27,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Images() {
-  // render images on a grid
-  return <h1>images</h1>;
+  const { images } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      {images.map((image) => (
+        <Card key={image.id}>
+          <CardContent className="p-2">
+            <img
+              src={`/api/images/${image.id}`}
+              alt={image.display_name}
+              className="aspect-square w-full rounded-md object-cover"
+            />
+            <p className="mt-2 truncate text-sm font-medium">
+              {image.display_name}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(image.created_at).toLocaleDateString()}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
+    </>
+  );
 }
