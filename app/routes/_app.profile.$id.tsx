@@ -35,7 +35,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await getUserByID(id);
   const referrals = await getAllReferrals(id);
 
-  if (user === null) return redirect(`/profile/${session.get("userID")}`); // Who the fuck wrote this piece of shit???
+  if (!user) return redirect(`/profile/${session.get("userID")}`); // Who the fuck wrote this piece of shit???
+  // fuck you @occorune that code does its job....
 
   return { user, referrals };
 }
