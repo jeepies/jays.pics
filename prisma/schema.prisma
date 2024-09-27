@@ -26,6 +26,10 @@ model User {
 
   isAdmin Boolean @default(false) // will later be replaced with a permission integer, or RBAC
 
+  embed_title  String @default("Uploaded by {{uploader.name}}")
+  embed_author String @default("{{image.upload_date}}")
+  embed_colour String @default("#252525")
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }

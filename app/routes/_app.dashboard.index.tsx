@@ -18,6 +18,7 @@ import {
   getUserBySession,
 } from "~/services/session.server";
 import { ThemeToggle } from "~/components/ui/themetoggle";
+import { templateReplacer } from "~/lib/utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));

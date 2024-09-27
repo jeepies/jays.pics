@@ -8,6 +8,7 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
+import { useEffect, useState } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,6 +24,27 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [ThemeToggle, setThemeToggle] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      return savedTheme
+        ? savedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    }
+    return "light";
+  });
+
+  useEffect(() => {
+    ThemeToggle ? "light" : "dark";
+    if (localStorage.getItem("theme") === ThemeToggle) {
+      return;
+    }
+    document.documentElement.setAttribute("data-theme", ThemeToggle);
+    localStorage.setItem("theme", ThemeToggle);
+  }, [ThemeToggle]);
+
   return (
     <html lang="en">
       <head>
