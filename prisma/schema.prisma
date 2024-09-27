@@ -64,6 +64,7 @@ model Image {
 
   display_name String
   size         Int
+  type         String
 
   comments ImageComment[]
 

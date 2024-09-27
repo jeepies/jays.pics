@@ -31,7 +31,7 @@ export default function Images() {
 
   return (
     <>
-      {images.map((image) => (
+      {/* {images.map((image) => (
         <Card key={image.id}>
           <CardContent className="p-2">
             <img
@@ -47,7 +47,7 @@ export default function Images() {
             </p>
           </CardContent>
         </Card>
-      ))}
+      ))} */}
     </>
   );
 }

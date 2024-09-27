@@ -95,20 +95,20 @@ export default function Profile() {
           <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
         <TabsContent value="images" className="mt-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {user.images.map((image) => (
               <Card key={image.id}>
                 <CardContent className="p-2">
                   <img
                     src={`/api/images/${image.id}`}
-                    alt={image.display_name}
+                    alt="Image"
                     className="aspect-square w-full rounded-md object-cover"
                   />
                   <p className="mt-2 truncate text-sm font-medium">
                     {image.display_name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()}
+                    {new Date(image.created_at).toLocaleDateString()} at {new Date(image.created_at).toLocaleTimeString()}
                   </p>
                 </CardContent>
               </Card>

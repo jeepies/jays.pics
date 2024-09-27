@@ -1,8 +1,9 @@
-import { PassThrough } from "stream";
-
-import type { UploadHandler } from "@remix-run/node";
-import { writeAsyncIterableToWritable } from "@remix-run/node";
-import AWS from "aws-sdk";
+import {
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { Upload } from '@aws-sdk/lib-storage'
+import { Readable } from "stream";
 
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
   process.env;
@@ -13,38 +14,34 @@ if (
   throw new Error(`Storage is missing required configuration.`);
 }
 
-const uploadStream = ({ Key }: Pick<AWS.S3.Types.PutObjectRequest, "Key">) => {
-  const s3 = new AWS.S3({
-    credentials: {
-      accessKeyId: STORAGE_ACCESS_KEY,
-      secretAccessKey: STORAGE_SECRET,
-    },
-    region: STORAGE_REGION,
-  });
-  const pass = new PassThrough();
-  return {
-    writeStream: pass,
-    promise: s3.upload({ Bucket: STORAGE_BUCKET, Key, Body: pass }).promise(),
-  };
-};
+const S3 = new S3Client({
+  credentials: {
+    secretAccessKey: STORAGE_SECRET,
+    accessKeyId: STORAGE_ACCESS_KEY,
+  },
+  region: STORAGE_REGION
+})
 
-export async function uploadStreamToS3(data: any, filename: string) {
-  const stream = uploadStream({
-    Key: filename,
-  });
-  await writeAsyncIterableToWritable(data, stream.writeStream);
-  const file = await stream.promise;
-  return file.Location;
+export async function uploadToS3(file: File, filename: string) {
+  try {
+    const upload = new Upload({
+      client: S3,
+      leavePartsOnError: false,
+      params: {
+        Bucket: STORAGE_BUCKET,
+        Key: filename,
+        Body: file.stream(),
+      },
+    })
+    
+    const res = await upload.done();
+    return res;
+  } catch(err) {
+    console.log(err)
+  }
 }
 
-export const s3UploadHandler: UploadHandler = async ({
-  name,
-  filename,
-  data,
-}) => {
-  if (name !== "img") {
-    return undefined;
-  }
-  const uploadedFileLocation = await uploadStreamToS3(data, filename!);
-  return uploadedFileLocation;
-};
+export async function get(key: string) {
+  const res = await fetch(`https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`);
+  return await res.blob();
+}

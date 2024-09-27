@@ -59,8 +59,8 @@ export default function Help() {
           </Card>
         </TabsContent>
       </Tabs>
-      <p>Reporting content</p>
-      <Tabs value={reportingActiveTab} onValueChange={setReportingActiveTab} className="mt-8">
+      <p className="my-8">Reporting content</p>
+      <Tabs value={reportingActiveTab} onValueChange={setReportingActiveTab}>
         <TabsList>
           <TabsTrigger value="images">Images</TabsTrigger>
           <TabsTrigger value="comments">Comments</TabsTrigger>
@@ -70,7 +70,7 @@ export default function Help() {
             <CardHeader>
               <CardTitle>Images</CardTitle>
               <CardDescription>
-                How to report images upload to jays.host
+                How to report uploaded images
               </CardDescription>
             </CardHeader>
             <CardContent>1. click a funny button</CardContent>
