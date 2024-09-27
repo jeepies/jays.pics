@@ -22,10 +22,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
 
-export let meta: MetaFunction = () => {
-  return [{ name: "description", content: "Invite-only Image Hosting" }];
-};
-
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
 
