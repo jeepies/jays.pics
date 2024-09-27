@@ -3,7 +3,7 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import {
   getAllReferrals,
@@ -21,6 +21,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -130,6 +132,27 @@ export default function Profile() {
                 They have uploaded {user.images.length} images and have{" "}
                 {referrals.length} referrals.
               </p>
+
+              <Form method="POST" action="/profile/comment">
+                <Input
+                  id="target"
+                  name="target"
+                  type="text"
+                  value={user.id}
+                  required
+                  className="hidden"
+                />
+                <Input
+                  id="content"
+                  name="content"
+                  type="text"
+                  placeholder="Comment"
+                  required
+                />
+                <Button className="w-full" type="submit">
+                  Comment
+                </Button>
+              </Form>
             </CardContent>
           </Card>
         </TabsContent>
