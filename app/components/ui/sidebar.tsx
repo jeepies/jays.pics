@@ -1,7 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import { Cog, Home, Image, LogOut, User, Shield } from "lucide-react";
+import { Cog, Home, Image, LogOut, User, Shield, FileQuestionIcon, MailQuestion, FileQuestion } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
 
@@ -45,6 +45,16 @@ export function Sidebar({ className, user }: SidebarProps) {
                 <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
                   {user.images.length}
                 </span>
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/dashboard/help">
+                <FileQuestion className="mr-2 h-4 w-4" />
+                Help
               </Link>
             </Button>
             <Button
