@@ -17,8 +17,14 @@ const schema = z.object({
     .string({ required_error: "Password is required" })
     .min(8, { message: "Must be 8 or more characters" })
     .max(256, { message: "Must be 256 or less characters" })
-    .regex(/([!?&-_]+)/g, "Insecure password - Please add one (or more) of (!, ?, &, - or _)")
-    .regex(/([0-9]+)/g, "Insecure password - Please add one (or more) digit (0-9)"),
+    .regex(
+      /([!?&-_]+)/g,
+      "Insecure password - Please add one (or more) of (!, ?, &, - or _)"
+    )
+    .regex(
+      /([0-9]+)/g,
+      "Insecure password - Please add one (or more) digit (0-9)"
+    ),
   referralCode: z
     .string({ required_error: "Referral Code is required" })
     .uuid("Must be a valid referral code"),
@@ -91,7 +97,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  await prisma.user
+  prisma.user
     .findFirst({ where: { username: result.data.username } })
     .then((user) => {
       if (user !== null)
@@ -123,11 +129,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const hashedPassword = bcrypt.hashSync(result.data.password, 10);
-  const count = await prisma.user.count()
-  let badges = "user"
-  if(count < 500) badges = "user,early"
+  const count = await prisma.user.count();
+  let badges = "user";
+  if (count < 500) badges = "user,early";
   const user = await prisma.user.create({
-    data: { username: result.data.username, password: hashedPassword, badges: badges },
+    data: {
+      username: result.data.username,
+      password: hashedPassword,
+      badges: badges,
+    },
   });
 
   await prisma.referral.create({

@@ -13,6 +13,7 @@ model User {
   username      String @unique
   password      String
   referral_code String @unique @default(uuid())
+  upload_key    String @unique @default(cuid())
 
   images Image[]
 
@@ -62,7 +63,6 @@ model Image {
   uploader    User   @relation(fields: [uploader_id], references: [id])
 
   display_name String
-  identifier   String
   size         Int
 
   comments ImageComment[]
