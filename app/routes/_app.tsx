@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
 import {
   destroySession,
   getSession,
@@ -42,4 +42,8 @@ export default function Application() {
       </div>
     </div>
   );
+}
+
+export function useAppLoaderData() {
+  return useRouteLoaderData<typeof loader>("routes/_app")
 }

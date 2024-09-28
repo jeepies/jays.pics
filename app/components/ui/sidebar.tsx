@@ -12,6 +12,7 @@ import {
   MailQuestion,
   FileQuestion,
   Link2,
+  ImageIcon,
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
@@ -73,9 +74,9 @@ export function Sidebar({ className, user }: SidebarProps) {
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/dashboard/help">
-                <FileQuestion className="mr-2 h-4 w-4" />
-                Help
+              <Link to="/dashboard/upload-settings">
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Upload Config
               </Link>
             </Button>
             <Button
@@ -86,6 +87,16 @@ export function Sidebar({ className, user }: SidebarProps) {
               <Link to="/dashboard/settings">
                 <Cog className="mr-2 h-4 w-4" />
                 Settings
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/dashboard/help">
+                <FileQuestion className="mr-2 h-4 w-4" />
+                Help
               </Link>
             </Button>
           </div>
