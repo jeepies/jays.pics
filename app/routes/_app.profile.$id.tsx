@@ -112,7 +112,7 @@ export default function Profile() {
                     {image.display_name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()} at
+                    {new Date(image.created_at).toLocaleDateString()} at{" "}
                     {new Date(image.created_at).toLocaleTimeString()}
                   </p>
                 </CardContent>
