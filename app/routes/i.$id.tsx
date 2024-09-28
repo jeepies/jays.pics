@@ -3,21 +3,6 @@ import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 
-// TODO
-// export const meta: MetaFunction<typeof loader> = ({data}) => {
-//   if(!data) return [{title: "What?"}]
-//   return [
-//     {
-//       property: "og:title",
-//       content: data!.data.image!.display_name,
-//     },
-//     {
-//       property: "image",
-//       content: `${process.env.BASE_URL}/i/${data!.data.image!.id}/raw`
-//     },
-//   ];
-// };
-
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
   const uploader = await prisma.user.findFirst({
@@ -53,3 +38,8 @@ export default function Image() {
     </>
   );
 }
+
+// TODO
+// export const meta: MetaFunction<typeof loader> = ({ data }) => {
+//   return [{ title: `${data?.data.image?.display_name} | jays.host ` }, { author: `${data?.user?.upload_preferences?.embed_author}` }];
+// };
