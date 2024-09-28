@@ -57,7 +57,7 @@ model UploaderPreferences {
   userId String @unique
 
   embed_title  String @default("Uploaded by {{uploader.name}}")
-  embed_author String @default("{{image.upload_date}}")
+  embed_author String @default("{{image.created_at}}")
   embed_colour String @default("#252525")
 }
 

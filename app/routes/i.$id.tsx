@@ -13,7 +13,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       upload_preferences: true,
       space_used: true,
       max_space: true,
-    }
+    },
   });
 
   const session = await getSession(request.headers.get("Cookie"));
@@ -48,11 +48,7 @@ export default function Image() {
 
 // TODO
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data)
-    return [
-      { title: `Image | jays.host ` },
-      { author: `Hosted with 🩵 at https://jays.pics` },
-    ];
+  if (!data) return [{ title: `Image | jays.host ` }];
 
   // TODO translate bytes to human readable
   const dictionary = {
@@ -68,16 +64,21 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     "uploader.total_storage": data.data.uploader?.max_space,
   };
 
-  const title = templateReplacer(data?.data.uploader?.upload_preferences?.embed_title ?? "", dictionary)
-  const author = templateReplacer(data?.data.uploader?.upload_preferences?.embed_author ?? "", dictionary)
+  const title = templateReplacer(
+    data.data.uploader?.upload_preferences?.embed_title ?? "",
+    dictionary
+  );
 
   return [
-    { title: title },
-    { author: author },
+    { title: data.data.image?.display_name },
+    { property: "og:title", content: title },
+    { property: "og:image", content: `https://jays.pics/i/${data.data.image?.id}/raw` },
+    { property: "theme-color", cotent: data.data.uploader?.upload_preferences?.embed_colour},
     {
       tagName: "link",
       type: "application/json+oembed",
-      href: `/i/oembed`
-    }
+      href: `/i/${data.data.image!.id}/oembed.json`,
+    },
+    { name: "twitter:card", content: "summary_large_image" },
   ];
 };
