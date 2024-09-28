@@ -1,6 +1,7 @@
 import {
   ActionFunctionArgs,
   json,
+  redirect,
 } from "@remix-run/node";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
@@ -84,4 +85,8 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({
     success: false,
   });
+}
+
+export async function loader()  {
+    return redirect('/')
 }
