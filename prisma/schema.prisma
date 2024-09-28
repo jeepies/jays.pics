@@ -118,3 +118,15 @@ model Referral {
 
   created_at DateTime @default(now())
 }
+
+model Announcement {
+  id         String   @unique @default(cuid())
+  content    String
+  created_at DateTime @default(now())
+}
+
+model Log {
+  id         String   @unique @default(cuid())
+  message    String
+  created_at DateTime @default(now())
+}
