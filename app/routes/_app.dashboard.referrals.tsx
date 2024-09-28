@@ -27,6 +27,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const referrals = await prisma.referral.findMany({
     where: { referrer_id: user!.referrer_profile?.id },
+    select: {
+      created_at: true,
+      referred: true
+    }
   });
 
   return await { data: { referrals: referrals }, user };
@@ -45,7 +49,7 @@ function copy() {
 }
 
 export default function Referrals() {
-  const { data, user } = useLoaderData<typeof loader>();
+  const { user, data } = useLoaderData<typeof loader>();
 
   return (
     <>
@@ -55,7 +59,11 @@ export default function Referrals() {
             <CardTitle>Your Referral Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input id="referral-code" value={user?.referrer_profile?.referral_code} readOnly />
+            <Input
+              id="referral-code"
+              value={user?.referrer_profile?.referral_code}
+              readOnly
+            />
             <Button onClick={copy} className="mt-2 w-full">
               Copy
             </Button>
@@ -65,12 +73,11 @@ export default function Referrals() {
           <CardHeader>
             <CardTitle>Your Referrals</CardTitle>
             <CardDescription>
-              You have used {data.referrals.length} of {user?.referrer_profile?.referral_limit}{" "}
-              referrals
+              You have used {data.referrals.length} of{" "}
+              {user?.referrer_profile?.referral_limit} referrals
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* TODO render a table here that has Username (as a clickable link to profile) and Date*/}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -83,8 +90,8 @@ export default function Referrals() {
                   return (
                     <TableRow>
                       <TableCell className="font-medium">
-                        <a href={`/profile/${referral.referred_id}`}>
-                          {referral.referred_id}
+                        <a href={`/profile/${referral.referred.id}`}>
+                          {referral.referred.username}
                         </a>
                       </TableCell>
                       <TableCell className="text-right">
