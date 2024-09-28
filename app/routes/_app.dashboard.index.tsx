@@ -168,7 +168,7 @@ export default function Dashboard() {
                     className="w-full h-24 object-cover rounded-md"
                   />
                   <p className="mt-2 text-sm font-medium truncate">
-                    {image.display_name}
+                    <a href={`/i/${image.id}`}>{image.display_name}</a>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(image.created_at).toLocaleDateString()}
