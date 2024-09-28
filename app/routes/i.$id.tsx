@@ -72,6 +72,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     { title: data.data.image?.display_name },
     { property: "og:title", content: title },
+    { property: "og:description", content: `og:description lol` },
+    { property: "og:type", content: "website"},
+    { property: "og:url", content: `https://jays.pics/i/${data.data.image?.id}` },
     { property: "og:image", content: `https://jays.pics/i/${data.data.image?.id}/raw` },
     { property: "theme-color", cotent: data.data.uploader?.upload_preferences?.embed_colour},
     {

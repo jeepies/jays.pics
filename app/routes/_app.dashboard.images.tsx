@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { Card, CardContent } from "~/components/ui/card";
+import { prisma } from "~/services/database.server";
 import {
   destroySession,
   getSession,
@@ -21,7 +22,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
-  const images = user.images;
+  const images = await prisma.image.findMany({
+    where: { uploader_id: user.id },
+  });
 
   return { images };
 }
