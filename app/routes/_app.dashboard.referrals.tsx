@@ -9,6 +9,15 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 
@@ -20,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { referrer_id: user!.id },
   });
 
-  return { data: { referrals: referrals }, user };
+  return await { data: { referrals: referrals }, user };
 }
 
 function copy() {
@@ -55,13 +64,35 @@ export default function Referrals() {
         <Card className="mt-4">
           <CardHeader>
             <CardTitle>Your Referrals</CardTitle>
-            <CardDescription>You have used {data.referrals.length} of {user?.referral_limit} referrals</CardDescription>
+            <CardDescription>
+              You have used {data.referrals.length} of {user?.referral_limit}{" "}
+              referrals
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* TODO render a table here that has Username (as a clickable link to profile) and Date*/}
-            {/* {data.referrals.map((referral) => {
-              return <></>;
-            })} */}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">User</TableHead>
+                  <TableHead className="text-right">Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.referrals.map((referral) => {
+                  return (
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        <a href={`/profile/${referral.referred_id}`}>{referral.referred_id}</a>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {new Date(referral.created_at).toLocaleDateString()}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `User` ADD COLUMN `space_used` INTEGER NOT NULL DEFAULT 0;

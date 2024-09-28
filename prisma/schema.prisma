@@ -16,6 +16,8 @@ model User {
   upload_key    String @unique @default(cuid())
 
   images Image[]
+  space_used Int @default(0)
+  max_space Int @default(1000000000)
 
   referrals      Referral[]
   image_comments ImageComment[]
