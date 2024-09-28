@@ -20,9 +20,9 @@ export async function getUserBySession(session: Session) {
       id: true,
       username: true,
       images: true,
-      referral_code: true,
-      isAdmin: true,
-      referral_limit: true,
+      referrer_profile: true,
+      upload_preferences: true,
+      is_admin: true,
     },
   });
 }

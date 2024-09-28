@@ -6,10 +6,13 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.user.create({
     data: {
-      username: "system",
+      username: "System",
       password: "",
-      badges: "system",
-      isAdmin: true,
+      badges: JSON.stringify([{ name: "sys", text: "SYSTEM" }]),
+      is_admin: true,
+      referrer_profile: {
+        create: {}
+      }
     },
   });
 }

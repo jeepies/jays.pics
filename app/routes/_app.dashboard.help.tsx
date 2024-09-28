@@ -1,16 +1,4 @@
-import {
-  redirect,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-} from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import {
-  getAllReferrals,
-  getSession,
-  getUserByID,
-} from "~/services/session.server";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -20,7 +8,6 @@ import {
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
 
 export default function Help() {
   const [reportingActiveTab, setReportingActiveTab] = useState("images");

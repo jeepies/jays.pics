@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+  previewFeatures = []
 }
 
 datasource db {
@@ -9,33 +9,56 @@ datasource db {
 }
 
 model User {
-  id            String @unique @default(cuid())
-  username      String @unique
-  password      String
-  referral_code String @unique @default(uuid())
-  upload_key    String @unique @default(cuid())
+  id       String @unique @default(cuid())
+  username String @unique
+  password String
+  email    String? @unique
 
-  images Image[]
+  is_admin Boolean @default(false)
+
+  badges String @default("[{\"name\":\"user\",\"text\":\"User\"}]")
+
+  referrer_profile ReferrerProfile?
+
+  upload_key         String               @unique @default(cuid())
+  upload_preferences UploaderPreferences?
+
+  images    Image[]
   space_used Int @default(0)
-  max_space Int @default(1000000000)
+  max_space Int     @default(1000000000)
 
-  referrals      Referral[]
+  comments       Comment[]
   image_comments ImageComment[]
 
-  comments Comment[]
+  last_login_at DateTime @default(now())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  badges String @default("user")
 
-  isAdmin Boolean @default(false) // will later be replaced with a permission integer, or RBAC
+  Referral Referral[]
+}
+
+model ReferrerProfile {
+  id String @unique @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  referral_code String @unique @default(uuid())
 
   referral_limit Int @default(5)
+  
+  referrals Referral[]
+}
+
+model UploaderPreferences {
+  id     String @unique @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
 
   embed_title  String @default("Uploaded by {{uploader.name}}")
   embed_author String @default("{{image.upload_date}}")
   embed_colour String @default("#252525")
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 }
 
 model Comment {
@@ -53,15 +76,6 @@ model Comment {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-}
-
-model Referral {
-  referrer_id String
-  referrer    User   @relation(fields: [referrer_id], references: [id])
-
-  referred_id String @unique
-
-  created_at DateTime @default(now())
 }
 
 model Image {
@@ -94,4 +108,14 @@ model ImageComment {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model Referral {
+  referrer_id String
+  referrer ReferrerProfile @relation(fields: [referred_id], references: [userId], map: "referrer")
+
+  referred_id String @unique
+  referred    User   @relation(fields: [referred_id], references: [id])
+
+  created_at DateTime @default(now())
 }

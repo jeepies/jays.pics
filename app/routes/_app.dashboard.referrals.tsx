@@ -55,7 +55,7 @@ export default function Referrals() {
             <CardTitle>Your Referral Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input id="referral-code" value={user?.referral_code} readOnly />
+            <Input id="referral-code" value={user?.referrer_profile?.referral_code} readOnly />
             <Button onClick={copy} className="mt-2 w-full">
               Copy
             </Button>
@@ -65,7 +65,7 @@ export default function Referrals() {
           <CardHeader>
             <CardTitle>Your Referrals</CardTitle>
             <CardDescription>
-              You have used {data.referrals.length} of {user?.referral_limit}{" "}
+              You have used {data.referrals.length} of {user?.referrer_profile?.referral_limit}{" "}
               referrals
             </CardDescription>
           </CardHeader>

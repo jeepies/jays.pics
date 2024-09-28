@@ -112,7 +112,7 @@ export async function action({ request }: ActionFunctionArgs) {
         };
     });
 
-  const referrer = await prisma.user.findFirst({
+  const referrer = await prisma.referrerProfile.findFirst({
     where: { referral_code: result.data.referralCode },
   });
 
@@ -145,16 +145,21 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const hashedPassword = bcrypt.hashSync(result.data.password, 10);
-  const count = await prisma.user.count();
-  let badges = "user";
-  if (count < 500) badges = "user,early";
   const user = await prisma.user.create({
     data: {
       username: result.data.username,
       password: hashedPassword,
-      badges: badges,
+      referrer_profile: {
+        create: {},
+      },
+      upload_preferences: {
+        create: {},
+      },
+      last_login_at: new Date(),
     },
   });
+
+  console.log(`${referrer.id} has referred ${user.id}`)
 
   await prisma.referral.create({
     data: {

@@ -62,8 +62,8 @@ export default function Profile() {
                 Joined {new Date(user.created_at).toLocaleDateString()}
               </p>
               <div className="mt-2">
-                {user.badges.split(",").map((badge) => (
-                  <Badge className="mr-2">{badge}</Badge>
+                {JSON.parse(user.badges).map((badge: { text: string }) => (
+                  <Badge className="mr-2">{badge.text}</Badge>
                 ))}
               </div>
             </div>

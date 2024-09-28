@@ -21,7 +21,7 @@ interface SidebarProps {
   user: {
     username: string;
     images: any[];
-    isAdmin: boolean;
+    is_admin: boolean;
   };
 }
 
@@ -93,7 +93,7 @@ export function Sidebar({ className, user }: SidebarProps) {
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
-          {user.isAdmin ? (
+          {user.is_admin ? (
             <>
               {" "}
               <Button
