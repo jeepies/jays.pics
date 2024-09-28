@@ -19,7 +19,7 @@ export default function UploadSettings() {
             <label>Download Configs for</label>
             <br/>
             <Button>
-              ShareX
+              <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
             </Button>
           </CardContent>
         </Card>
