@@ -16,7 +16,7 @@ export default function UploadSettings() {
           <CardContent>
             <label>Upload Key:</label>
             <Input className="my-2" readOnly value={data?.user.upload_key} />
-            <label>Download Configs for</label>
+            <label>Download Configs for:</label>
             <br/>
             <Button>
               <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
