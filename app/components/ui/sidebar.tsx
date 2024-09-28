@@ -112,7 +112,7 @@ export function Sidebar({ className, user }: SidebarProps) {
                 variant="ghost"
                 className="w-full justify-start text-gray-900 dark:text-gray-100"
               >
-                <Link to="/admin">
+                <Link to="/admin/index">
                   <Shield className="mr-2 h-4 w-4" />
                   Admin Dashboard
                 </Link>

@@ -9,8 +9,8 @@ datasource db {
 }
 
 model User {
-  id       String @unique @default(cuid())
-  username String @unique
+  id       String  @unique @default(cuid())
+  username String  @unique
   password String
   email    String? @unique
 
@@ -23,9 +23,9 @@ model User {
   upload_key         String               @unique @default(cuid())
   upload_preferences UploaderPreferences?
 
-  images    Image[]
-  space_used Int @default(0)
-  max_space Int     @default(1000000000)
+  images     Image[]
+  space_used Int     @default(0)
+  max_space  Int     @default(1000000000)
 
   comments       Comment[]
   image_comments ImageComment[]
@@ -33,7 +33,6 @@ model User {
   last_login_at DateTime @default(now())
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-
 
   Referral Referral[]
 }
@@ -47,7 +46,7 @@ model ReferrerProfile {
   referral_code String @unique @default(uuid())
 
   referral_limit Int @default(5)
-  
+
   referrals Referral[]
 }
 
@@ -112,7 +111,7 @@ model ImageComment {
 
 model Referral {
   referrer_id String
-  referrer ReferrerProfile @relation(fields: [referred_id], references: [userId], map: "referrer")
+  referrer    ReferrerProfile @relation(fields: [referred_id], references: [userId], map: "referrer")
 
   referred_id String @unique
   referred    User   @relation(fields: [referred_id], references: [id])
