@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
@@ -74,5 +74,10 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     { title: title },
     { author: author },
+    {
+      tagName: "link",
+      type: "application/json+oembed",
+      href: `/i/oembed`
+    }
   ];
 };
