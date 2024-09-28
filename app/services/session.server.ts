@@ -22,6 +22,7 @@ export async function getUserBySession(session: Session) {
       images: true,
       referral_code: true,
       isAdmin: true,
+      referral_limit: true,
     },
   });
 }
