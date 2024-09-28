@@ -22,7 +22,7 @@ export default function Image() {
     <>
       {data.image !== null ? (
         <>
-          image found
+          <img src={`/i/${data.image.id}/raw`}/>
           {user !== null ? (
             <>comment box with comment ability</>
           ) : (
