@@ -17,8 +17,7 @@ import {
   getSession,
   getUserBySession,
 } from "~/services/session.server";
-import { ThemeToggle } from "~/components/ui/themetoggle";
-import { templateReplacer } from "~/lib/utils";
+import { prisma } from "~/services/database.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -36,11 +35,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const referrals = await getAllReferrals(user!.referrer_profile!.id);
 
-  return { user, referrals };
+  const images = await prisma.image.findMany({ where: { uploader_id: user.id } })
+
+  return { user, referrals, images };
 }
 
 export default function Dashboard() {
-  const { user, referrals } = useLoaderData<typeof loader>();
+  const { user, referrals, images } = useLoaderData<typeof loader>();
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(1000000000); // 1GB
@@ -84,7 +85,7 @@ export default function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{user.images.length}</div>
+              <div className="text-2xl font-bold">{images.length}</div>
               <p className="text-xs text-muted-foreground">Lifetime uploads</p>
             </CardContent>
           </Card>
@@ -156,7 +157,7 @@ export default function Dashboard() {
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {user.images
+          {images
             .slice(Math.max(user.images.length - 5, 0))
             .reverse()
             .map((image) => (

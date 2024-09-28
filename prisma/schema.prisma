@@ -35,6 +35,7 @@ model User {
   updated_at    DateTime @updatedAt
 
   Referral Referral[]
+  deleted_at  DateTime?
 }
 
 model ReferrerProfile {
@@ -73,8 +74,9 @@ model Comment {
   hidden  Boolean
   flagged Boolean
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at    DateTime?
 }
 
 model Image {
@@ -89,8 +91,9 @@ model Image {
 
   comments ImageComment[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at    DateTime?
 }
 
 model ImageComment {
@@ -105,8 +108,9 @@ model ImageComment {
   hidden  Boolean
   flagged Boolean
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at    DateTime?
 }
 
 model Referral {

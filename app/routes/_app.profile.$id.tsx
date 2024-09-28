@@ -35,11 +35,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   // Who the fuck wrote this piece of shit???
   // fuck you @occorune that code does its job....
 
-  return { user, referrals };
+  const images = await prisma.image.findMany({ where: { uploader_id: id }})
+
+  return { user, referrals, images };
 }
 
 export default function Profile() {
-  const { user, referrals } = useLoaderData<typeof loader>();
+  const { user, referrals, images} = useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState("images");
 
   return (
@@ -79,7 +81,7 @@ export default function Profile() {
             <ImageIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{user.images.length}</div>
+            <div className="text-2xl font-bold">{images.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -100,7 +102,7 @@ export default function Profile() {
         </TabsList>
         <TabsContent value="images" className="mt-4">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {user.images.map((image) => (
+            {images.map((image) => (
               <Card key={image.id}>
                 <CardContent className="p-2">
                   <img
@@ -134,7 +136,7 @@ export default function Profile() {
                 {new Date(user.created_at).toLocaleDateString()}.
               </p>
               <p className="mt-2">
-                They have uploaded {user.images.length} images and have{" "}
+                They have uploaded {images.length} images and have{" "}
                 {referrals.length} referral(s).
               </p>
 

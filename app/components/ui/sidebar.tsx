@@ -54,9 +54,9 @@ export function Sidebar({ className, user }: SidebarProps) {
               <Link to="/dashboard/images">
                 <Image className="mr-2 h-4 w-4" />
                 Images
-                <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
+                {/* <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
                   {user.images.length}
-                </span>
+                </span> */}
               </Link>
             </Button>
             <Button

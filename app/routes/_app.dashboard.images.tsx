@@ -45,6 +45,7 @@ export default function Images() {
             <p className="text-xs text-muted-foreground">
               {new Date(image.created_at).toLocaleDateString()}
             </p>
+            <a href={`/i/${image.id}/delete`}>Delete</a>
           </CardContent>
         </Card>
       ))}

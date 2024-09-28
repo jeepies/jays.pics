@@ -1,5 +1,10 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import { Delete } from "lucide-react";
 import { Readable } from "stream";
 
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
@@ -43,4 +48,8 @@ export async function get(key: string) {
     `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`
   );
   return await res.blob();
+}
+
+export async function del(key: string) {
+  await S3.send(new DeleteObjectCommand({ Bucket: STORAGE_BUCKET, Key: key }));
 }
