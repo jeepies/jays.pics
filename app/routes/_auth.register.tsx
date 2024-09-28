@@ -128,6 +128,20 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
+  const referralsAlreadyUsed = (await prisma.referral.findMany({where: { referrer_id: referrer.id }})).length;
+
+  if(referralsAlreadyUsed === referrer.referral_limit) {
+    return {
+      payload,
+      formErrors: [],
+      fieldErrors: {
+        username: "",
+        password: "",
+        referralCode: "This referral code has been used too many times",
+      },
+    };
+  }
+
   const hashedPassword = bcrypt.hashSync(result.data.password, 10);
   const count = await prisma.user.count();
   let badges = "user";
