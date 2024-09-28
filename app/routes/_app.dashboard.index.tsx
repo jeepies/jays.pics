@@ -57,7 +57,9 @@ export default function Dashboard() {
     <div className="flex h-screen">
       <main className="flex-1 p-8 overflow-y-auto">
         {/* <div className="flex items-center justify-between mb-8"> */}
-        <h1 className="text-2xl font-bold py-2">Welcome, <span className="text-purple-500">{user.username}</span>!</h1>
+        <h1 className="text-2xl font-bold py-2">
+          Welcome, <span className="text-purple-500">{user.username}</span>!
+        </h1>
         {/* <ThemeToggle />
         </div> */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -154,23 +156,26 @@ export default function Dashboard() {
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {user.images.slice(Math.max(user.images.length - 5, 0)).reverse().map((image) => (
-            <Card key={image.id}>
-              <CardContent className="p-2">
-                <img
-                  src={`/i/${image.id}/raw`}
-                  alt="Image"
-                  className="w-full h-24 object-cover rounded-md"
-                />
-                <p className="mt-2 text-sm font-medium truncate">
-                  {image.display_name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(image.created_at).toLocaleDateString()}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {user.images
+            .slice(Math.max(user.images.length - 5, 0))
+            .reverse()
+            .map((image) => (
+              <Card key={image.id}>
+                <CardContent className="p-2">
+                  <img
+                    src={`/i/${image.id}/raw`}
+                    alt="Image"
+                    className="w-full h-24 object-cover rounded-md"
+                  />
+                  <p className="mt-2 text-sm font-medium truncate">
+                    {image.display_name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(image.created_at).toLocaleDateString()}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
         </div>
         <Button asChild className="mt-6" variant="outline">
           <Link to="/dashboard/images">

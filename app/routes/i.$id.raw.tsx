@@ -14,11 +14,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const s3Image = await get(`${user!.id}/${image.id}`);
 
     return new Response(s3Image, {
-        headers: {
-            "Content-Type": image.type,
-            "Cache-Control": "public, immutable, no-transform, s-maxage=31536000, max-age=31536000",
-        }
-    })
+      headers: {
+        "Content-Type": image.type,
+        "Cache-Control":
+          "public, immutable, no-transform, s-maxage=31536000, max-age=31536000",
+      },
+    });
   } catch {}
 
   return null;

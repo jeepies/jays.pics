@@ -15,7 +15,7 @@ const schema = z.object({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userID")) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
   const user = await getUserBySession(session);
 
   const formData = await request.formData();

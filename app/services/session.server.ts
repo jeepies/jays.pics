@@ -35,6 +35,7 @@ export async function getUserByID(id: string) {
       username: true,
       images: true,
       created_at: true,
+      badges: true,
     },
   });
 }

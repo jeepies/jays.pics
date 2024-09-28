@@ -128,9 +128,11 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  const referralsAlreadyUsed = (await prisma.referral.findMany({where: { referrer_id: referrer.id }})).length;
+  const referralsAlreadyUsed = (
+    await prisma.referral.findMany({ where: { referrer_id: referrer.id } })
+  ).length;
 
-  if(referralsAlreadyUsed === referrer.referral_limit) {
+  if (referralsAlreadyUsed === referrer.referral_limit) {
     return {
       payload,
       formErrors: [],

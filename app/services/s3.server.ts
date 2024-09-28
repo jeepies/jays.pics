@@ -1,8 +1,5 @@
-import {
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { Upload } from '@aws-sdk/lib-storage'
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "stream";
 
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
@@ -19,8 +16,8 @@ const S3 = new S3Client({
     secretAccessKey: STORAGE_SECRET,
     accessKeyId: STORAGE_ACCESS_KEY,
   },
-  region: STORAGE_REGION
-})
+  region: STORAGE_REGION,
+});
 
 export async function uploadToS3(file: File, filename: string) {
   try {
@@ -32,16 +29,18 @@ export async function uploadToS3(file: File, filename: string) {
         Key: filename,
         Body: file.stream(),
       },
-    })
-    
+    });
+
     const res = await upload.done();
     return res;
-  } catch(err) {
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
 }
 
 export async function get(key: string) {
-  const res = await fetch(`https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`);
+  const res = await fetch(
+    `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`
+  );
   return await res.blob();
 }

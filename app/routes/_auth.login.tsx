@@ -80,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  if(result.data.username === "system") {
+  if (result.data.username === "system") {
     return {
       payload,
       formErrors: [],
@@ -88,7 +88,7 @@ export async function action({ request }: ActionFunctionArgs) {
         username: "Invalid account",
         password: "",
       },
-    }
+    };
   }
 
   const user = await prisma.user.findFirst({

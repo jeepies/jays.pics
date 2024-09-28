@@ -83,7 +83,9 @@ export default function Referrals() {
                   return (
                     <TableRow>
                       <TableCell className="font-medium">
-                        <a href={`/profile/${referral.referred_id}`}>{referral.referred_id}</a>
+                        <a href={`/profile/${referral.referred_id}`}>
+                          {referral.referred_id}
+                        </a>
                       </TableCell>
                       <TableCell className="text-right">
                         {new Date(referral.created_at).toLocaleDateString()}

@@ -16,7 +16,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json({ success: false, errors: result.error });
   }
 
-  const image = result.data.image
+  const image = result.data.image;
 
   const url = new URL(request.url);
   const paramEntries = Object.fromEntries(url.searchParams.entries());
@@ -26,7 +26,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
       success: false,
       message: "Upload key is not set",
     });
-
 
   const user = await prisma.user.findFirst({
     where: { upload_key: paramEntries.upload_key },
@@ -39,6 +38,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
+  if (user.space_used + image.size > user.max_space) {
+    return json({
+      success: false,
+      message: "When uploading this image, your allocated space was exceeded.",
+    });
+  }
+
   const dbImage = await prisma.image.create({
     data: {
       display_name: image.name,
@@ -48,9 +54,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     },
   });
 
-  const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { space_used: user.space_used + image.size },
+  });
+
+  const response = await uploadToS3(
+    result.data.image,
+    `${user.id}/${dbImage.id}`
+  );
   if (response?.$metadata.httpStatusCode === 200) {
-    return true;
+    return json({
+      success: true,
+    });
   }
 
   return null;

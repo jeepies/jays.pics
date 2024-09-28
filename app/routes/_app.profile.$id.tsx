@@ -1,8 +1,4 @@
-import {
-  redirect,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-} from "@remix-run/node";
+import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import {
@@ -23,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -33,7 +30,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await getUserByID(id);
   const referrals = await getAllReferrals(id);
 
-  if (!user) return redirect(`/profile/${session.get("userID")}`); // Who the fuck wrote this piece of shit???
+  if (!user) return redirect(`/profile/${session.get("userID")}`);
+  // Who the fuck wrote this piece of shit???
   // fuck you @occorune that code does its job....
 
   return { user, referrals };
@@ -63,6 +61,11 @@ export default function Profile() {
                 <CalendarIcon className="mr-1 inline-block h-4 w-4" />
                 Joined {new Date(user.created_at).toLocaleDateString()}
               </p>
+              <div className="mt-2">
+                {user.badges.split(",").map((badge) => (
+                  <Badge className="mr-2">{badge}</Badge>
+                ))}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -108,7 +111,8 @@ export default function Profile() {
                     {image.display_name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()} at {new Date(image.created_at).toLocaleTimeString()}
+                    {new Date(image.created_at).toLocaleDateString()} at
+                    {new Date(image.created_at).toLocaleTimeString()}
                   </p>
                 </CardContent>
               </Card>
