@@ -79,7 +79,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (response?.$metadata.httpStatusCode === 200) {
     return json({
       success: true,
-      url: `${process.env.BASE_URL}/i/${dbImage.id}`
+      url: `${process.env.BASE_URL}/i/${dbImage.id}/`
     });
   }
 
