@@ -20,6 +20,7 @@ import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { prisma } from "~/services/database.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -134,7 +135,7 @@ export default function Profile() {
               </p>
               <p className="mt-2">
                 They have uploaded {user.images.length} images and have{" "}
-                {referrals.length} referrals.
+                {referrals.length} referral(s).
               </p>
 
               <Form method="POST" action="/profile/comment">
