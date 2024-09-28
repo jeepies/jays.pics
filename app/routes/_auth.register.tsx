@@ -145,6 +145,17 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const hashedPassword = bcrypt.hashSync(result.data.password, 10);
+
+  const count = await prisma.user.count();
+
+  let badges;
+  if (count < 100) {
+    badges = JSON.stringify([
+      { name: "user", text: "User" },
+      { name: "early", text: "Early" },
+    ]);
+  }
+
   const user = await prisma.user.create({
     data: {
       username: result.data.username,
@@ -156,10 +167,11 @@ export async function action({ request }: ActionFunctionArgs) {
         create: {},
       },
       last_login_at: new Date(),
+      badges: badges,
     },
   });
 
-  console.log(`${referrer.id} has referred ${user.id}`)
+  console.log(`${referrer.id} has referred ${user.id}`);
 
   await prisma.referral.create({
     data: {

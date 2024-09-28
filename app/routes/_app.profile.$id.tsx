@@ -28,7 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const id = params.id ?? session.get("userID");
 
   const user = await getUserByID(id);
-  const referrals = await getAllReferrals(id);
+  const referrals = await getAllReferrals(user!.referrer_profile!.id);
 
   if (!user) return redirect(`/profile/${session.get("userID")}`);
   // Who the fuck wrote this piece of shit???
@@ -103,7 +103,7 @@ export default function Profile() {
               <Card key={image.id}>
                 <CardContent className="p-2">
                   <img
-                    src={`/api/images/${image.id}`}
+                    src={`/i/${image.id}/raw`}
                     alt="Image"
                     className="aspect-square w-full rounded-md object-cover"
                   />

@@ -34,7 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
-  const referrals = await getAllReferrals(user?.id);
+  const referrals = await getAllReferrals(user!.referrer_profile!.id);
 
   return { user, referrals };
 }

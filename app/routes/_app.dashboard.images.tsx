@@ -31,13 +31,13 @@ export default function Images() {
 
   return (
     <>
-      {/* {images.map((image) => (
+      {images.map((image) => (
         <Card key={image.id}>
           <CardContent className="p-2">
             <img
-              src={`/api/images/${image.id}`}
+              src={`/i/${image.id}/raw`}
               alt={image.display_name}
-              className="aspect-square w-full rounded-md object-cover"
+              className="aspect-square rounded-md object-cover h-12"
             />
             <p className="mt-2 truncate text-sm font-medium">
               {image.display_name}
@@ -47,7 +47,7 @@ export default function Images() {
             </p>
           </CardContent>
         </Card>
-      ))} */}
+      ))}
     </>
   );
 }

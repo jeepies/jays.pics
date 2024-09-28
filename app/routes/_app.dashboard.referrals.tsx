@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(session);
 
   const referrals = await prisma.referral.findMany({
-    where: { referrer_id: user!.id },
+    where: { referrer_id: user!.referrer_profile?.id },
   });
 
   return await { data: { referrals: referrals }, user };

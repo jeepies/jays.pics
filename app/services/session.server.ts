@@ -36,6 +36,7 @@ export async function getUserByID(id: string) {
       images: true,
       created_at: true,
       badges: true,
+      referrer_profile: true,
     },
   });
 }
