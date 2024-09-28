@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
 import { SidebarAdmin } from "~/components/ui/sidebar-admin";
 import {
@@ -6,6 +6,13 @@ import {
   getSession,
   getUserBySession,
 } from "~/services/session.server";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Admin Dashboard | jays.host" },
+    { name: "description", content: "Administration Dashboard" },
+  ];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));

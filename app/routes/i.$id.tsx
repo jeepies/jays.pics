@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { MetaFunction, useLoaderData } from "@remix-run/react";
+import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 
@@ -7,6 +8,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
   const uploader = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
+    select: {
+      username: true,
+      upload_preferences: true,
+      space_used: true,
+      max_space: true,
+    }
   });
 
   const session = await getSession(request.headers.get("Cookie"));
@@ -40,6 +47,32 @@ export default function Image() {
 }
 
 // TODO
-// export const meta: MetaFunction<typeof loader> = ({ data }) => {
-//   return [{ title: `${data?.data.image?.display_name} | jays.host ` }, { author: `${data?.user?.upload_preferences?.embed_author}` }];
-// };
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data)
+    return [
+      { title: `Image | jays.host ` },
+      { author: `Hosted with 🩵 at https://jays.pics` },
+    ];
+
+  // TODO translate bytes to human readable
+  const dictionary = {
+    "image.name": data.data.image?.display_name,
+    "image.size_bytes": data.data.image?.size,
+    "image.size": data.data.image?.size,
+    "image.created_at": data.data.image?.created_at,
+
+    "uploader.name": data.data.uploader?.username,
+    "uploader.storage_used_bytes": data.data.uploader?.space_used,
+    "uploader.storage_used": data.data.uploader?.space_used,
+    "uploader.total_storage_bytes": data.data.uploader?.max_space,
+    "uploader.total_storage": data.data.uploader?.max_space,
+  };
+
+  const title = templateReplacer(data?.data.uploader?.upload_preferences?.embed_title ?? "", dictionary)
+  const author = templateReplacer(data?.data.uploader?.upload_preferences?.embed_author ?? "", dictionary)
+
+  return [
+    { title: title },
+    { author: author },
+  ];
+};

@@ -14,8 +14,6 @@ export async function loader() {
       "uploader.storage_used": "Gets the human-readable uploader's storage used",
       "uploader.total_storage_bytes": "Gets the uploader's total storage capacity",
       "uploader.total_storage": "Gets the human-readable uploader's total storage capacity",
-
-      "random": "Gets a random number (0-100)",
     },
   });
 }
