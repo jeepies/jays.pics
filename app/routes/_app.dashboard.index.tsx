@@ -150,7 +150,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Recent Uploads</h2>
           <Button asChild>
-            <Link to="/upload">
+            <Link to="/dashboard/upload">
               <Upload className="mr-2 h-4 w-4" /> Upload New Image
             </Link>
           </Button>

@@ -23,6 +23,7 @@ export async function getUserBySession(session: Session) {
       referrer_profile: true,
       upload_preferences: true,
       is_admin: true,
+      upload_key: true,
     },
   });
 }

@@ -1,7 +1,22 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
+
+// TODO
+// export const meta: MetaFunction<typeof loader> = ({data}) => {
+//   if(!data) return [{title: "What?"}]
+//   return [
+//     {
+//       property: "og:title",
+//       content: data!.data.image!.display_name,
+//     },
+//     {
+//       property: "image",
+//       content: `${process.env.BASE_URL}/i/${data!.data.image!.id}/raw`
+//     },
+//   ];
+// };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
@@ -10,7 +25,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const session = await getSession(request.headers.get("Cookie"));
-  const user = (await getUserBySession(session)) ?? {};
+  let user;
+  if (session.get("userId")) {
+    user = await getUserBySession(session);
+  }
 
   return { data: { image: image, uploader: uploader }, user };
 }

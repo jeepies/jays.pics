@@ -1,10 +1,18 @@
 import {
   ActionFunctionArgs,
   json,
+  LoaderFunctionArgs,
+  redirect,
 } from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
+import {
+  destroySession,
+  getSession,
+  getUserBySession,
+} from "~/services/session.server";
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -84,4 +92,39 @@ export async function action({ request }: ActionFunctionArgs) {
   return json({
     success: false,
   });
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if (!session.has("userID")) return redirect("/");
+
+  const user = await getUserBySession(session);
+
+  if (user === null)
+    return redirect("/", {
+      headers: {
+        "Set-Cookie": await destroySession(session),
+      },
+    });
+
+  return { user };
+}
+
+export default function Upload() {
+  const { user } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <Form
+        method="POST"
+        action={`/upload?upload_key=${user.upload_key}`}
+        encType="multipart/form-data"
+      >
+        <label htmlFor="img-field">Image to upload</label>
+        <input id="img-field" type="file" name="image" accept="image/*" />
+        <button type="submit">Upload</button>
+      </Form>
+    </>
+  );
 }
