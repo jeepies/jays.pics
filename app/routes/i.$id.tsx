@@ -69,18 +69,32 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     dictionary
   );
 
+  const description = templateReplacer(
+    data.data.uploader?.upload_preferences?.embed_author ?? "",
+    dictionary
+  );
+
   return [
     { title: data.data.image?.display_name },
     { property: "og:title", content: title },
-    { property: "og:description", content: `og:description lol` },
-    { property: "og:type", content: "website"},
-    { property: "og:url", content: `https://jays.pics/i/${data.data.image?.id}` },
-    { property: "og:image", content: `https://jays.pics/i/${data.data.image?.id}/raw` },
-    { property: "theme-color", cotent: data.data.uploader?.upload_preferences?.embed_colour},
+    { property: "og:description", content: "" },
+    { property: "og:type", content: "website" },
+    {
+      property: "og:url",
+      content: `https://jays.pics/i/${data.data.image?.id}`,
+    },
+    {
+      property: "og:image",
+      content: `https://jays.pics/i/${data.data.image?.id}/raw`,
+    },
+    {
+      name: "theme-color",
+      content: data.data.uploader?.upload_preferences?.embed_colour,
+    },
     {
       tagName: "link",
       type: "application/json+oembed",
-      href: `/i/${data.data.image!.id}/oembed.json`,
+      href: `https://jays.pics/i/${data.data.image!.id}/oembed.json`,
     },
     { name: "twitter:card", content: "summary_large_image" },
   ];

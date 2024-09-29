@@ -41,6 +41,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     author_url: `https://jays.pics/profile/${uploader?.id}`,
     provider_name: "Hosted with 🩵 at jays.pics",
     provider_url: "https://jays.pics",
-    type: "rich",
+    type: "photo",
   });
 }

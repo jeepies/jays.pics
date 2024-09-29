@@ -11,6 +11,10 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Dashboard | jays.host" },
     { name: "description", content: "Invite-only Image Hosting" },
+    {
+      name: "theme-color",
+      content: "#fd79a8",
+    },
   ];
 };
 
