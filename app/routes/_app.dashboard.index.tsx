@@ -18,6 +18,7 @@ import {
   getUserBySession,
 } from "~/services/session.server";
 import { prisma } from "~/services/database.server";
+import prettyBytes from 'pretty-bytes';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -109,7 +110,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {(totalStorage / 1000000).toFixed(2)} MB
+                {prettyBytes(totalStorage)}
               </div>
               <Progress
                 value={(totalStorage / storageLimit) * 100}
@@ -117,7 +118,7 @@ export default function Dashboard() {
               />
               <p className="text-xs text-muted-foreground mt-2">
                 {((totalStorage / storageLimit) * 100).toFixed(2)}% of{" "}
-                {(storageLimit / 1000000).toFixed(0)} MB limit
+                {prettyBytes(storageLimit)} limit
               </p>
             </CardContent>
           </Card>

@@ -1,4 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
+import prettyBytes from "pretty-bytes";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 
@@ -18,16 +19,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
 
   const dictionary = {
-    "image.name": image.display_name,
+    "image.name": image?.display_name,
     "image.size_bytes": image?.size,
-    "image.size": image?.size,
+    "image.size": prettyBytes(image!.size),
     "image.created_at": image?.created_at,
 
     "uploader.name": uploader?.username,
     "uploader.storage_used_bytes": uploader?.space_used,
-    "uploader.storage_used": uploader?.space_used,
+    "uploader.storage_used": prettyBytes(uploader!.space_used),
     "uploader.total_storage_bytes": uploader?.max_space,
-    "uploader.total_storage": uploader?.max_space,
+    "uploader.total_storage": prettyBytes(uploader!.max_space),
   };
 
   const author = templateReplacer(

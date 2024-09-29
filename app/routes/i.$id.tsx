@@ -3,6 +3,7 @@ import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
+import prettyBytes from 'pretty-bytes';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
@@ -54,14 +55,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   const dictionary = {
     "image.name": data.data.image?.display_name,
     "image.size_bytes": data.data.image?.size,
-    "image.size": data.data.image?.size,
+    "image.size": prettyBytes(data.data.image!.size),
     "image.created_at": data.data.image?.created_at,
 
     "uploader.name": data.data.uploader?.username,
     "uploader.storage_used_bytes": data.data.uploader?.space_used,
-    "uploader.storage_used": data.data.uploader?.space_used,
+    "uploader.storage_used": prettyBytes(data.data.uploader!.space_used),
     "uploader.total_storage_bytes": data.data.uploader?.max_space,
-    "uploader.total_storage": data.data.uploader?.max_space,
+    "uploader.total_storage": prettyBytes(data.data.uploader!.max_space),
   };
 
   const title = templateReplacer(

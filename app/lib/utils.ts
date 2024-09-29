@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { string } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,14 +19,20 @@ export function templateReplacer(
   const regex = /(?:{{[a-z_.]+}})/gi;
   let result = "";
 
-  regex.exec(stringWithTemplates)?.forEach((match) => {
-    const key = match.replace("{{", "").replace("}}", "");
-    const value: string = data[key] ?? "";
+  const matches = [...stringWithTemplates.matchAll(regex)];
 
-    result = stringWithTemplates.replace(match, value);
+  console.log(matches)
+  matches.forEach((match) => {
+    const s_match = match.toString();
+    const key = s_match.replace("{{", "").replace("}}", "");
+    const value: string = data[key];
+
+    console.log(`replacing ${s_match} with ${(value === "" || value === undefined) ? s_match : value}`)
+
+    result = stringWithTemplates.replace(s_match, (value === "" || value === undefined) ? s_match : value);
   });
 
-  return result;
+  return result === "" ? stringWithTemplates : result;
 }
 
 export interface DictionaryObject {
