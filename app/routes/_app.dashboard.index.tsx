@@ -50,7 +50,7 @@ export default function Dashboard() {
   const [storageLimit] = useState(1000000000); // 1GB
 
   useEffect(() => {
-    const calculatedStorage = user.images.reduce(
+    const calculatedStorage = images.reduce(
       (acc, image) => acc + image.size,
       0
     );
