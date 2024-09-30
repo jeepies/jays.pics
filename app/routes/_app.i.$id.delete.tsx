@@ -13,7 +13,7 @@ export async function action({ params }: ActionFunctionArgs) {
   });
   await prisma.image.delete({ where: { id: params.id } });
   del(`${image?.uploader.id}/${image?.id}`);
-  return redirect("/");
+  return redirect("/dashboard/images");
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -23,5 +23,5 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
   await prisma.image.delete({ where: { id: params.id } });
   del(`${image?.uploader.id}/${image?.id}`);
-  return redirect("/");
+  return redirect("/dashboard/images");
 }
