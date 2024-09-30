@@ -1,13 +1,18 @@
 import { useLoaderData } from "@remix-run/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { prisma } from "~/services/database.server";
+import prettyBytes from "pretty-bytes";
 
 export async function loader() {
   const users = await prisma.user.count();
   const images = await prisma.image.count();
-  const imagesWithoutDeleted = await prisma.image.count({ where: { deleted_at: null }});
+  const bytesUsed = (await prisma.image.findMany({ select: { size: true}})).reduce((acc, val) => acc + val.size, 0);
 
-  return { users, images, imagesWithoutDeleted };
+  const imagesWithoutDeleted = await prisma.image.count({
+    where: { deleted_at: null },
+  });
+
+  return { users, images, imagesWithoutDeleted, bytesUsed };
 }
 
 export default function AdminDashboard() {
@@ -29,7 +34,19 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium">Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.imagesWithoutDeleted} ({data.images} total)</div>
+            <div className="text-2xl font-bold">
+              {data.imagesWithoutDeleted} ({data.images} total)
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Storage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {prettyBytes(data.bytesUsed)}
+            </div>
           </CardContent>
         </Card>
       </div>
