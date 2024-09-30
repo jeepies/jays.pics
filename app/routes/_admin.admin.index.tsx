@@ -5,8 +5,9 @@ import { prisma } from "~/services/database.server";
 export async function loader() {
   const users = await prisma.user.count();
   const images = await prisma.image.count();
+  const imagesWithoutDeleted = await prisma.image.count({ where: { deleted_at: null }});
 
-  return { users, images };
+  return { users, images, imagesWithoutDeleted };
 }
 
 export default function AdminDashboard() {
@@ -28,7 +29,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium">Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.images}</div>
+            <div className="text-2xl font-bold">{data.imagesWithoutDeleted} ({data.images} total)</div>
           </CardContent>
         </Card>
       </div>
