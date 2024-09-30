@@ -37,12 +37,12 @@ model User {
 
   referrals Referral[]
 
+  donated_urls URL[]
+
   last_login_at DateTime @default(now())
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   deleted_at  DateTime?
-  
-  urls URL[]
 }
 
 model ReferrerProfile {
@@ -66,6 +66,7 @@ model UploaderPreferences {
   embed_title  String @default("{{image.name}}")
   embed_author String @default("Uploaded by {{uploader.name}}")
   embed_colour String @default("#252525")
+
   urls String @default("[\"jays.pics\"]")
 }
 
@@ -145,8 +146,8 @@ model Log {
 
 model URL {
   id         String   @unique @default(cuid())
-  donater_id String
-  donater User @relation(fields: [donater_id], references: [id])
+  donator_id String
+  donator User @relation(fields: [donator_id], references: [id])
   url String
   public Boolean
   connected Boolean

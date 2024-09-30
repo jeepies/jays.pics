@@ -22,19 +22,19 @@ async function main() {
   await prisma.uRL.createMany({
     data: [
       {
-        donater_id: system.id,
+        donator_id: system.id,
         url: "jays.pics",
         public: true,
         connected: true
       },
       {
-        donater_id: system.id,
+        donator_id: system.id,
         url: "femboys.wiki",
         public: true,
         connected: true
       },
       {
-        donater_id: system.id,
+        donator_id: system.id,
         url: "i-dont.top",
         public: true,
         connected: true

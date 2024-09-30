@@ -1,18 +1,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { useAppLoaderData } from "./_app";
+import { useAppLoaderData } from "../_app";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Label } from "~/components/ui/label";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 import { del } from "~/services/s3.server";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
+import { DataTable } from "./data-table";
+import { columns } from "./columns";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await prisma.uRL.findMany({
+    select: {
+      url: true,
+      donator: {
+        select: {
+          username: true,
+        },
+      },
+    },
+  });
+}
 
 export default function UploadSettings() {
   const data = useAppLoaderData();
+  const urls = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+
+  const selected = JSON.parse(data!.user.upload_preferences!.urls);
 
   return (
     <>
@@ -37,7 +55,12 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input className="hidden" value={"update_embed"} name="type" readOnly />
+              <Input
+                className="hidden"
+                value={"update_embed"}
+                name="type"
+                readOnly
+              />
               <Label htmlFor="embed_title">Title</Label>
               <Input
                 className="my-2"
@@ -45,6 +68,7 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_title}
               />
               <div className="text-red-500 text-sm">
+                { /* @ts-ignore */ }
                 {actionData?.fieldErrors.embed_title}
               </div>
               <Label htmlFor="embed_author">Author</Label>
@@ -54,6 +78,7 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_author}
               />
               <div className="text-red-500 text-sm">
+              { /* @ts-ignore */ }
                 {actionData?.fieldErrors.embed_author}
               </div>
               <Label htmlFor="embed_colour">Colour</Label>
@@ -63,8 +88,27 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_colour}
               />
               <div className="text-red-500 text-sm">
+              { /* @ts-ignore */ }
                 {actionData?.fieldErrors.embed_colour}
               </div>
+              <Button type="submit">Save</Button>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Domains</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form method="post">
+              <Input
+                className="hidden"
+                value={"update_urls"}
+                name="type"
+                readOnly
+              />
+              <DataTable columns={columns} data={urls} selected={selected} />
               <Button type="submit">Save</Button>
             </Form>
           </CardContent>
@@ -83,13 +127,16 @@ const embedUpdateSchema = z.object({
     .regex(/^#/, { message: "Must be a valid hex colour" }),
 });
 
+const urlUpdateSchema = z.object({
+  selected: z.string(),
+})
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   let result;
 
   const requestType = formData.get("type");
-  formData.delete("type");
 
   const user = await getUserBySession(
     await getSession(request.headers.get("Cookie"))
@@ -116,5 +163,37 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
   }
+
+  if (requestType === "update_urls") {
+    result = urlUpdateSchema.safeParse(payload)
+    if (!result.success) {
+      const error = result.error.flatten();
+      return {
+        payload,
+        formErrors: error.formErrors,
+        fieldErrors: error.fieldErrors,
+      };
+    }
+
+    const urls = await prisma.uRL.findMany({
+      select: {
+        url: true,
+      },
+    })
+
+    const selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
+      return urls[+(val)].url;
+    });
+
+    await prisma.uploaderPreferences.update({
+      where: {
+        userId: user!.id,
+      },
+      data: {
+        urls: JSON.stringify(selected)
+      },
+    });
+  }
+
   return null;
 }

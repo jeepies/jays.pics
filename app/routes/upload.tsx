@@ -40,6 +40,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const user = await prisma.user.findFirst({
     where: { upload_key: paramEntries.upload_key },
+    select: {
+      id: true,
+      space_used: true,
+      max_space: true,
+      upload_preferences: true
+    }
   });
 
   if (!user) {
@@ -84,9 +90,15 @@ export async function action({ request }: ActionFunctionArgs) {
     `${user.id}/${dbImage.id}`
   );
   if (response?.$metadata.httpStatusCode === 200) {
+
+    const urls = JSON.parse(user.upload_preferences!.urls)
+    let url;
+    if(urls.length === 1) url = urls[0]
+    else url = urls[Math.floor(Math.random()*urls.length)]
+
     return json({
       success: true,
-      url: `${process.env.BASE_URL}/i/${dbImage.id}/`,
+      url: `https://${url}/i/${dbImage.id}/`,
     });
   }
 
