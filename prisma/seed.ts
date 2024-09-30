@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.user.create({
+  const system = await prisma.user.create({
     data: {
       username: "System",
       password: "",
@@ -19,6 +19,28 @@ async function main() {
       content: "Welcome to jays.pics :)",
     },
   });
+  await prisma.uRL.createMany({
+    data: [
+      {
+        donater_id: system.id,
+        url: "jays.pics",
+        public: true,
+        connected: true
+      },
+      {
+        donater_id: system.id,
+        url: "femboys.wiki",
+        public: true,
+        connected: true
+      },
+      {
+        donater_id: system.id,
+        url: "i-dont.top",
+        public: true,
+        connected: true
+      },
+    ]
+  })
 }
 
 main()
