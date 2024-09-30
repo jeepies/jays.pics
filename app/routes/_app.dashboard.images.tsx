@@ -43,7 +43,7 @@ export default function Images() {
               className="aspect-square rounded-md object-cover h-12"
             />
             <p className="mt-2 truncate text-sm font-medium">
-              {image.display_name}
+              <a href={`/i/${image.id}`}>{image.display_name}</a>
             </p>
             <p className="text-xs text-muted-foreground">
               {new Date(image.created_at).toLocaleDateString()}
