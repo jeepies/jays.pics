@@ -21,7 +21,7 @@ import { Button } from "~/components/ui/button";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "jays.host" },
+    { title: "jays.pics" },
     { name: "description", content: "Invite-only Image Hosting" },
   ];
 };
