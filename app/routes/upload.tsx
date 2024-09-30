@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { ActionFunctionArgs, json, MetaFunction, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
@@ -6,6 +6,17 @@ import { uploadToS3 } from "~/services/s3.server";
 const schema = z.object({
   image: z.instanceof(File),
 });
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Upload | jays.host" },
+    { name: "description", content: "Administration Dashboard" },
+    {
+      name: "theme-color",
+      content: "#f472b6",
+    },
+  ];
+};
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();

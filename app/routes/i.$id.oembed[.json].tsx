@@ -1,7 +1,18 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import prettyBytes from "pretty-bytes";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "oEmbed | jays.host" },
+    { name: "description", content: "Administration Dashboard" },
+    {
+      name: "theme-color",
+      content: "#f472b6",
+    },
+  ];
+};
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });

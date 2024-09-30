@@ -11,6 +11,10 @@ export const meta: MetaFunction = () => {
   return [
     { title: "Admin Dashboard | jays.host" },
     { name: "description", content: "Administration Dashboard" },
+    {
+      name: "theme-color",
+      content: "#f472b6",
+    },
   ];
 };
 

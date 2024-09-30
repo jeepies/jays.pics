@@ -13,7 +13,7 @@ export const meta: MetaFunction = () => {
     { name: "description", content: "Invite-only Image Hosting" },
     {
       name: "theme-color",
-      content: "#fd79a8",
+      content: "#f472b6",
     },
   ];
 };

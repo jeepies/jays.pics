@@ -1,7 +1,17 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import fs from "fs";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { prisma } from "~/services/database.server";
 import { get } from "~/services/s3.server";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Image | jays.host" },
+    { name: "description", content: "Administration Dashboard" },
+    {
+      name: "theme-color",
+      content: "#f472b6",
+    },
+  ];
+};
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
