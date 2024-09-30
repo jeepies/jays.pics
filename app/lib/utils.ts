@@ -17,22 +17,18 @@ export function templateReplacer(
   data: DictionaryObject
 ) {
   const regex = /(?:{{[a-z_.]+}})/gi;
-  let result = "";
 
   const matches = [...stringWithTemplates.matchAll(regex)];
 
-  console.log(matches)
   matches.forEach((match) => {
     const s_match = match.toString();
     const key = s_match.replace("{{", "").replace("}}", "");
     const value: string = data[key];
 
-    console.log(`replacing ${s_match} with ${(value === "" || value === undefined) ? s_match : value}`)
-
-    result = stringWithTemplates.replace(s_match, (value === "" || value === undefined) ? s_match : value);
+    stringWithTemplates = stringWithTemplates.replace(s_match, (value === "" || value === undefined) ? s_match : value);
   });
 
-  return result === "" ? stringWithTemplates : result;
+  return stringWithTemplates
 }
 
 export interface DictionaryObject {
