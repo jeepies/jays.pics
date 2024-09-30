@@ -40,8 +40,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
-  console.log(images)
-
   return { user, referrals, images };
 }
 
@@ -163,10 +161,10 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {images
-            .slice(Math.max(user.images.length - 5, 0))
+            .slice(Math.max(images.length - 5, 0))
             .reverse()
-            .map((image) => (
-              <Card key={image.id}>
+            .map((image) => {
+              return <Card key={image.id}>
                 <CardContent className="p-2">
                   <img
                     src={`/i/${image.id}/raw`}
@@ -180,8 +178,8 @@ export default function Dashboard() {
                     {new Date(image.created_at).toLocaleDateString()}
                   </p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>;
+            })}
         </div>
         <Button asChild className="mt-6" variant="outline">
           <Link to="/dashboard/images">
