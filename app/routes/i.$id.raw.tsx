@@ -8,7 +8,7 @@ export const meta: MetaFunction = () => {
     { name: "description", content: "Administration Dashboard" },
     {
       name: "theme-color",
-      content: "#f472b6",
+      content: "#e05cd9",
     },
   ];
 };

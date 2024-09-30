@@ -62,7 +62,7 @@ export default function Dashboard() {
       <main className="flex-1 p-8 overflow-y-auto">
         {/* <div className="flex items-center justify-between mb-8"> */}
         <h1 className="text-2xl font-bold py-2">
-          Welcome, <span className="text-pink-400">{user.username}</span>!
+          Welcome, <span className="text-primary">{user.username}</span>!
         </h1>
         {/* <ThemeToggle />
         </div> */}
