@@ -182,7 +182,7 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {images
-            .slice(Math.max(images.length - 5, 0))
+            .slice(Math.max(images.length - 10, 0))
             .reverse()
             .map((image) => {
               return (
