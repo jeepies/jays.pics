@@ -21,7 +21,6 @@ interface SidebarProps {
   className?: string;
   user: {
     username: string;
-    images: any[];
     is_admin: boolean;
   };
 }

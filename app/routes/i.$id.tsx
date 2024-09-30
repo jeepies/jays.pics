@@ -1,12 +1,16 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 import prettyBytes from "pretty-bytes";
+import { Sidebar } from "~/components/ui/sidebar";
+import { SidebarGuest } from "~/components/ui/sidebar-guest";
+import { Card, CardContent } from "~/components/ui/card";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
+  if (!image) return redirect("/");
   const uploader = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
     select: {
@@ -18,10 +22,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const session = await getSession(request.headers.get("Cookie"));
-  let user;
-  if (session.get("userId")) {
-    user = await getUserBySession(session);
-  }
+  const user = session.has("userID")
+    ? await getUserBySession(session)
+    : { id: "", username: "Guest", is_admin: false };
 
   return { data: { image: image, uploader: uploader }, user };
 }
@@ -29,21 +32,49 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function Image() {
   const { data, user } = useLoaderData<typeof loader>();
 
+  // {data.image !== null ? (
+  //   <>
+  //     <img src={`/i/${data.image.id}/raw`} />
+  //     {user !== null ? (
+  //       <>comment box with comment ability</>
+  //     ) : (
+  //       <>comment box, but no comment ability :(</>
+  //     )}
+  //   </>
+  // ) : (
+  //   <>no image</>
+  // )}
+
   return (
-    <>
-      {data.image !== null ? (
-        <>
-          <img src={`/i/${data.image.id}/raw`} />
-          {user !== null ? (
-            <>comment box with comment ability</>
-          ) : (
-            <>comment box, but no comment ability :(</>
-          )}
-        </>
+    <div className="flex h-screen overflow-hidden">
+      {user!.id !== "" ? (
+        <Sidebar
+          user={{ username: user!.username, is_admin: user!.is_admin }}
+          className="border-r"
+        />
       ) : (
-        <>no image</>
+        <SidebarGuest className="border-r" />
       )}
-    </>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full h-2/3">
+          <CardContent>
+          <img
+              src={`/i/${data.image.id}/raw`}
+            />
+          </CardContent>
+        </Card>
+      </div>
+      {/* <div className="flex-grow rounded w-full h-full overflow-auto p-8">
+        <div className="w-full h-full">
+          <div className="w-full h-2/3">
+            <img
+              src={`/i/${data.image.id}/raw`}
+              className="max-h-full max-w-full"
+            />
+          </div>
+        </div>
+      </div> */}
+    </div>
   );
 }
 
