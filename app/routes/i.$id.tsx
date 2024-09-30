@@ -79,7 +79,7 @@ export default function Image() {
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) return [{ title: `Image | jays.host ` }];
+  if (!data) return [{ title: `Image | jays.pics ` }];
 
   const dictionary = {
     "image.name": data.data.image?.display_name,

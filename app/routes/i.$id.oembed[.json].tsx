@@ -5,7 +5,7 @@ import { prisma } from "~/services/database.server";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "oEmbed | jays.host" },
+    { title: "oEmbed | jays.pics" },
     { name: "description", content: "Administration Dashboard" },
     {
       name: "theme-color",

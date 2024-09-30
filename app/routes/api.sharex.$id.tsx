@@ -13,7 +13,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const config = {
     Version: "16.1.0",
-    Name: "jays.host",
+    Name: "jays.pics",
     DestinationType: "ImageUploader, FileUploader",
     RequestMethod: "POST",
     Parameters: {
@@ -21,7 +21,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     },
     Body: "MultipartFormData",
     FileFormName: "image",
-    RequestURL: "https://femboys.wiki/upload",
+    RequestURL: "https://jays.pics/upload",
     URL: "{json:url}",
     ErrorMessage: "{json:message}",
   };

@@ -9,7 +9,7 @@ const schema = z.object({
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Upload | jays.host" },
+    { title: "Upload | jays.pics" },
     { name: "description", content: "Administration Dashboard" },
     {
       name: "theme-color",

@@ -41,7 +41,7 @@ export function SidebarAdmin({ className, user }: SidebarProps) {
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-            jays.host
+            jays.pics
           </h2>
           <Separator className="my-4" />
           <div className="space-y-1">

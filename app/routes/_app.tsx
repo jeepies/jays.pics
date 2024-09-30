@@ -9,7 +9,7 @@ import { Sidebar } from "~/components/ui/sidebar";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Dashboard | jays.host" },
+    { title: "Dashboard | jays.pics" },
     { name: "description", content: "Invite-only Image Hosting" },
     {
       name: "theme-color",

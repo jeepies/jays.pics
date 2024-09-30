@@ -41,6 +41,8 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   deleted_at  DateTime?
+  
+  urls URL[]
 }
 
 model ReferrerProfile {
@@ -64,6 +66,7 @@ model UploaderPreferences {
   embed_title  String @default("{{image.name}}")
   embed_author String @default("Uploaded by {{uploader.name}}")
   embed_colour String @default("#252525")
+  urls String @default("[\"jays.pics\"]")
 }
 
 model Comment {
@@ -138,4 +141,13 @@ model Log {
   id         String   @unique @default(cuid())
   message    String
   created_at DateTime @default(now())
+}
+
+model URL {
+  id         String   @unique @default(cuid())
+  donater_id String
+  donater User @relation(fields: [donater_id], references: [id])
+  url String
+  public Boolean
+  connected Boolean
 }

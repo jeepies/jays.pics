@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Authorization | jays.host" },
+    { title: "Authorization | jays.pics" },
     { name: "description", content: "Invite-only Image Hosting" },
   ];
 };

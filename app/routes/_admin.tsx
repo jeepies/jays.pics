@@ -9,7 +9,7 @@ import {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Admin Dashboard | jays.host" },
+    { title: "Admin Dashboard | jays.pics" },
     { name: "description", content: "Administration Dashboard" },
     {
       name: "theme-color",

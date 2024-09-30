@@ -29,7 +29,7 @@ export default function Help() {
             <CardHeader>
               <CardTitle>On-Site</CardTitle>
               <CardDescription>
-                How to upload images to jays.host on-site
+                How to upload images to jays.pics on-site
               </CardDescription>
             </CardHeader>
             <CardContent>1. click a funny button</CardContent>
@@ -40,7 +40,7 @@ export default function Help() {
             <CardHeader>
               <CardTitle>ShareX</CardTitle>
               <CardDescription>
-                How to set up ShareX to automatically upload to jays.host
+                How to set up ShareX to automatically upload to jays.pics
               </CardDescription>
             </CardHeader>
             <CardContent>
