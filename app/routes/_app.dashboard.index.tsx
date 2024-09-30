@@ -40,6 +40,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
+  console.log(images)
+
   return { user, referrals, images };
 }
 
