@@ -59,11 +59,21 @@ export default function Image() {
         <Card className="w-full h-2/3">
           <CardContent>
           <img
-              src={data.image.type === "image/gif" ? `/i/${data.image.id}/raw.gif` : `/i/${data.image.id}/raw`}
+              src={`/i/${data.image.id}/raw`}
             />
           </CardContent>
         </Card>
       </div>
+      {/* <div className="flex-grow rounded w-full h-full overflow-auto p-8">
+        <div className="w-full h-full">
+          <div className="w-full h-2/3">
+            <img
+              src={`/i/${data.image.id}/raw`}
+              className="max-h-full max-w-full"
+            />
+          </div>
+        </div>
+      </div> */}
     </div>
   );
 }
@@ -100,7 +110,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       property: "og:image",
-      content: `https://jays.pics/i/${data.data.image?.id}/raw`,
+      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'gif' ? '.gif' : ''}`,
     },
     {
       name: "theme-color",
