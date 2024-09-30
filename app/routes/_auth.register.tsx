@@ -170,9 +170,7 @@ export async function action({ request }: ActionFunctionArgs) {
       badges: badges,
     },
   });
-
-  console.log(`${referrer.id} has referred ${user.id}`);
-
+  
   await prisma.referral.create({
     data: {
       referred_id: user.id,
