@@ -20,16 +20,16 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium">Users</CardTitle>
           </CardHeader>
           <CardContent>
-              <div className="text-2xl font-bold">{data.users}</div>
-            </CardContent>
+            <div className="text-2xl font-bold">{data.users}</div>
+          </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Images</CardTitle>
           </CardHeader>
           <CardContent>
-              <div className="text-2xl font-bold">{data.images}</div>
-            </CardContent>
+            <div className="text-2xl font-bold">{data.images}</div>
+          </CardContent>
         </Card>
       </div>
     </>

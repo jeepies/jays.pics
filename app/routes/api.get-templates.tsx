@@ -11,9 +11,12 @@ export async function loader() {
 
       "uploader.name": "Gets the uploader's username",
       "uploader.storage_used_bytes": "Gets the uploader's storage used",
-      "uploader.storage_used": "Gets the human-readable uploader's storage used",
-      "uploader.total_storage_bytes": "Gets the uploader's total storage capacity",
-      "uploader.total_storage": "Gets the human-readable uploader's total storage capacity",
+      "uploader.storage_used":
+        "Gets the human-readable uploader's storage used",
+      "uploader.total_storage_bytes":
+        "Gets the uploader's total storage capacity",
+      "uploader.total_storage":
+        "Gets the human-readable uploader's total storage capacity",
     },
   });
 }

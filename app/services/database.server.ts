@@ -12,7 +12,7 @@ const extendedClient = new PrismaClient().$extends({
             deleted_at: new Date(),
           },
         });
-      }
+      },
     },
     comment: {
       async delete({ where }: { where: { id: string | undefined } }) {
@@ -24,7 +24,7 @@ const extendedClient = new PrismaClient().$extends({
             deleted_at: new Date(),
           },
         });
-      }
+      },
     },
     image: {
       async delete({ where }: { where: { id: string | undefined } }) {
@@ -36,7 +36,7 @@ const extendedClient = new PrismaClient().$extends({
             deleted_at: new Date(),
           },
         });
-      }
+      },
     },
     imageComment: {
       async delete({ where }: { where: { id: string | undefined } }) {
@@ -48,7 +48,7 @@ const extendedClient = new PrismaClient().$extends({
             deleted_at: new Date(),
           },
         });
-      }
+      },
     },
   },
   query: {
@@ -84,7 +84,7 @@ const extendedClient = new PrismaClient().$extends({
         return query(args);
       },
     },
-  }
+  },
 });
 type extendedClientType = typeof extendedClient;
 

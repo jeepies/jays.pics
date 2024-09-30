@@ -90,8 +90,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const requestType = formData.get("type");
   formData.delete("type");
-  
-  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
+
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie"))
+  );
 
   if (requestType === "update_embed") {
     result = embedUpdateSchema.safeParse(payload);
@@ -110,9 +112,9 @@ export async function action({ request }: ActionFunctionArgs) {
       data: {
         embed_author: result.data.embed_author,
         embed_title: result.data.embed_title,
-        embed_colour: result.data.embed_colour
-      }
-    })
+        embed_colour: result.data.embed_colour,
+      },
+    });
   }
   return null;
 }

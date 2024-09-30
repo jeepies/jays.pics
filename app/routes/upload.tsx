@@ -1,8 +1,4 @@
-import {
-  ActionFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
@@ -79,16 +75,16 @@ export async function action({ request }: ActionFunctionArgs) {
   if (response?.$metadata.httpStatusCode === 200) {
     return json({
       success: true,
-      url: `${process.env.BASE_URL}/i/${dbImage.id}/`
+      url: `${process.env.BASE_URL}/i/${dbImage.id}/`,
     });
   }
 
   return json({
     success: false,
-    message: "An unknown error occured."
+    message: "An unknown error occured.",
   });
 }
 
-export async function loader()  {
-    return redirect('/')
+export async function loader() {
+  return redirect("/");
 }

@@ -1,9 +1,9 @@
-import { LinksFunction, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { MetaFunction, useLoaderData } from "@remix-run/react";
 import { templateReplacer } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
-import prettyBytes from 'pretty-bytes';
+import prettyBytes from "pretty-bytes";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
@@ -47,11 +47,9 @@ export default function Image() {
   );
 }
 
-// TODO
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) return [{ title: `Image | jays.host ` }];
 
-  // TODO translate bytes to human readable
   const dictionary = {
     "image.name": data.data.image?.display_name,
     "image.size_bytes": data.data.image?.size,
@@ -67,11 +65,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
   const title = templateReplacer(
     data.data.uploader?.upload_preferences?.embed_title ?? "",
-    dictionary
-  );
-
-  const description = templateReplacer(
-    data.data.uploader?.upload_preferences?.embed_author ?? "",
     dictionary
   );
 

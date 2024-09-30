@@ -35,13 +35,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   // Who the fuck wrote this piece of shit???
   // fuck you @occorune that code does its job....
 
-  const images = await prisma.image.findMany({ where: { uploader_id: id }})
+  const images = await prisma.image.findMany({ where: { uploader_id: id } });
 
   return { user, referrals, images };
 }
 
 export default function Profile() {
-  const { user, referrals, images} = useLoaderData<typeof loader>();
+  const { user, referrals, images } = useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState("images");
 
   return (
@@ -111,7 +111,7 @@ export default function Profile() {
                     className="aspect-square w-full rounded-md object-cover"
                   />
                   <p className="mt-2 truncate text-sm font-medium">
-                  <a href={`/i/${image.id}`}>{image.display_name}</a>
+                    <a href={`/i/${image.id}`}>{image.display_name}</a>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(image.created_at).toLocaleDateString()} at{" "}

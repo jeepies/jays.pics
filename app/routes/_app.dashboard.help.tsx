@@ -8,7 +8,6 @@ import {
 } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
-
 export default function Help() {
   const [reportingActiveTab, setReportingActiveTab] = useState("images");
   const [uploadingActiveTab, setUploadingActiveTab] = useState("onsite");

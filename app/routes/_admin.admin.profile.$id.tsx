@@ -50,9 +50,7 @@ export default function AdminProfile() {
 
       <Card className="mx-auto px-4 py-8">
         <CardTitle>Actions</CardTitle>
-        <CardContent>
-            
-        </CardContent>
+        <CardContent></CardContent>
       </Card>
     </>
   );

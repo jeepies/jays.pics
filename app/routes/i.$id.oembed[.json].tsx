@@ -36,7 +36,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     dictionary
   );
 
-
   return json({
     author_name: author,
     author_url: `https://jays.pics/profile/${uploader?.id}`,

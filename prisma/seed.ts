@@ -10,15 +10,15 @@ async function main() {
       badges: JSON.stringify([{ name: "sys", text: "SYSTEM" }]),
       is_admin: true,
       referrer_profile: {
-        create: {}
-      }
+        create: {},
+      },
     },
   });
   await prisma.announcement.create({
     data: {
-      content: "Welcome to jays.pics :)"
-    }
-  })
+      content: "Welcome to jays.pics :)",
+    },
+  });
 }
 
 main()

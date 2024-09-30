@@ -3,7 +3,7 @@ import { Input } from "~/components/ui/input";
 import { useAppLoaderData } from "./_app";
 
 export default function Settings() {
-  const data = useAppLoaderData()
+  const data = useAppLoaderData();
 
   return (
     <>
@@ -13,10 +13,8 @@ export default function Settings() {
             <CardTitle>Account Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <label>
-              Username:
-            </label>
-            <Input readOnly value={data?.user.username}/>
+            <label>Username:</label>
+            <Input readOnly value={data?.user.username} />
           </CardContent>
         </Card>
       </div>

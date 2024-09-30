@@ -14,6 +14,6 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   server: {
-    host: true
-  }
+    host: true,
+  },
 });

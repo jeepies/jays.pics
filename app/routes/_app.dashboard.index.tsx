@@ -18,7 +18,7 @@ import {
   getUserBySession,
 } from "~/services/session.server";
 import { prisma } from "~/services/database.server";
-import prettyBytes from 'pretty-bytes';
+import prettyBytes from "pretty-bytes";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -36,7 +36,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const referrals = await getAllReferrals(user!.referrer_profile!.id);
 
-  const images = await prisma.image.findMany({ where: { uploader_id: user.id } })
+  const images = await prisma.image.findMany({
+    where: { uploader_id: user.id },
+  });
 
   return { user, referrals, images };
 }

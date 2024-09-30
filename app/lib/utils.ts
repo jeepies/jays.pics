@@ -25,10 +25,13 @@ export function templateReplacer(
     const key = s_match.replace("{{", "").replace("}}", "");
     const value: string = data[key];
 
-    stringWithTemplates = stringWithTemplates.replace(s_match, (value === "" || value === undefined) ? s_match : value);
+    stringWithTemplates = stringWithTemplates.replace(
+      s_match,
+      value === "" || value === undefined ? s_match : value
+    );
   });
 
-  return stringWithTemplates
+  return stringWithTemplates;
 }
 
 export interface DictionaryObject {

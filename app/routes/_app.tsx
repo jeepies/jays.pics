@@ -49,5 +49,5 @@ export default function Application() {
 }
 
 export function useAppLoaderData() {
-  return useRouteLoaderData<typeof loader>("routes/_app")
+  return useRouteLoaderData<typeof loader>("routes/_app");
 }

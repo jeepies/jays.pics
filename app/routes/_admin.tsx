@@ -49,5 +49,5 @@ export default function AdminDashboard() {
 }
 
 export function useAdminLoader() {
-  return useRouteLoaderData<typeof loader>("routes/_admin")
+  return useRouteLoaderData<typeof loader>("routes/_admin");
 }
