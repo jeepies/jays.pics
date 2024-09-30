@@ -32,7 +32,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
-  return { user };
+  const now = Date.now();
+
+  return { user, now };
 }
 
 export default function Application() {

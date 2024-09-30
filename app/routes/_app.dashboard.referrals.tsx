@@ -88,7 +88,7 @@ export default function Referrals() {
               <TableBody>
                 {data.referrals.map((referral) => {
                   return (
-                    <TableRow>
+                    <TableRow key={referral.referred.id}>
                       <TableCell className="font-medium">
                         <a href={`/profile/${referral.referred.id}`}>
                           {referral.referred.username}

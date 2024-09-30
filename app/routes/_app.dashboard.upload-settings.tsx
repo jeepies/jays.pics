@@ -37,7 +37,7 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input className="hidden" value={"update_embed"} name="type" />
+              <Input className="hidden" value={"update_embed"} name="type" readOnly />
               <Label htmlFor="embed_title">Title</Label>
               <Input
                 className="my-2"

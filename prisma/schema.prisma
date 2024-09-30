@@ -10,8 +10,13 @@ datasource db {
 
 model User {
   id       String  @unique @default(cuid())
+
   username String  @unique
+  username_history String @default("[]")
+  username_changed_at DateTime @default(now())
+
   password String
+
   email    String? @unique
 
   is_admin Boolean @default(false)
@@ -30,11 +35,11 @@ model User {
   comments       Comment[]
   image_comments ImageComment[]
 
+  referrals Referral[]
+
   last_login_at DateTime @default(now())
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-
-  Referral Referral[]
   deleted_at  DateTime?
 }
 
@@ -56,8 +61,8 @@ model UploaderPreferences {
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique
 
-  embed_title  String @default("Uploaded by {{uploader.name}}")
-  embed_author String @default("{{image.created_at}}")
+  embed_title  String @default("{{image.name}}")
+  embed_author String @default("Uploaded by {{uploader.name}}")
   embed_colour String @default("#252525")
 }
 

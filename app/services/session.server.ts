@@ -24,6 +24,8 @@ export async function getUserBySession(session: Session) {
       upload_preferences: true,
       is_admin: true,
       upload_key: true,
+      username_changed_at: true,
+      username_history: true,
     },
   });
 }

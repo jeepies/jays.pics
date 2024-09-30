@@ -40,7 +40,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
-
   const announcement = await prisma.announcement.findMany({
     select: {
       content: true,
@@ -51,11 +50,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     take: 1,
   });
 
-  return { user, referrals, images, announcement};
+  return { user, referrals, images, announcement };
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement } = useLoaderData<typeof loader>();
+  const { user, referrals, images, announcement } =
+    useLoaderData<typeof loader>();
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(1000000000); // 1GB
@@ -82,9 +82,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Announcement</CardTitle>
           </CardHeader>
-          <CardContent>
-            {announcement[0].content}
-          </CardContent>
+          <CardContent>{announcement[0].content}</CardContent>
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
