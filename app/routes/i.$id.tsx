@@ -110,7 +110,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       property: "og:image",
-      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'gif' ? '.gif' : ''}`,
+      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'image/gif' ? '.gif' : ''}`,
     },
     {
       name: "theme-color",
