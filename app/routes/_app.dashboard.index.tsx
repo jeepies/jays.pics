@@ -40,11 +40,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
-  return { user, referrals, images };
+
+  const announcement = await prisma.announcement.findMany({
+    select: {
+      content: true,
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    take: 1,
+  });
+
+  return { user, referrals, images, announcement};
 }
 
 export default function Dashboard() {
-  const { user, referrals, images } = useLoaderData<typeof loader>();
+  const { user, referrals, images, announcement } = useLoaderData<typeof loader>();
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(1000000000); // 1GB
@@ -66,6 +77,16 @@ export default function Dashboard() {
         </h1>
         {/* <ThemeToggle />
         </div> */}
+
+        <Card className="my-2">
+          <CardHeader>
+            <CardTitle>Announcement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {announcement[0].content}
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -164,21 +185,23 @@ export default function Dashboard() {
             .slice(Math.max(images.length - 5, 0))
             .reverse()
             .map((image) => {
-              return <Card key={image.id}>
-                <CardContent className="p-2">
-                  <img
-                    src={`/i/${image.id}/raw`}
-                    alt="Image"
-                    className="w-full h-24 object-cover rounded-md"
-                  />
-                  <p className="mt-2 text-sm font-medium truncate">
-                    <a href={`/i/${image.id}`}>{image.display_name}</a>
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>;
+              return (
+                <Card key={image.id}>
+                  <CardContent className="p-2">
+                    <img
+                      src={`/i/${image.id}/raw`}
+                      alt="Image"
+                      className="w-full h-24 object-cover rounded-md"
+                    />
+                    <p className="mt-2 text-sm font-medium truncate">
+                      <a href={`/i/${image.id}`}>{image.display_name}</a>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(image.created_at).toLocaleDateString()}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
             })}
         </div>
         <Button asChild className="mt-6" variant="outline">
