@@ -58,7 +58,7 @@ export default function Dashboard() {
     useLoaderData<typeof loader>();
 
   const [totalStorage, setTotalStorage] = useState(0);
-  const [storageLimit] = useState(1000000000); // 1GB
+  const [storageLimit] = useState(user.max_space);
 
   useEffect(() => {
     const calculatedStorage = images.reduce(
@@ -71,12 +71,9 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen">
       <main className="flex-1 p-8 overflow-y-auto">
-        {/* <div className="flex items-center justify-between mb-8"> */}
         <h1 className="text-2xl font-bold py-2">
           Welcome, <span className="text-primary">{user.username}</span>!
         </h1>
-        {/* <ThemeToggle />
-        </div> */}
 
         <Card className="my-2">
           <CardHeader>
