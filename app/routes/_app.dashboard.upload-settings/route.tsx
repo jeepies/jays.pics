@@ -6,20 +6,18 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Label } from "~/components/ui/label";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
-import { del } from "~/services/s3.server";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 import { DataTable } from "../../components/ui/url-data-table";
 import { columns } from "./columns";
 import { Progress } from "@prisma/client";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader() {
   return await prisma.uRL.findMany({
     where: {
       progress: Progress.DONE
     },
     select: {
-      
       url: true,
       donator: {
         select: {
@@ -186,9 +184,11 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     })
 
-    const selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
+    let selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
       return urls[+(val)].url;
     });
+
+    if(selected.length === 0) selected = ["jays.pics"]
 
     await prisma.uploaderPreferences.update({
       where: {
