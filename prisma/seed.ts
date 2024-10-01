@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Progress } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -26,6 +26,7 @@ async function main() {
         url: "jays.pics",
         public: true,
         connected: true,
+        progress: Progress.DONE,
         zone_id: "5f5f3dc3d3fbafdfb3ee296d6ff22f03"
       },
       {
@@ -33,6 +34,7 @@ async function main() {
         url: "femboys.wiki",
         public: true,
         connected: true,
+        progress: Progress.DONE,
         zone_id: "08b2125addb04fa4f33b8f917052fa33"
       },
       {
@@ -40,6 +42,7 @@ async function main() {
         url: "i-dont.top",
         public: true,
         connected: true,
+        progress: Progress.DONE,
         zone_id: "81bfbcf313bb642bcc8cfd0eeae5c917"
       },
     ]
