@@ -22,6 +22,7 @@ import {
   ImageDown,
   Images,
   Users,
+  Logs,
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
@@ -73,6 +74,16 @@ export function SidebarAdmin({ className, user }: SidebarProps) {
               <Link to="/admin/images">
                 <Images className="mr-2 h-4 w-4" />
                 Images
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/admin/logs">
+                <Logs className="mr-2 h-4 w-4" />
+                Logs
               </Link>
             </Button>
           </div>
