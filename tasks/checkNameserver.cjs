@@ -18,22 +18,31 @@ module.exports = async (payload, helpers) => {
     if (zone.activated_on != null) {
       cf.dns.records.create({
         zone_id: domain.zone_id,
-        content: "51.75.163.203",
+        content: "jays.pics",
         name: "@",
+        type: "CNAME",
+        proxied: true,
+      }).then(async () => {
+        await prisma.uRL.update({
+          where: {
+            id: domain.id,
+          },
+          data: {
+            progress: Progress.DONE,
+          },
+        });
+        await prisma.log.create({
+          data: {
+            message: `changed ${domain.url} (${domain.id}) to DONE`
+          }
+        })
+      }).catch(async (err) => {
+        await prisma.log.create({
+          data: {
+            message: `failed to create dns record: ${err}`
+          }
+        })
       });
-      await prisma.uRL.update({
-        where: {
-          id: domain.id,
-        },
-        data: {
-          progress: Progress.DONE,
-        },
-      });
-      await prisma.log.create({
-        data: {
-          message: `changed ${domain.url} (${domain.id}) to DONE`
-        }
-      })
     }
   });
 };
