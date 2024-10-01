@@ -46,6 +46,7 @@
     "cloudflare": "^3.5.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.5.6",
+    "graphile-worker": "^0.16.6",
     "isbot": "^4.1.0",
     "lucide-react": "^0.445.0",
     "pretty-bytes": "^6.1.1",

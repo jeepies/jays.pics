@@ -9,15 +9,15 @@ datasource db {
 }
 
 model User {
-  id       String  @unique @default(cuid())
+  id String @unique @default(cuid())
 
-  username String  @unique
-  username_history String @default("[]")
+  username            String   @unique
+  username_history    String   @default("[]")
   username_changed_at DateTime @default(now())
 
   password String
 
-  email    String? @unique
+  email String? @unique
 
   is_admin Boolean @default(false)
 
@@ -30,7 +30,7 @@ model User {
 
   images     Image[]
   space_used Int     @default(0)
-  max_space  Int     @default(1000000000)
+  max_space  Int     @default(200000000)
 
   comments       Comment[]
   image_comments ImageComment[]
@@ -39,10 +39,10 @@ model User {
 
   donated_urls URL[]
 
-  last_login_at DateTime @default(now())
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  deleted_at  DateTime?
+  last_login_at DateTime  @default(now())
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
 }
 
 model ReferrerProfile {
@@ -85,7 +85,7 @@ model Comment {
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  deleted_at    DateTime?
+  deleted_at DateTime?
 }
 
 model Image {
@@ -102,7 +102,7 @@ model Image {
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  deleted_at    DateTime?
+  deleted_at DateTime?
 }
 
 model ImageComment {
@@ -119,7 +119,7 @@ model ImageComment {
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  deleted_at    DateTime?
+  deleted_at DateTime?
 }
 
 model Referral {
@@ -145,10 +145,20 @@ model Log {
 }
 
 model URL {
-  id         String   @unique @default(cuid())
-  donator_id String
-  donator User @relation(fields: [donator_id], references: [id])
-  url String
-  public Boolean
-  connected Boolean
+  id              String   @unique @default(cuid())
+  donator_id      String
+  donator         User?    @relation(fields: [donator_id], references: [id])
+  url             String   @unique
+  public          Boolean
+  connected       Boolean
+  last_checked_at DateTime @default(now())
+  created_at      DateTime @default(now())
+  progress        Progress @default(INPUT)
+  zone_id         String   @default("")
+}
+
+enum Progress {
+  INPUT
+  WAITING
+  DONE
 }

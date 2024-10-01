@@ -13,6 +13,8 @@ import {
   FileQuestion,
   Link2,
   ImageIcon,
+  Globe,
+  Globe2,
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
@@ -76,6 +78,16 @@ export function Sidebar({ className, user }: SidebarProps) {
               <Link to="/dashboard/upload-settings">
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Upload Config
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/dashboard/domains">
+                <Globe2 className="mr-2 h-4 w-4" />
+                Domains
               </Link>
             </Button>
             <Button

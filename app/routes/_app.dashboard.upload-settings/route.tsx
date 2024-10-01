@@ -9,12 +9,17 @@ import { z } from "zod";
 import { del } from "~/services/s3.server";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
-import { DataTable } from "./data-table";
+import { DataTable } from "../../components/ui/url-data-table";
 import { columns } from "./columns";
+import { Progress } from "@prisma/client";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   return await prisma.uRL.findMany({
+    where: {
+      progress: Progress.DONE
+    },
     select: {
+      
       url: true,
       donator: {
         select: {

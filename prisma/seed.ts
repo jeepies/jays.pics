@@ -25,19 +25,22 @@ async function main() {
         donator_id: system.id,
         url: "jays.pics",
         public: true,
-        connected: true
+        connected: true,
+        zone_id: "5f5f3dc3d3fbafdfb3ee296d6ff22f03"
       },
       {
         donator_id: system.id,
         url: "femboys.wiki",
         public: true,
-        connected: true
+        connected: true,
+        zone_id: "08b2125addb04fa4f33b8f917052fa33"
       },
       {
         donator_id: system.id,
         url: "i-dont.top",
         public: true,
-        connected: true
+        connected: true,
+        zone_id: "81bfbcf313bb642bcc8cfd0eeae5c917"
       },
     ]
   })
