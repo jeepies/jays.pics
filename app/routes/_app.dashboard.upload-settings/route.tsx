@@ -12,10 +12,13 @@ import { DataTable } from "../../components/ui/url-data-table";
 import { columns } from "./columns";
 import { Progress } from "@prisma/client";
 
-export async function loader() {
-  return await prisma.uRL.findMany({
+export async function loader({request}:LoaderFunctionArgs) {
+  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
+
+  const public_domains = await prisma.uRL.findMany({
     where: {
-      progress: Progress.DONE
+      public: true,
+      progress: Progress.DONE,
     },
     select: {
       url: true,
@@ -26,6 +29,23 @@ export async function loader() {
       },
     },
   });
+  const private_domains = await prisma.uRL.findMany({
+    where: {
+      donator_id: user!.id,
+      progress: Progress.DONE,
+    },
+    select: {
+      url: true,
+      donator: {
+        select: {
+          username: true,
+        },
+      },
+    },
+  })
+
+  const data = [...public_domains, ...private_domains]
+  return data;
 }
 
 export default function UploadSettings() {

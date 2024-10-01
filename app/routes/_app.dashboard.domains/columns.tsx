@@ -18,7 +18,7 @@ export const columns: ColumnDef<URL>[] = [
   {
     accessorKey: "public",
     header: "Public",
-    cell: cell => cell ? "Yes" : "No"
+    cell: cell => cell.getValue() ? "Yes" : "No",
   },
   {
     accessorKey: "donator.username",

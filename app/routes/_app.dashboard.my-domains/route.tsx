@@ -6,27 +6,26 @@ import { prisma } from "~/services/database.server";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Progress } from "@prisma/client";
+import { getSession, getUserBySession } from "~/services/session.server";
 
-export async function loader() {
+export async function loader({request}:LoaderFunctionArgs) {
+  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
+
   return await prisma.uRL.findMany({
     where: {
-      progress: Progress.DONE
+      donator_id: user!.id
     },
     select: {
       url: true,
-      donator: {
-        select: {
-          username: true,
-        },
-      },
       public: true,
       created_at: true,
       last_checked_at: true,
+      progress: true
     },
   });
 }
 
-export default function Domain() {
+export default function MyDomains() {
   const urls = useLoaderData<typeof loader>();
 
   return (
@@ -38,7 +37,10 @@ export default function Domain() {
         <CardContent>
           <DataTable columns={columns} data={urls} selected={[]} />
           <Button className="mt-2">
-            <Link to="/dashboard/my-domains">My Domains</Link>
+            <Link to="/dashboard/domain/add">Add Domain</Link>
+          </Button>
+          <Button className="mt-2 ml-2">
+            <Link to="/dashboard/domain/add">Delete Domain(s)</Link>
           </Button>
         </CardContent>
       </Card>
