@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `URL` ADD COLUMN `zone_id` VARCHAR(191) NOT NULL DEFAULT '';
