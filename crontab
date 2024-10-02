@@ -1,1 +1,1 @@
-*/1 * * * * checkNameserver
+*/5 * * * * checkNameserver
