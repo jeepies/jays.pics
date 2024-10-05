@@ -20,10 +20,21 @@ import {
 import { useAdminLoader } from "./_admin";
 import { prisma } from "~/services/database.server";
 import { useLoaderData } from "@remix-run/react";
+import prettyBytes from "pretty-bytes";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.user.count();
-  const users = await prisma.user.findMany();
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      username: true,
+      images: true,
+      space_used: true,
+      is_admin: true,
+      created_at: true,
+      donated_urls: true,
+    }
+  });
 
   return { count, users };
 }
@@ -34,7 +45,6 @@ export default function Users() {
 
   return (
     <>
-      {" "}
       <Card className="mt-4">
         <CardHeader>
           <CardTitle>Users</CardTitle>
@@ -45,6 +55,8 @@ export default function Users() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">User</TableHead>
+                <TableHead>Images Uploaded</TableHead>
+                <TableHead>Donated Domains</TableHead>
                 <TableHead>Admin</TableHead>
                 <TableHead className="text-right">Date of Creation</TableHead>
               </TableRow>
@@ -56,6 +68,8 @@ export default function Users() {
                     <TableCell className="font-medium">
                       <a href={`/admin/profile/${user.id}`}>{user.username}</a>
                     </TableCell>
+                    <TableCell>{user.images.length} ({prettyBytes(user.space_used)})</TableCell>
+                    <TableCell>{user.donated_urls.length}</TableCell>
                     <TableCell>{user.is_admin ? "Yes" : "No"}</TableCell>
                     <TableCell className="text-right">
                       {new Date(user.created_at).toLocaleDateString()}
