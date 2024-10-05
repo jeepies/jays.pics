@@ -67,7 +67,7 @@ model UploaderPreferences {
   embed_author String @default("Uploaded by {{uploader.name}}")
   embed_colour String @default("#e05cd9")
 
-  urls String @default("[\"jays.pics\"]")
+  urls String[] @default(["jays.pics"])
 }
 
 model Comment {
