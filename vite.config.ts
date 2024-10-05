@@ -14,6 +14,9 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   server: {
+    hmr: {
+      overlay: false
+    },
     host: true,
   },
 });
