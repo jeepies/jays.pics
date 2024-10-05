@@ -91,7 +91,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
   if (response?.$metadata.httpStatusCode === 200) {
 
-    const urls = JSON.parse(user.upload_preferences!.urls)
+    const urls = user.upload_preferences!.urls
     let url;
     if(urls.length === 1) url = urls[0]
     else url = urls[Math.floor(Math.random()*urls.length)]
