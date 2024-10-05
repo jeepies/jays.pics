@@ -68,7 +68,7 @@ export default function Users() {
                     <TableCell className="font-medium">
                       <a href={`/admin/profile/${user.id}`}>{user.username}</a>
                     </TableCell>
-                    <TableCell>{user.images.length} ({prettyBytes(user.space_used)})</TableCell>
+                    <TableCell>{user.images.filter((image) => image.deleted_at === null).length} ({prettyBytes(user.space_used)}, w/ deleted: {user.images.length})</TableCell>
                     <TableCell>{user.donated_urls.length}</TableCell>
                     <TableCell>{user.is_admin ? "Yes" : "No"}</TableCell>
                     <TableCell className="text-right">
