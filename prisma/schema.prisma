@@ -152,7 +152,6 @@ model URL {
   donator         User?    @relation(fields: [donator_id], references: [id])
   url             String   @unique
   public          Boolean
-  connected       Boolean
   last_checked_at DateTime @default(now())
   created_at      DateTime @default(now())
   progress        Progress @default(INPUT)
