@@ -167,7 +167,7 @@ export default function AddDomain() {
                 className="hidden"
                 disabled
               />
-              <Button className="mt-2 w-full disabled">Done</Button>
+              <Button className="mt-2 w-full" disabled>Done</Button>
             </CardContent>
           </Card>
           <Card className="mt-2">
