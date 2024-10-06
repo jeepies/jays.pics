@@ -54,7 +54,7 @@ export const columns: ColumnDef<URL>[] = [
         case Progress.INPUT:
           const url = cell.row
             .getAllCells()
-            .filter((cell) => cell.id === "0_url")[0];
+            .filter((cell) => cell.id.includes("_url"))[0];
           if (!url) return <Label>An unknown error occured</Label>;
           return (
             <Link to={`/dashboard/domain/add?domain=${url.getValue() ?? ""}`}>
