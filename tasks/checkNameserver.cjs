@@ -41,7 +41,7 @@ module.exports = async (payload, helpers) => {
       cf.dns.records
         .create({
           zone_id: domain.zone_id,
-          content: "jays.pics",
+          content: "51.75.163.203",
           name: "@",
           type: "A",
           proxied: true,
@@ -49,7 +49,7 @@ module.exports = async (payload, helpers) => {
         .then(async () => {
           await cf.dns.records.create({
             zone_id: domain.zone_id,
-            content: "jays.pics",
+            content: "51.75.163.203",
             name: "*",
             type: "A",
             proxied: true,
