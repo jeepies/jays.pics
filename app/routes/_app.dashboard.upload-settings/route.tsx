@@ -53,7 +53,7 @@ export default function UploadSettings() {
   const urls = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const selected = JSON.parse(data!.user.upload_preferences!.urls);
+  const selected = data!.user.upload_preferences!.urls;
 
   return (
     <>
