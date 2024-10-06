@@ -157,6 +157,7 @@ model URL {
   created_at      DateTime @default(now())
   progress        Progress @default(INPUT)
   zone_id         String   @default("")
+  nameservers     String[] @default(["", ""])
 }
 
 enum Progress {
@@ -170,6 +171,6 @@ model Notification {
   receiver_id String
   receiver    User?    @relation(fields: [receiver_id], references: [id])
   content     String
-  seen        Boolean @default(false)
+  seen        Boolean  @default(false)
   created_at  DateTime @default(now())
 }
