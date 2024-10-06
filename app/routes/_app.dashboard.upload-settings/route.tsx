@@ -217,7 +217,7 @@ export async function action({ request }: ActionFunctionArgs) {
         userId: user!.id,
       },
       data: {
-        urls: JSON.stringify(selected),
+        urls: selected,
       },
     });
   }
