@@ -40,9 +40,11 @@ export async function uploadToS3(file: File, filename: string) {
     const res = await upload.done();
     return res;
   } catch (err) {
-    await prisma.log.create({ data: {
-      message: "S3 failed with err " + err,
-    }})
+    await prisma.log.create({
+      data: {
+        message: "S3 failed with err " + err,
+      },
+    });
   }
 }
 

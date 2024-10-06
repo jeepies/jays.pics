@@ -10,7 +10,7 @@ import { Progress } from "@prisma/client";
 export async function loader() {
   return await prisma.uRL.findMany({
     where: {
-      progress: Progress.DONE
+      progress: Progress.DONE,
     },
     select: {
       url: true,

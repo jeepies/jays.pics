@@ -29,7 +29,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  selected
+  selected,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -52,7 +52,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <Input className="hidden" name="selected" readOnly value={JSON.stringify(rowSelection)}/>
+      <Input
+        className="hidden"
+        name="selected"
+        readOnly
+        value={JSON.stringify(rowSelection)}
+      />
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter domains..."

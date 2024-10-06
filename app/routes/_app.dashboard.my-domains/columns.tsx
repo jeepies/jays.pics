@@ -41,20 +41,26 @@ export const columns: ColumnDef<URL>[] = [
   {
     accessorKey: "public",
     header: "Public",
-    cell: (cell) => cell.getValue() ? "Yes" : "No",
+    cell: (cell) => (cell.getValue() ? "Yes" : "No"),
   },
   {
     accessorKey: "progress",
     header: "Status",
     cell: (cell) => {
-      switch(cell.getValue()) {
+      switch (cell.getValue()) {
         case Progress.DONE:
-          return "Linked!"
+          return "Linked!";
         case Progress.INPUT:
-          const url = cell.row.getAllCells().filter((cell) => cell.id === "0_url")[0]
-          return <Link to={`/dashboard/domain/add?domain=${url.getValue()}`}>Input Required</Link>
+          const url = cell.row
+            .getAllCells()
+            .filter((cell) => cell.id === "0_url")[0];
+          return (
+            <Link to={`/dashboard/domain/add?domain=${url.getValue()}`}>
+              Input Required
+            </Link>
+          );
         case Progress.WAITING:
-          return "Waiting..."
+          return "Waiting...";
       }
     },
   },

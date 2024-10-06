@@ -18,7 +18,7 @@ export const columns: ColumnDef<URL>[] = [
   {
     accessorKey: "public",
     header: "Public",
-    cell: cell => cell.getValue() ? "Yes" : "No",
+    cell: (cell) => (cell.getValue() ? "Yes" : "No"),
   },
   {
     accessorKey: "donator.username",
@@ -28,12 +28,17 @@ export const columns: ColumnDef<URL>[] = [
     accessorKey: "last_checked_at",
     header: "Last Checked",
     // @ts-ignore
-    cell: cell => `${new Date(Date.parse(cell.getValue())).toLocaleTimeString()} - ${new Date(Date.parse(cell.getValue())).toLocaleDateString()}`
+    cell: (cell) =>
+      `${new Date(
+        Date.parse(cell.getValue())
+      ).toLocaleTimeString()} - ${new Date(
+        Date.parse(cell.getValue())
+      ).toLocaleDateString()}`,
   },
   {
     accessorKey: "created_at",
     header: "Donated At",
     // @ts-ignore
-    cell: cell => new Date(Date.parse(cell.getValue())).toLocaleDateString()
+    cell: (cell) => new Date(Date.parse(cell.getValue())).toLocaleDateString(),
   },
 ];

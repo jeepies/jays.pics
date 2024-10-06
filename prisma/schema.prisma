@@ -30,7 +30,7 @@ model User {
 
   images     Image[]
   space_used Int     @default(0)
-  max_space  Int     @default(200000000)
+  max_space  Int     @default(100000000)
 
   comments       Comment[]
   image_comments ImageComment[]
@@ -38,6 +38,8 @@ model User {
   referrals Referral[]
 
   donated_urls URL[]
+
+  notifications Notification[]
 
   last_login_at DateTime  @default(now())
   created_at    DateTime  @default(now())
@@ -161,4 +163,13 @@ enum Progress {
   INPUT
   WAITING
   DONE
+}
+
+model Notification {
+  id          String   @unique @default(cuid())
+  receiver_id String
+  receiver    User?    @relation(fields: [receiver_id], references: [id])
+  content     String
+  seen        Boolean @default(false)
+  created_at  DateTime @default(now())
 }

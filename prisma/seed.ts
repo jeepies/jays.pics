@@ -27,7 +27,7 @@ async function main() {
         public: true,
         connected: true,
         progress: Progress.DONE,
-        zone_id: "5f5f3dc3d3fbafdfb3ee296d6ff22f03"
+        zone_id: "5f5f3dc3d3fbafdfb3ee296d6ff22f03",
       },
       {
         donator_id: system.id,
@@ -35,7 +35,7 @@ async function main() {
         public: true,
         connected: true,
         progress: Progress.DONE,
-        zone_id: "08b2125addb04fa4f33b8f917052fa33"
+        zone_id: "08b2125addb04fa4f33b8f917052fa33",
       },
       {
         donator_id: system.id,
@@ -43,10 +43,10 @@ async function main() {
         public: true,
         connected: true,
         progress: Progress.DONE,
-        zone_id: "81bfbcf313bb642bcc8cfd0eeae5c917"
+        zone_id: "81bfbcf313bb642bcc8cfd0eeae5c917",
       },
-    ]
-  })
+    ],
+  });
 }
 
 main()

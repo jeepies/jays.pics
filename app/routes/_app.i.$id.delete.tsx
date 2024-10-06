@@ -15,13 +15,16 @@ export async function action({ params }: ActionFunctionArgs) {
 
   const user = await prisma.user.findFirst({
     where: {
-      id: image?.uploader.id
-    }
-  })
+      id: image?.uploader.id,
+    },
+  });
 
-  await prisma.user.update({ where: { id: user!.id }, data: {
-    space_used: user!.space_used - image!.size
-  }})
+  await prisma.user.update({
+    where: { id: user!.id },
+    data: {
+      space_used: user!.space_used - image!.size,
+    },
+  });
 
   del(`${image?.uploader.id}/${image?.id}`);
   return redirect("/dashboard/images");
@@ -34,16 +37,18 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
   await prisma.image.delete({ where: { id: params.id } });
 
-
   const user = await prisma.user.findFirst({
     where: {
-      id: image?.uploader.id
-    }
-  })
+      id: image?.uploader.id,
+    },
+  });
 
-  await prisma.user.update({ where: { id: user!.id }, data: {
-    space_used: user!.space_used - image!.size
-  }})
+  await prisma.user.update({
+    where: { id: user!.id },
+    data: {
+      space_used: user!.space_used - image!.size,
+    },
+  });
 
   del(`${image?.uploader.id}/${image?.id}`);
   return redirect("/dashboard/images");

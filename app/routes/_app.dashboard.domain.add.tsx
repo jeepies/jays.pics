@@ -173,7 +173,7 @@ export async function action({ request }: ActionFunctionArgs) {
         await getSession(request.headers.get("Cookie"))
       );
 
-      if(!zone) {
+      if (!zone) {
         await prisma.log.create({
           data: {
             message: "Attempted to link domain to non-existant zone.",
@@ -181,9 +181,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
         return {
           payload,
-          formErrors: [
-            "An unknown error has occured. This has been logged.",
-          ],
+          formErrors: ["An unknown error has occured. This has been logged."],
           fieldErrors: {
             domain: null,
           },

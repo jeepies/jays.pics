@@ -12,8 +12,10 @@ import { DataTable } from "../../components/ui/url-data-table";
 import { columns } from "./columns";
 import { Progress } from "@prisma/client";
 
-export async function loader({request}:LoaderFunctionArgs) {
-  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie"))
+  );
 
   const public_domains = await prisma.uRL.findMany({
     where: {
@@ -42,9 +44,9 @@ export async function loader({request}:LoaderFunctionArgs) {
         },
       },
     },
-  })
+  });
 
-  const data = [...public_domains, ...private_domains]
+  const data = [...public_domains, ...private_domains];
   return data;
 }
 
@@ -91,7 +93,7 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_title}
               />
               <div className="text-red-500 text-sm">
-                { /* @ts-ignore */ }
+                {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_title}
               </div>
               <Label htmlFor="embed_author">Author</Label>
@@ -101,7 +103,7 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_author}
               />
               <div className="text-red-500 text-sm">
-              { /* @ts-ignore */ }
+                {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_author}
               </div>
               <Label htmlFor="embed_colour">Colour</Label>
@@ -111,7 +113,7 @@ export default function UploadSettings() {
                 defaultValue={data?.user.upload_preferences?.embed_colour}
               />
               <div className="text-red-500 text-sm">
-              { /* @ts-ignore */ }
+                {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_colour}
               </div>
               <Button type="submit">Save</Button>
@@ -152,7 +154,7 @@ const embedUpdateSchema = z.object({
 
 const urlUpdateSchema = z.object({
   selected: z.string(),
-})
+});
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -188,7 +190,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (requestType === "update_urls") {
-    result = urlUpdateSchema.safeParse(payload)
+    result = urlUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
       return {
@@ -202,20 +204,20 @@ export async function action({ request }: ActionFunctionArgs) {
       select: {
         url: true,
       },
-    })
-
-    let selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
-      return urls[+(val)].url;
     });
 
-    if(selected.length === 0) selected = ["jays.pics"]
+    let selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
+      return urls[+val].url;
+    });
+
+    if (selected.length === 0) selected = ["jays.pics"];
 
     await prisma.uploaderPreferences.update({
       where: {
         userId: user!.id,
       },
       data: {
-        urls: JSON.stringify(selected)
+        urls: JSON.stringify(selected),
       },
     });
   }

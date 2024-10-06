@@ -8,13 +8,12 @@ import {
   LogOut,
   User,
   Shield,
-  FileQuestionIcon,
-  MailQuestion,
   FileQuestion,
   Link2,
   ImageIcon,
-  Globe,
   Globe2,
+  BellDotIcon,
+  Bell,
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
@@ -24,6 +23,7 @@ interface SidebarProps {
   user: {
     username: string;
     is_admin: boolean;
+    notifications: [];
   };
 }
 
@@ -34,6 +34,11 @@ export function Sidebar({ className, user }: SidebarProps) {
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             jays.pics
+            {user.notifications.length === 0 ? (
+              <Bell className="float-right w-4 m-1" />
+            ) : (
+              <BellDotIcon className="float-right w-4 m-1 hover:text-accent" />
+            )}
           </h2>
           <Separator className="my-4" />
           <div className="space-y-1">

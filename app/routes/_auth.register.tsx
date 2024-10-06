@@ -11,7 +11,7 @@ import { commitSession, getSession } from "~/services/session.server";
 const schema = z.object({
   username: z
     .string({ required_error: "Username is required" })
-    .regex(/^[a-z0-9_]+$/igm, "Invalid username")
+    .regex(/^[a-z0-9_]+$/gim, "Invalid username")
     .min(3, { message: "Must be 3 or more characters" })
     .max(20, { message: "Must be 20 or less characters" }),
   password: z
@@ -171,7 +171,7 @@ export async function action({ request }: ActionFunctionArgs) {
       badges: badges,
     },
   });
-  
+
   await prisma.referral.create({
     data: {
       referred_id: user.id,

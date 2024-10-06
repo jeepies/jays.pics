@@ -14,6 +14,6 @@ export async function createZone(domain: string) {
 }
 
 export async function getNameServers(zoneID: string) {
-  const zone = await cf.zones.get({ zone_id: zoneID});
+  const zone = await cf.zones.get({ zone_id: zoneID });
   return zone.name_servers;
 }

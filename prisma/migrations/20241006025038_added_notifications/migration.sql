@@ -34,8 +34,8 @@ CREATE TABLE "UploaderPreferences" (
     "userId" TEXT NOT NULL,
     "embed_title" TEXT NOT NULL DEFAULT '{{image.name}}',
     "embed_author" TEXT NOT NULL DEFAULT 'Uploaded by {{uploader.name}}',
-    "embed_colour" TEXT NOT NULL DEFAULT '#252525',
-    "urls" TEXT NOT NULL DEFAULT '["jays.pics"]'
+    "embed_colour" TEXT NOT NULL DEFAULT '#e05cd9',
+    "urls" TEXT[] DEFAULT ARRAY['jays.pics']::TEXT[]
 );
 
 -- CreateTable
@@ -110,6 +110,15 @@ CREATE TABLE "URL" (
     "zone_id" TEXT NOT NULL DEFAULT ''
 );
 
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" TEXT NOT NULL,
+    "receiver_id" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "seen" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
 
@@ -161,6 +170,9 @@ CREATE UNIQUE INDEX "URL_id_key" ON "URL"("id");
 -- CreateIndex
 CREATE UNIQUE INDEX "URL_url_key" ON "URL"("url");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Notification_id_key" ON "Notification"("id");
+
 -- AddForeignKey
 ALTER TABLE "ReferrerProfile" ADD CONSTRAINT "ReferrerProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -187,3 +199,6 @@ ALTER TABLE "Referral" ADD CONSTRAINT "Referral_referred_id_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "URL" ADD CONSTRAINT "URL_donator_id_fkey" FOREIGN KEY ("donator_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_receiver_id_fkey" FOREIGN KEY ("receiver_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

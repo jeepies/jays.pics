@@ -58,9 +58,7 @@ export default function Image() {
       <div className="container mx-auto px-4 py-8">
         <Card className="w-full h-2/3">
           <CardContent>
-          <img
-              src={`/i/${data.image.id}/raw`}
-            />
+            <img src={`/i/${data.image.id}/raw`} />
           </CardContent>
         </Card>
       </div>
@@ -110,7 +108,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       property: "og:image",
-      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'image/gif' ? '.gif' : ''}`,
+      content: `https://jays.pics/i/${data.data.image?.id}/raw${
+        data.data.image.type === "image/gif" ? ".gif" : ""
+      }`,
     },
     {
       name: "theme-color",

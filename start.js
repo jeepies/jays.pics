@@ -1,5 +1,5 @@
 import concurrently from "concurrently";
-import 'dotenv/config'
+import "dotenv/config";
 
 concurrently(
   [
@@ -8,11 +8,8 @@ concurrently(
       name: "server",
     },
     {
-        command: "npx graphile-worker",
-        name: "worker",
-        env: {
-            DATABASE_URL: process.env.DATABASE_URL,
-        }
+      command: "npx graphile-worker",
+      name: "worker"
     },
   ],
   {

@@ -52,11 +52,10 @@ export default function Users() {
               {logs.map((log) => {
                 return (
                   <TableRow>
-                    <TableCell className="font-medium">
-                      {log.message}
-                    </TableCell>
+                    <TableCell className="font-medium">{log.message}</TableCell>
                     <TableCell className="text-right">
-                      {new Date(log.created_at).toLocaleDateString()} @ {new Date(log.created_at).toLocaleTimeString()}
+                      {new Date(log.created_at).toLocaleDateString()} @{" "}
+                      {new Date(log.created_at).toLocaleTimeString()}
                     </TableCell>
                   </TableRow>
                 );

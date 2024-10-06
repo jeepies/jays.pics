@@ -8,19 +8,21 @@ import { Button } from "~/components/ui/button";
 import { Progress } from "@prisma/client";
 import { getSession, getUserBySession } from "~/services/session.server";
 
-export async function loader({request}:LoaderFunctionArgs) {
-  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
+export async function loader({ request }: LoaderFunctionArgs) {
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie"))
+  );
 
   return await prisma.uRL.findMany({
     where: {
-      donator_id: user!.id
+      donator_id: user!.id,
     },
     select: {
       url: true,
       public: true,
       created_at: true,
       last_checked_at: true,
-      progress: true
+      progress: true,
     },
   });
 }

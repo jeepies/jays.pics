@@ -28,6 +28,11 @@ export async function getUserBySession(session: Session) {
       username_history: true,
       max_space: true,
       space_used: true,
+      notifications: {
+        where: {
+          seen: false,
+        },
+      },
     },
   });
 }

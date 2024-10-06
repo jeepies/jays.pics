@@ -1,4 +1,9 @@
-import { ActionFunctionArgs, json, MetaFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  json,
+  MetaFunction,
+  redirect,
+} from "@remix-run/node";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
@@ -44,8 +49,8 @@ export async function action({ request }: ActionFunctionArgs) {
       id: true,
       space_used: true,
       max_space: true,
-      upload_preferences: true
-    }
+      upload_preferences: true,
+    },
   });
 
   if (!user) {
@@ -90,11 +95,10 @@ export async function action({ request }: ActionFunctionArgs) {
     `${user.id}/${dbImage.id}`
   );
   if (response?.$metadata.httpStatusCode === 200) {
-
-    const urls = user.upload_preferences!.urls
+    const urls = user.upload_preferences!.urls;
     let url;
-    if(urls.length === 1) url = urls[0]
-    else url = urls[Math.floor(Math.random()*urls.length)]
+    if (urls.length === 1) url = urls[0];
+    else url = urls[Math.floor(Math.random() * urls.length)];
 
     return json({
       success: true,

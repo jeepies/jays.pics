@@ -68,19 +68,19 @@ export default function App() {
   return <Outlet />;
 }
 
-export function ErrorBoundary() {
-  const error = useRouteError();
+// export function ErrorBoundary() {
+//   const error = useRouteError();
 
-  return (
-    <html>
-      <head>
-        <title>Oh no!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Scripts />
-      </body>
-    </html>
-  );
-}
+//   return (
+//     <html>
+//       <head>
+//         <title>Oh no!</title>
+//         <Meta />
+//         <Links />
+//       </head>
+//       <body>
+//         <Scripts />
+//       </body>
+//     </html>
+//   );
+// }

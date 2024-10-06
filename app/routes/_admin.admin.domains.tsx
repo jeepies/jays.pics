@@ -25,18 +25,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.uRL.count();
   const urls = await prisma.uRL.findMany({
     select: {
-        url: true,
-        public: true,
-        progress: true,
-        zone_id: true,
-        donator: {
-            select: {
-                id: true,
-                username: true,
-            },
+      url: true,
+      public: true,
+      progress: true,
+      zone_id: true,
+      donator: {
+        select: {
+          id: true,
+          username: true,
         },
-        created_at: true,
-    }
+      },
+      created_at: true,
+    },
   });
 
   return { count, urls };
@@ -74,7 +74,11 @@ export default function Users() {
                     <TableCell>{url.public ? "Yes" : "No"}</TableCell>
                     <TableCell>{url.progress}</TableCell>
                     <TableCell>{url.zone_id}</TableCell>
-                    <TableCell><a href={`/admin/profile/${url.donator!.id}`}>{url.donator!.username}</a></TableCell>
+                    <TableCell>
+                      <a href={`/admin/profile/${url.donator!.id}`}>
+                        {url.donator!.username}
+                      </a>
+                    </TableCell>
                     <TableCell className="text-right">
                       {new Date(url.created_at).toLocaleDateString()} @{" "}
                       {new Date(url.created_at).toLocaleTimeString()}
