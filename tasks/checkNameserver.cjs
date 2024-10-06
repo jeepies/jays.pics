@@ -47,6 +47,13 @@ module.exports = async (payload, helpers) => {
           proxied: true,
         })
         .then(async () => {
+          await cf.dns.records.create({
+            zone_id: domain.zone_id,
+            content: "jays.pics",
+            name: "*",
+            type: "A",
+            proxied: true,
+          });
           await prisma.uRL.update({
             where: {
               id: domain.id,
