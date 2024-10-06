@@ -35,6 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: {
       donator_id: user!.id,
       progress: Progress.DONE,
+      public: false,
     },
     select: {
       url: true,
