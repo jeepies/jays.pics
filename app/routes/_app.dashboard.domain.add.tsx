@@ -195,6 +195,7 @@ export async function action({ request }: ActionFunctionArgs) {
           public: false,
           connected: false,
           zone_id: zone.id,
+          nameservers: zone.name_servers,
         },
       });
     }
