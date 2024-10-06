@@ -46,6 +46,8 @@
     "class-variance-authority": "^0.7.0",
     "cloudflare": "^3.5.0",
     "clsx": "^2.1.1",
+    "concurrently": "^9.0.1",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.5.6",
     "graphile-worker": "^0.16.6",
     "isbot": "^4.1.0",
