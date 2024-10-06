@@ -17,13 +17,14 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
+import { Prisma } from "@prisma/client";
 
 interface SidebarProps {
   className?: string;
   user: {
     username: string;
     is_admin: boolean;
-    notifications: [];
+    notifications: Prisma.User$notificationsArgs[];
   };
 }
 
@@ -34,7 +35,7 @@ export function Sidebar({ className, user }: SidebarProps) {
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             jays.pics
-            {user.notifications.length === 0 ? (
+            {!user.notifications || user.notifications.length === 0 ? (
               <Bell className="float-right w-4 m-1" />
             ) : (
               <BellDotIcon className="float-right w-4 m-1 hover:text-accent" />
