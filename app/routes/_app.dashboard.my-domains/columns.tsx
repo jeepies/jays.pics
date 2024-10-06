@@ -2,6 +2,7 @@ import { Progress } from "@prisma/client";
 import { Link } from "@remix-run/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
+import { Label } from "~/components/ui/label";
 
 export type URL = {
   url: string;
@@ -54,8 +55,9 @@ export const columns: ColumnDef<URL>[] = [
           const url = cell.row
             .getAllCells()
             .filter((cell) => cell.id === "0_url")[0];
+          if (!url) return <Label>An unknown error occured</Label>;
           return (
-            <Link to={`/dashboard/domain/add?domain=${url.getValue()}`}>
+            <Link to={`/dashboard/domain/add?domain=${url.getValue() ?? ""}`}>
               Input Required
             </Link>
           );
@@ -67,11 +69,12 @@ export const columns: ColumnDef<URL>[] = [
   {
     accessorKey: "last_checked_at",
     header: "Last Checked",
-    // @ts-ignore
     cell: (cell) =>
       `${new Date(
+        // @ts-ignore
         Date.parse(cell.getValue())
       ).toLocaleTimeString()} - ${new Date(
+        // @ts-ignore
         Date.parse(cell.getValue())
       ).toLocaleDateString()}`,
   },
@@ -81,8 +84,10 @@ export const columns: ColumnDef<URL>[] = [
     // @ts-ignore
     cell: (cell) =>
       `${new Date(
+        // @ts-ignore
         Date.parse(cell.getValue())
       ).toLocaleTimeString()} - ${new Date(
+        // @ts-ignore
         Date.parse(cell.getValue())
       ).toLocaleDateString()}`,
   },
