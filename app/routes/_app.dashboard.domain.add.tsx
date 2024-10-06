@@ -1,6 +1,10 @@
 import { Progress } from "@prisma/client";
 import { Label } from "@radix-ui/react-label";
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { CloudflareError } from "cloudflare";
 import { z } from "zod";
@@ -79,7 +83,10 @@ export default function AddDomain() {
       return (
         <div className="container mx-auto px-4 py-8">
           <Card>
-            <CardHeader>              <CardTitle>What domain would you like to link?</CardTitle></CardHeader>
+            <CardHeader>
+              {" "}
+              <CardTitle>What domain would you like to link?</CardTitle>
+            </CardHeader>
             <CardContent>
               <Input name="domain" defaultValue={data.url} readOnly />
               <Button className="mt-2 w-full" disabled>
@@ -126,7 +133,10 @@ export default function AddDomain() {
       return (
         <div className="container mx-auto px-4 py-8">
           <Card>
-            <CardHeader>              <CardTitle>What domain would you like to link?</CardTitle></CardHeader>
+            <CardHeader>
+              {" "}
+              <CardTitle>What domain would you like to link?</CardTitle>
+            </CardHeader>
             <CardContent>
               <Input name="domain" defaultValue={data.url} readOnly />
               <Button className="mt-2 w-full" disabled>
@@ -143,27 +153,36 @@ export default function AddDomain() {
               <Input
                 className="mt-2"
                 readOnly
-                defaultValue={data!.nameServers[0]}
+                defaultValue={data!.nameservers[0]}
               />
               <Input
                 className="mt-2"
                 readOnly
-                defaultValue={data!.nameServers[1]}
+                defaultValue={data!.nameservers[1]}
               />
-              <Form method="POST">
-                <Input
-                  name="action"
-                  value="updated_nameservers"
-                  readOnly
-                  className="hidden"
-                  disabled
-                />
-                <Button className="mt-2 w-full disabled">Waiting...</Button>
-              </Form>
+              <Input
+                name="action"
+                value="updated_nameservers"
+                readOnly
+                className="hidden"
+                disabled
+              />
+              <Button className="mt-2 w-full disabled">Done</Button>
+            </CardContent>
+          </Card>
+          <Card className="mt-2">
+            <CardHeader>
+              <CardTitle>Waiting</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Label>
+                We are checking the nameservers of {data.url}. Please check back
+                again later.
+              </Label>
             </CardContent>
           </Card>
         </div>
-      )
+      );
   }
 }
 
@@ -223,8 +242,19 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
 
-    return redirect('/dashboard/domain/add?domain=' + domain.url);
+    return redirect("/dashboard/domain/add?domain=" + domain.url);
   }
 
-  
+  if (requestAction === "updated_nameservers") {
+    await prisma.uRL.update({
+      where: {
+        url: result.data.domain,
+      },
+      data: {
+        progress: Progress.WAITING,
+      },
+    });
+    return redirect("/dashboard/domain/add?domain=" + result.data.domain);
+  }
+  return null;
 }
