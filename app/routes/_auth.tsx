@@ -38,7 +38,7 @@ export default function Auth() {
       setShowEmoji(false);
       setShowContent(true);
     }
-  }, [hasShownEmoji]);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
