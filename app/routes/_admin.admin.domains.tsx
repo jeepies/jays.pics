@@ -51,7 +51,7 @@ export default function Users() {
       {" "}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Logs</CardTitle>
+          <CardTitle>Domains</CardTitle>
           <CardDescription>There are {count} domains</CardDescription>
         </CardHeader>
         <CardContent>
