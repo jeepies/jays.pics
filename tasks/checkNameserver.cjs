@@ -11,6 +11,8 @@ module.exports = async (payload, helpers) => {
 
   date.setDate(date.getDate() - 2);
 
+  const checked = 0;
+
   const input = await prisma.uRL.findMany({
     where: {
       progress: Progress.INPUT,
@@ -21,6 +23,7 @@ module.exports = async (payload, helpers) => {
   });
 
   input.forEach(async (domain) => {
+    checked += 1;
     await prisma.uRL.delete({
       where: {
         id: domain.id,
@@ -36,12 +39,13 @@ module.exports = async (payload, helpers) => {
   });
 
   waiting.forEach(async (domain) => {
+    checked += 1;
     const zone = await cf.zones.get({ zone_id: domain.zone_id });
     if (zone.activated_on != null) {
       cf.dns.records
         .create({
           zone_id: domain.zone_id,
-          content: "51.75.163.203",
+          content: process.env.BASE_IP,
           name: "@",
           type: "A",
           proxied: true,
@@ -49,7 +53,7 @@ module.exports = async (payload, helpers) => {
         .then(async () => {
           await cf.dns.records.create({
             zone_id: domain.zone_id,
-            content: "51.75.163.203",
+            content: process.env.BASE_IP,
             name: "*",
             type: "A",
             proxied: true,
@@ -78,25 +82,9 @@ module.exports = async (payload, helpers) => {
     }
   });
 
-  const checkedAt = new Date();
-  checkedAt.setTime(date.getTime() - 600000);
-
-  // const done = await prisma.uRL.findMany({
-  //   where: {
-  //     progress: Progress.DONE,
-  //     last_checked_at: {
-  //       gte: checkedAt,
-  //     }
-  //   }
-  // })
-
-  // done.filter((domain) => domain.url === "i-dont.top").forEach(async (domain) => {
-  //   try {
-  //   const zone = await cf.zones.get({ zone_id: domain.zone_id });
-  //   helpers.logger.info(zone);
-  //   } catch(e) {
-  //     helpers.logger.info(`failed on ${domain.url}`)
-  //     helpers.logger.info(`failed with ${e}`)
-  //   }
-  // })
+  await prisma.log.create({
+    data: {
+      message: `Checked ${checked} domains`,
+    },
+  });
 };
