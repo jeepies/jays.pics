@@ -73,6 +73,9 @@ export default function UploadSettings() {
             <Button>
               <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
             </Button>
+            <Button>
+              <a href={`/api/sharenix/${data?.user.id}`}>ShareNix</a>
+            </Button>
           </CardContent>
         </Card>
         <Card className="mt-4">
