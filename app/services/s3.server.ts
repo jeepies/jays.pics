@@ -7,6 +7,7 @@ import { Upload } from "@aws-sdk/lib-storage";
 import { Delete } from "lucide-react";
 import { Readable } from "stream";
 import { prisma } from "./database.server";
+import { LogType } from "@prisma/client";
 
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
   process.env;
@@ -43,6 +44,7 @@ export async function uploadToS3(file: File, filename: string) {
     await prisma.log.create({
       data: {
         message: "S3 failed with err " + err,
+        type: LogType.ERROR
       },
     });
   }

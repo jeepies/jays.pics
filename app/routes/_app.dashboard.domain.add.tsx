@@ -1,4 +1,4 @@
-import { Progress } from "@prisma/client";
+import { LogType, Progress } from "@prisma/client";
 import { Label } from "@radix-ui/react-label";
 import {
   ActionFunctionArgs,
@@ -225,6 +225,7 @@ export async function action({ request }: ActionFunctionArgs) {
           await prisma.log.create({
             data: {
               message: e.errors[0].message,
+              type: LogType.ERROR
             },
           });
         }
@@ -236,7 +237,6 @@ export async function action({ request }: ActionFunctionArgs) {
         donator_id: user!.id,
         url: result.data.domain!,
         public: false,
-        connected: false,
         zone_id: zone!.id,
         nameservers: zone?.name_servers,
       },

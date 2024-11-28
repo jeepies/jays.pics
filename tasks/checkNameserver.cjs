@@ -1,4 +1,4 @@
-const { PrismaClient, Progress } = require("@prisma/client");
+const { PrismaClient, Progress, LogType } = require("@prisma/client");
 const { Cloudflare } = require("cloudflare");
 
 const prisma = new PrismaClient();
@@ -69,6 +69,7 @@ module.exports = async (payload, helpers) => {
           await prisma.log.create({
             data: {
               message: `changed ${domain.url} (${domain.id}) to DONE`,
+              type: LogType.DOMAIN_CHECK,
             },
           });
         })
@@ -76,16 +77,20 @@ module.exports = async (payload, helpers) => {
           await prisma.log.create({
             data: {
               message: `failed to create dns record: ${err}`,
+
+              type: LogType.DOMAIN_CHECK,
             },
           });
         });
     }
   });
 
-  if(checked !== 0) {
+  if (checked !== 0) {
     await prisma.log.create({
       data: {
         message: `Checked ${checked} domains`,
+
+        type: LogType.DOMAIN_CHECK,
       },
     });
   }

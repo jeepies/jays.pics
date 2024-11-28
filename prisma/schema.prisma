@@ -143,6 +143,7 @@ model Announcement {
 model Log {
   id         String   @unique @default(cuid())
   message    String
+  type       LogType
   created_at DateTime @default(now())
 }
 
@@ -163,6 +164,11 @@ enum Progress {
   INPUT
   WAITING
   DONE
+}
+
+enum LogType {
+  ERROR
+  DOMAIN_CHECK
 }
 
 model Notification {
