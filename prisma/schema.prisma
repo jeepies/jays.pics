@@ -179,3 +179,8 @@ model Notification {
   seen        Boolean  @default(false)
   created_at  DateTime @default(now())
 }
+
+model Site {
+  id String @unique @default(cuid()) // i hate that this is required
+  is_upload_blocked Boolean @default(true)
+}

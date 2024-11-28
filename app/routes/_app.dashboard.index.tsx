@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Upload, Plus, PictureInPicture } from "lucide-react";
+import { Upload, Plus, PictureInPicture, Ban } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -50,11 +50,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     take: 1,
   });
 
-  return { user, referrals, images, announcement };
+  const siteData = await prisma.site.findFirst();
+
+  return { user, referrals, images, announcement, siteData };
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement } =
+  const { user, referrals, images, announcement, siteData } =
     useLoaderData<typeof loader>();
 
   const [totalStorage, setTotalStorage] = useState(0);
@@ -169,11 +171,17 @@ export default function Dashboard() {
         </div>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Recent Uploads</h2>
-          <Button asChild>
-            <Link to="/dashboard/upload">
-              <Upload className="mr-2 h-4 w-4" /> Upload New Image
-            </Link>
-          </Button>
+          {siteData?.is_upload_blocked ? (
+            <Button className="bg-destructive hover:bg-destructive text-destructive-foreground">
+              <Ban className="mr-2 h-4 w-4" />Uploading Disabled
+           </Button>
+          ) : (
+            <Button asChild>
+              <Link to="/dashboard/upload">
+                <Upload className="mr-2 h-4 w-4" /> Upload New Image
+              </Link>
+            </Button>
+          )}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {images

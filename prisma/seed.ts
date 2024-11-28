@@ -3,6 +3,11 @@ import { PrismaClient, Progress } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.site.create({
+    data: {
+      id: ""
+    }
+  })
   const system = await prisma.user.create({
     data: {
       username: "System",

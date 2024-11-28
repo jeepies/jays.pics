@@ -1,14 +1,33 @@
-import { Form, useLoaderData } from "@remix-run/react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { prisma } from "~/services/database.server";
 import prettyBytes from "pretty-bytes";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const query = url.searchParams.get("action");
+  const value = url.searchParams.get("value")
+
+  if(query !== null) {
+    switch(query) {
+      case "site_block_toggle":
+        await prisma.site.update({
+          where: {
+            id: "",
+          },
+          data: {
+            is_upload_blocked: (value === "true")
+          }
+        })
+        break;
+    }
+  }
+
   const users = await prisma.user.count();
   const images = await prisma.image.count();
   const bytesUsed = (
@@ -29,7 +48,9 @@ export async function loader() {
     take: 1,
   });
 
-  return { users, images, imagesWithoutDeleted, bytesUsed, announcement };
+  const siteData = await prisma.site.findFirst();
+
+  return { users, images, imagesWithoutDeleted, bytesUsed, announcement, siteData };
 }
 
 export default function AdminDashboard() {
@@ -68,7 +89,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>Announcement</CardTitle>
         </CardHeader>
@@ -86,6 +107,25 @@ export default function AdminDashboard() {
             />
             <Button type="submit">Post</Button>
           </Form>
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-900">
+        <CardHeader>
+          <CardTitle>Danger Zone</CardTitle>
+          <CardDescription className="text-red-700">
+            <i>These actions can be catastrophic</i>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form method="post">
+            <Input className="hidden" value={"danger_zone"} name="type" />
+          </Form>
+          <div>
+            <Link to={`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`}>
+            <Button>{data.siteData?.is_upload_blocked ? "Unblock Uploads" : "Block Uploads"}</Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </>
