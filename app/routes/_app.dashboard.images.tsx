@@ -1,6 +1,9 @@
+import { cli } from "@remix-run/dev";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
 import { prisma } from "~/services/database.server";
 import {
   destroySession,
@@ -26,14 +29,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
-  return { images };
+  const url = new URL(request.url);
+  const query = url.searchParams.get("generate_link");
+
+  let clipboard;
+  if(query !== null) {
+    const urls = user.upload_preferences!.urls;
+    let url;
+    if (urls.length === 1) url = urls[0];
+    else url = urls[Math.floor(Math.random() * urls.length)];
+    clipboard = `https://${url}/i/${query}/`;
+  }
+
+  return { images, clipboard };
 }
 
 export default function Images() {
-  const { images } = useLoaderData<typeof loader>();
+  const { images, clipboard } = useLoaderData<typeof loader>();
+
+  if(clipboard) {
+    navigator.clipboard.writeText(clipboard);
+  }
 
   return (
-    <>
+    <div className="p-4">
       {images.map((image) => (
         <Card key={image.id}>
           <CardContent className="p-2">
@@ -48,10 +67,17 @@ export default function Images() {
             <p className="text-xs text-muted-foreground">
               {new Date(image.created_at).toLocaleDateString()}
             </p>
-            <a href={`/i/${image.id}/delete`}>Delete</a>
+            <Form>
+            <Link to={`?generate_link=${image.id}`}>
+              <Button>Link</Button>
+            </Link>
+            </Form>
+            <Link to={`/i/${image.id}/delete`}>
+              <Button>Delete</Button>
+            </Link>
           </CardContent>
         </Card>
       ))}
-    </>
+    </div>
   );
 }
