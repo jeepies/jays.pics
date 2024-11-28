@@ -32,7 +32,15 @@ export default function Help() {
                 How to upload images to jays.pics on-site
               </CardDescription>
             </CardHeader>
-            <CardContent>1. click a funny button</CardContent>
+            <CardContent>
+              1. Navigate to the dashboard
+              <br/>
+              2. Click on the 'Upload New Image' button
+              <br/>
+              3. Select a file to upload
+              <br/>
+              4. Click upload
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="sharex" className="mt-4">
@@ -44,12 +52,14 @@ export default function Help() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              1. do this 2. do that 3. upload images 4. profit?
+              1. Download your ShareX config
+              <br/>
+              2. Double click the file to open it with ShareX
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-      <p className="my-8">Reporting content</p>
+      {/* <p className="my-8">Reporting content</p>
       <Tabs value={reportingActiveTab} onValueChange={setReportingActiveTab}>
         <TabsList>
           <TabsTrigger value="images">Images</TabsTrigger>
@@ -77,7 +87,7 @@ export default function Help() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </div>
   );
 }
