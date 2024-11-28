@@ -82,9 +82,11 @@ module.exports = async (payload, helpers) => {
     }
   });
 
-  await prisma.log.create({
-    data: {
-      message: `Checked ${checked} domains`,
-    },
-  });
+  if(checked !== 0) {
+    await prisma.log.create({
+      data: {
+        message: `Checked ${checked} domains`,
+      },
+    });
+  }
 };
