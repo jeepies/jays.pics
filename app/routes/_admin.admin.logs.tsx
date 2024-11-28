@@ -45,6 +45,7 @@ export default function Users() {
             <TableHeader>
               <TableRow>
                 <TableHead className="max-w-96">Message</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead className="text-right">Date of Creation</TableHead>
               </TableRow>
             </TableHeader>
@@ -53,6 +54,7 @@ export default function Users() {
                 return (
                   <TableRow>
                     <TableCell className="font-medium">{log.message}</TableCell>
+                    <TableCell>{log.type}</TableCell>
                     <TableCell className="text-right">
                       {new Date(log.created_at).toLocaleDateString()} @{" "}
                       {new Date(log.created_at).toLocaleTimeString()}
