@@ -1,7 +1,7 @@
 import { AvatarImage } from "@radix-ui/react-avatar";
+import { SelectTrigger, SelectValue } from "@radix-ui/react-select";
 import {
   ActionFunctionArgs,
-  json,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
@@ -11,9 +11,16 @@ import { z } from "zod";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { Select } from "~/components/ui/select";
 import { prisma } from "~/services/database.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -66,8 +73,10 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      <Card className="mx-auto px-4 py-8">
-        <CardTitle>Uploader Preferences - Embed</CardTitle>
+      <Card className="mx-auto mb-8">
+        <CardHeader>
+          <CardTitle>Uploader Preferences</CardTitle>
+        </CardHeader>
         <CardContent>
           <Form method="post">
             <Input className="hidden" value={"update_embed"} name="type" />
@@ -100,6 +109,28 @@ export default function AdminProfile() {
             </div>
             <Button type="submit">Save</Button>
           </Form>
+        </CardContent>
+      </Card>
+
+      <Card className="mb border-red-900">
+        <CardHeader>
+          <CardTitle>Danger Zone</CardTitle>
+          <CardDescription className="text-red-700">
+            <i>These actions can be catastrophic</i>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form method="post">
+            <Input className="hidden" value={"danger_zone"} name="type" />
+          </Form>
+          <div className="">
+          <Button>
+            Lock Account
+          </Button>
+          <Button className="ml-2">
+            Purge Images
+          </Button>
+          </div>
         </CardContent>
       </Card>
     </>
