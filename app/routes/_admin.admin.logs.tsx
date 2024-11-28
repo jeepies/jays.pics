@@ -49,7 +49,7 @@ export default function Users() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {logs.map((log) => {
+              {logs.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)).map((log) => {
                 return (
                   <TableRow>
                     <TableCell className="font-medium">{log.message}</TableCell>
