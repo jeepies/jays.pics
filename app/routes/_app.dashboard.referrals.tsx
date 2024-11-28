@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useParams } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -20,10 +20,24 @@ import {
 } from "~/components/ui/table";
 import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
+import { v4 } from 'uuid';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const user = await getUserBySession(session);
+
+  const url = new URL(request.url);
+  const query = url.searchParams.get("regenerate");
+
+  if(query !== null) {
+    await prisma.referrerProfile.update({
+      where: { userId: user!.id },
+      data: {
+        referral_code: v4()
+      }
+    })
+    return redirect('/dashboard/referrals')
+  }
 
   const referrals = await prisma.referral.findMany({
     where: { referrer_id: user!.referrer_profile?.id },
@@ -61,12 +75,16 @@ export default function Referrals() {
           <CardContent>
             <Input
               id="referral-code"
+              className="text-center"
               value={user?.referrer_profile?.referral_code}
               readOnly
             />
             <Button onClick={copy} className="mt-2 w-full">
               Copy
             </Button>
+            <Link to="?regenerate">
+              <Button className="mt-2 w-full">Regenerate</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card className="mt-4">
