@@ -75,7 +75,7 @@ export default function Dashboard() {
           Welcome, <span className="text-primary">{user.username}</span>!
         </h1>
 
-        <Card className="my-2">
+        <Card className="my-6">
           <CardHeader>
             <CardTitle>Announcement</CardTitle>
           </CardHeader>
