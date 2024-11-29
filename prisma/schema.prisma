@@ -169,6 +169,7 @@ enum Progress {
 enum LogType {
   ERROR
   DOMAIN_CHECK
+  HONEYPOT
 }
 
 model Notification {
