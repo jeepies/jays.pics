@@ -73,6 +73,7 @@ module.exports = {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "react/prop-types": "off", // Not needed with TypeScript
+    "no-unused-vars": "warn",
   },
 
   overrides: [

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLoaderData } from "@remix-run/react";
-import { Upload, Plus, PictureInPicture, Ban } from "lucide-react";
+import { Upload, Plus, Ban, Link as LinkIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -52,12 +52,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const siteData = await prisma.site.findFirst();
 
-  return { user, referrals, images, announcement, siteData };
+  const url = new URL(request.url);
+  const query = url.searchParams.get("generate_link");
+
+  let clipboard;
+  if(query !== null) {
+    const urls = user.upload_preferences!.urls;
+    let url;
+    if (urls.length === 1) url = urls[0];
+    else url = urls[Math.floor(Math.random() * urls.length)];
+    clipboard = `https://${url}/i/${query}/`;
+  }
+
+  return { user, referrals, images, announcement, siteData, clipboard };
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement, siteData } =
+  const { user, referrals, images, announcement, siteData, clipboard } =
     useLoaderData<typeof loader>();
+
+    if(clipboard) {
+      navigator.clipboard.writeText(clipboard);
+    }
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(user.max_space);
@@ -173,8 +189,9 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold">Recent Uploads</h2>
           {siteData?.is_upload_blocked ? (
             <Button className="bg-destructive hover:bg-destructive text-destructive-foreground">
-              <Ban className="mr-2 h-4 w-4" />Uploading Disabled
-           </Button>
+              <Ban className="mr-2 h-4 w-4" />
+              Uploading Disabled
+            </Button>
           ) : (
             <Button asChild>
               <Link to="/dashboard/upload">
@@ -202,6 +219,9 @@ export default function Dashboard() {
                     <p className="text-xs text-muted-foreground">
                       {new Date(image.created_at).toLocaleDateString()}
                     </p>
+                    <Link to={`?generate_link=${image.id}`}>
+                      <LinkIcon className="text-sm"></LinkIcon>
+                    </Link>
                   </CardContent>
                 </Card>
               );
