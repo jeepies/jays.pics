@@ -10,3 +10,59 @@ body {
     color-scheme: dark;
   }
 }
+
+@layer base {
+  :root  {
+    --background: 240 100% 95%;
+    --foreground: 240 5% 0%;
+    --card: 240 50% 90%;
+    --card-foreground: 240 5% 10%;
+    --popover: 240 100% 95%;
+    --popover-foreground: 240 100% 0%;
+    --primary: 240 31.1% 40.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 30% 70%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 202 30% 85%;
+    --muted-foreground: 240 5% 35%;
+    --accent: 202 30% 80%;
+    --accent-foreground: 240 5% 10%;
+    --destructive: 0 100% 30%;
+    --destructive-foreground: 240 5% 90%;
+    --border: 240 30% 50%;
+    --input: 240 30% 18%;
+    --ring: 240 31.1% 40.4%;
+    --radius: 1rem;
+  }
+  .dark  {
+    --background: 240 50% 5%;
+    --foreground: 240 5% 90%;
+    --card: 240 50% 0%;
+    --card-foreground: 240 5% 90%;
+    --popover: 240 50% 5%;
+    --popover-foreground: 240 5% 90%;
+    --primary: 240 31.1% 40.4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 30% 10%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 202 30% 15%;
+    --muted-foreground: 240 5% 60%;
+    --accent: 202 30% 15%;
+    --accent-foreground: 240 5% 90%;
+    --destructive: 0 100% 30%;
+    --destructive-foreground: 240 5% 90%;
+    --border: 240 30% 18%;
+    --input: 240 30% 18%;
+    --ring: 240 31.1% 40.4%;
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
