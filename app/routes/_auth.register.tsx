@@ -1,14 +1,17 @@
+import { User } from "@prisma/client";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, redirect, useActionData } from "@remix-run/react";
 import { authenticator } from "~/services/auth/authenticator.server";
 import { commitSession, getSession } from "~/services/session.server";
+import ErrorType from "~/types/ErrorType";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const user = await authenticator.authenticate("form", request);
+  const user: User | ErrorType = await authenticator.authenticate("form", request);
 
-  if (!user.fieldErrors) {
+  if(user && (user as User).id) {
+    const data = (user as User)
     const session = await getSession(request.headers.get("Cookie"));
-    session.set("userID", user.id);
+    session.set("userID", data.id);
     return redirect("/dashboard/index", {
       headers: {
         "Set-Cookie": await commitSession(session),
@@ -16,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  return user;
+  return user as ErrorType;
 }
 
 export default function Component() {
