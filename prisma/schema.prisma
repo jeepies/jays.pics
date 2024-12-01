@@ -14,6 +14,7 @@ model User {
 
   last_login_ip    String
   referral_profile ReferralProfile?
+  Referrals        Referrals?
 }
 
 model ReferralProfile {
@@ -24,4 +25,15 @@ model ReferralProfile {
 
   referral_code  String     @unique @default(uuid())
   referral_limit Int        @default(5)
+  referrals      Referrals?
+}
+
+model Referrals {
+  referrer_id String
+  referrer    ReferralProfile @relation(fields: [referred_id], references: [user_id], map: "referrer")
+
+  referred_id String @unique
+  referred    User   @relation(fields: [referred_id], references: [id])
+
+  created_at DateTime @default(now())
 }

@@ -1,9 +1,11 @@
 import { FormStrategy } from "remix-auth-form";
 import { z } from "zod";
 import bcrypt from 'bcryptjs';
-import { prisma } from "../../prisma.server";
 import { getClientIPAddress } from "remix-utils/get-client-ip-address";
 import ErrorType from "~/types/ErrorType";
+import { CheckUsernameTaken, GetUserByReferralCode } from "~/services/models/user.server";
+import { CreateNewReferralM2M, GetReferralCountFromUserID, IsUserAtReferralLimit } from "~/services/models/referrals";
+import { prisma } from "~/services/prisma.server";
 
 const loginSchema = z.object({
     username: z
@@ -64,29 +66,25 @@ const formStrategy = new FormStrategy(async ({ form, request }) => {
     if (type === "register") {
         const result = registerSchema.safeParse(payload);
         if (!result.success) return inputValidationFailure(result);
+        const { username, password, referralCode } = result.data;
 
-        const { username, password, referralCode } = result.data
-
-        const usersWithUsername = await prisma.user.count({ where: { username: username } });
-        if (usersWithUsername !== 0) {
-            errors.fieldErrors.username = ["This username already exists"]
+        const usernameTaken = await CheckUsernameTaken(username);
+        if (usernameTaken) {
+            errors.fieldErrors.username = ["This username already exists"];
             return errors;
         }
 
-        const usersWithReferralCode = await prisma.referralProfile.findFirst({
-            include: {
-                user: true
-            },
-            where: {
-                referral_code: referralCode
-            }
-        })
-        if(!usersWithReferralCode) {
-            errors.fieldErrors.referralCode = ["This referral code does not exist"]
-            return errors
+        const referringUser = await GetUserByReferralCode(referralCode);
+        if (!referringUser) {
+            errors.fieldErrors.referralCode = ["This username already exists"];
+            return errors;
         }
 
-        // TODO: Add method to limit referrals
+        const isAtReferralLimit = await IsUserAtReferralLimit(referringUser.id)
+        if (isAtReferralLimit) {
+            errors.fieldErrors.referralCode = ["This referral code has been used too many times"];
+            return errors;
+        }
 
         const lastLoginIP = process.env.NODE_ENV === "development" ? "127.0.0.1" : getClientIPAddress(request) ?? "";
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -101,7 +99,13 @@ const formStrategy = new FormStrategy(async ({ form, request }) => {
                 }
             }
         })
+
+        CreateNewReferralM2M(referringUser.id, newUser.id)
+
         return newUser
+    }
+    else {
+
     }
 })
 
