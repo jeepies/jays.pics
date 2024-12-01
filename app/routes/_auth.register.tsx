@@ -1,10 +1,21 @@
 import { ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, redirect, useActionData } from "@remix-run/react";
 import { authenticator } from "~/services/auth/authenticator.server";
+import { commitSession, getSession } from "~/services/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const user = await authenticator.authenticate("form", request);
-  console.log(user)
+
+  if (!user.fieldErrors) {
+    const session = await getSession(request.headers.get("Cookie"));
+    session.set("userID", user.id);
+    return redirect("/dashboard/index", {
+      headers: {
+        "Set-Cookie": await commitSession(session),
+      },
+    });
+  }
+
   return user;
 }
 
