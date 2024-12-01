@@ -1,18 +1,24 @@
 import { User } from "@prisma/client";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, redirect, useActionData } from "@remix-run/react";
+import { Input } from "~/components/ui/input";
 import { authenticator } from "~/services/auth/authenticator.server";
 import { commitSession, getSession } from "~/services/session.server";
 import ErrorType from "~/types/ErrorType";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const user: User | ErrorType = await authenticator.authenticate("form", request);
+  const user: User | ErrorType = await authenticator.authenticate(
+    "form",
+    request,
+  );
 
-  if(user && (user as User).id) {
-    const data = (user as User)
+  console.log(user)
+
+  if (user && (user as User).id) {
+    const data = user as User;
     const session = await getSession(request.headers.get("Cookie"));
     session.set("userID", data.id);
-    return redirect("/dashboard/index", {
+    return redirect("/dashboard/index?new=true", {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -27,24 +33,34 @@ export default function Register() {
 
   return (
     <Form className='space-y-4' method='post'>
+      <Input className='hidden' value='register' name='type' readOnly />
       <label htmlFor='username'>Username</label>
-      <input
+      <Input
         id='username'
         name='username'
         type='text'
-        placeholder=''
+        placeholder='user'
         required
       />
       {actionData?.fieldErrors.username}
       <label htmlFor='password'>Password</label>
-      <input
+      <Input
         id='password'
         name='password'
         type='password'
-        placeholder=''
+        placeholder='Password!123'
         required
       />
       {actionData?.fieldErrors.password}
+      <label htmlFor='password'>Referral Code</label>
+      <Input
+        id='referralCode'
+        name='referralCode'
+        type='text'
+        placeholder='JxSe-a1wa...'
+        required
+      />
+      {actionData?.fieldErrors.referralCode}
       <button className='w-full' type='submit'>
         Sign Up
       </button>

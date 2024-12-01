@@ -8,9 +8,20 @@ datasource db {
 }
 
 model User {
-  id String @unique @default(cuid())
+  id       String @unique @default(cuid())
   username String @unique
   password String
 
-  last_login_ip String
+  last_login_ip    String
+  referral_profile ReferralProfile?
+}
+
+model ReferralProfile {
+  id String @unique @default(cuid())
+
+  user    User   @relation(fields: [user_id], references: [id])
+  user_id String @unique
+
+  referral_code  String     @unique @default(uuid())
+  referral_limit Int        @default(5)
 }

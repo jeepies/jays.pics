@@ -4,6 +4,7 @@ type ErrorType = {
     fieldErrors: {
         username?: string[] | undefined;
         password?: string[] | undefined;
+        referralCode?: string[] | undefined;
     };
 }
 
