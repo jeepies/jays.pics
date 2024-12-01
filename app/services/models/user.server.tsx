@@ -17,10 +17,20 @@ export async function CheckUsernameTaken(username: string): Promise<boolean> {
   return count !== 0;
 }
 
-export async function GetUserByUsername(username: string): Promise<User | null> {
+export async function GetUserByUsername(
+  username: string,
+): Promise<User | null> {
   return prisma.user.findFirst({
     where: {
       username: username,
+    },
+  });
+}
+
+export async function GetUserByID(id: string): Promise<User | null> {
+  return prisma.user.findFirst({
+    where: {
+      id: id,
     },
   });
 }
