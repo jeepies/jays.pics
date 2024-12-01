@@ -9,4 +9,8 @@ datasource db {
 
 model User {
   id String @unique @default(cuid())
+  username String @unique
+  password String
+
+  last_login_ip String
 }
