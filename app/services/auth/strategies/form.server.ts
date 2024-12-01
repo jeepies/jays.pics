@@ -3,7 +3,7 @@ import { z } from "zod";
 import bcrypt from 'bcryptjs';
 import { getClientIPAddress } from "remix-utils/get-client-ip-address";
 import ErrorType from "~/types/ErrorType";
-import { CheckUsernameTaken, GetUserByReferralCode } from "~/services/models/user.server";
+import { CheckUsernameTaken, GetUserByReferralCode, GetUserByUsername } from "~/services/models/user.server";
 import { CreateNewReferralM2M, GetReferralCountFromUserID, IsUserAtReferralLimit } from "~/services/models/referrals";
 import { prisma } from "~/services/prisma.server";
 
@@ -105,7 +105,23 @@ const formStrategy = new FormStrategy(async ({ form, request }) => {
         return newUser
     }
     else {
+        const result = loginSchema.safeParse(payload);
+        if (!result.success) return inputValidationFailure(result);
+        const { username, password } = result.data;
 
+        const user = await GetUserByUsername(username)
+        if(!user) {
+            errors.fieldErrors.username = ["This user does not exist. Did you mean to sign up?"]
+            return errors
+        }
+
+        const doesPasswordMatch = await bcrypt.compare(password, user.password);
+        if(!doesPasswordMatch) {
+            errors.fieldErrors.password = ["Incorrect password"]
+            return errors
+        }
+
+        return user
     }
 })
 
