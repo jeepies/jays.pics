@@ -1,0 +1,7 @@
+services:
+  postgres:
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=jayspics
+      - POSTGRES_HOST_AUTH_METHOD=trust
