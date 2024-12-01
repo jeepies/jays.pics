@@ -12,8 +12,6 @@ export async function action({ request }: ActionFunctionArgs) {
     request,
   );
 
-  console.log(user)
-
   if (user && (user as User).id) {
     const data = user as User;
     const session = await getSession(request.headers.get("Cookie"));
@@ -39,7 +37,7 @@ export default function Register() {
         id='username'
         name='username'
         type='text'
-        placeholder='user'
+        placeholder='Username'
         required
       />
       {actionData?.fieldErrors.username}
@@ -48,7 +46,7 @@ export default function Register() {
         id='password'
         name='password'
         type='password'
-        placeholder='Password!123'
+        placeholder='*******'
         required
       />
       {actionData?.fieldErrors.password}
@@ -57,7 +55,7 @@ export default function Register() {
         id='referralCode'
         name='referralCode'
         type='text'
-        placeholder='JxSe-a1wa...'
+        placeholder='fa263...'
         required
       />
       {actionData?.fieldErrors.referralCode}
