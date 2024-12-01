@@ -22,7 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
   return user as ErrorType;
 }
 
-export default function Component() {
+export default function Register() {
   const actionData = useActionData<typeof action>();
 
   return (

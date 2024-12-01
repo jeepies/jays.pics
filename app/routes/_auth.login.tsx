@@ -5,6 +5,6 @@ export async function action({ request }: ActionFunctionArgs) {
     return await authenticator.authenticate("form", request)
 }
 
-export default function Component() {
+export default function Login() {
     return <></>
 }
