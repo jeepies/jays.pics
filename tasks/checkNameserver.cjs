@@ -11,7 +11,7 @@ module.exports = async (payload, helpers) => {
 
   date.setDate(date.getDate() - 2);
 
-  const checked = 0;
+  let checked = 0;
 
   const input = await prisma.uRL.findMany({
     where: {
