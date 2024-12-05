@@ -167,7 +167,9 @@ export default function AddDomain() {
                 className="hidden"
                 disabled
               />
-              <Button className="mt-2 w-full" disabled>Done</Button>
+              <Button className="mt-2 w-full" disabled>
+                Done
+              </Button>
             </CardContent>
           </Card>
           <Card className="mt-2">
@@ -215,9 +217,22 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // assume the domain is brand new
 
-    let zone;
     try {
-      zone = await createZone(result.data.domain!);
+      let zone = await createZone(result.data.domain!);
+
+      if(!zone) throw new Error("failed to create zone")
+
+      const domain = await prisma.uRL.create({
+        data: {
+          donator_id: user!.id,
+          url: result.data.domain!,
+          public: false,
+          zone_id: zone.id,
+          nameservers: zone.name_servers,
+        },
+      });
+
+      return redirect("/dashboard/domain/add?domain=" + domain.url);
     } catch (err: any) {
       if (err instanceof CloudflareError) {
         const e = JSON.parse(err.message.slice(4, err.message.length));
@@ -225,24 +240,12 @@ export async function action({ request }: ActionFunctionArgs) {
           await prisma.log.create({
             data: {
               message: e.errors[0].message,
-              type: LogType.ERROR
+              type: LogType.ERROR,
             },
           });
         }
       }
     }
-
-    const domain = await prisma.uRL.create({
-      data: {
-        donator_id: user!.id,
-        url: result.data.domain!,
-        public: false,
-        zone_id: zone!.id,
-        nameservers: zone?.name_servers,
-      },
-    });
-
-    return redirect("/dashboard/domain/add?domain=" + domain.url);
   }
 
   if (requestAction === "updated_nameservers") {
