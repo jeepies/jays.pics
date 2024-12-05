@@ -51,10 +51,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function AddDomain() {
   const data = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-
-  console.log(data);
-  console.log(actionData);
-
+  
   if (data === null) {
     // This domain doesn't exist in our database
     return (
