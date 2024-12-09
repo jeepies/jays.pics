@@ -69,6 +69,8 @@ model UploaderPreferences {
   embed_author String @default("Uploaded by {{uploader.name}}")
   embed_colour String @default("#e05cd9")
 
+  domain_hack Boolean @default(false)
+
   urls String[] @default(["jays.pics"])
 }
 

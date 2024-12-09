@@ -5,6 +5,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { z } from "zod";
+import { generateInvisibleURL } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
 
@@ -103,9 +104,16 @@ export async function action({ request }: ActionFunctionArgs) {
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
 
+    const formedURL = `https://${url}/i/${dbImage.id}/`;
+    let returnableURL = formedURL;
+
+    if(user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL)
+    }
+
     return json({
       success: true,
-      url: `https://${url}/i/${dbImage.id}/`,
+      url: returnableURL,
     });
   }
 

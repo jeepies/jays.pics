@@ -11,6 +11,7 @@ import { getSession, getUserBySession } from "~/services/session.server";
 import { DataTable } from "../../components/ui/url-data-table";
 import { columns } from "./columns";
 import { Progress } from "@prisma/client";
+import { Checkbox } from "~/components/ui/checkbox";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(
@@ -70,7 +71,7 @@ export default function UploadSettings() {
             <Input className="my-2" readOnly value={data?.user.upload_key} />
             <label>Download Configs for:</label>
             <br />
-            <Button>
+            <Button className="mr-2">
               <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
             </Button>
             <Button>
@@ -116,6 +117,17 @@ export default function UploadSettings() {
                 name="embed_colour"
                 defaultValue={data?.user.upload_preferences?.embed_colour}
               />
+              <div className="items-top flex space-x-2 my-2">
+                <Checkbox name="domain_hack" defaultChecked={data?.user.upload_preferences?.domain_hack}>Invisible Extension</Checkbox>
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="terms1"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Discord: Invisible Path
+                  </label>
+                </div>
+              </div>
               <div className="text-red-500 text-sm">
                 {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_colour}
@@ -154,6 +166,7 @@ const embedUpdateSchema = z.object({
     .string()
     .length(7, { message: "Must be 7 characters long" })
     .regex(/^#/, { message: "Must be a valid hex colour" }),
+  domain_hack: z.string().optional()
 });
 
 const urlUpdateSchema = z.object({
@@ -189,6 +202,7 @@ export async function action({ request }: ActionFunctionArgs) {
         embed_author: result.data.embed_author,
         embed_title: result.data.embed_title,
         embed_colour: result.data.embed_colour,
+        domain_hack: (result.data.domain_hack === 'on')
       },
     });
   }

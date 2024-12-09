@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { generateInvisibleURL } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
 import {
   destroySession,
@@ -36,7 +37,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-    clipboard = `https://${url}/i/${query}/`;
+
+    const formedURL = `https://${url}/i/${query}/`;
+    let returnableURL = formedURL;
+
+    if(user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL)
+    }
+
+    clipboard = returnableURL;
   }
 
   return { images, clipboard };

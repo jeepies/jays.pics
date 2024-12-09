@@ -19,13 +19,6 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "jays.pics" },
-    { name: "description", content: "Invite-only Image Hosting" },
-  ];
-};
-
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
 
