@@ -122,7 +122,7 @@ export default function UploadSettings() {
                 <div className="grid gap-1.5 leading-none">
                   <label
                     htmlFor="terms1"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-sm font-medium leading-none pe er-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     Discord: Invisible Path
                   </label>

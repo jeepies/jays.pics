@@ -19,6 +19,7 @@ import {
 } from "~/services/session.server";
 import { prisma } from "~/services/database.server";
 import prettyBytes from "pretty-bytes";
+import { generateInvisibleURL } from "~/lib/utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -61,7 +62,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-    clipboard = `https://${url}/i/${query}/`;
+    const formedURL = `https://${url}/i/${query}/`;
+    let returnableURL = formedURL;
+
+    if(user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL)
+    }
+
+    clipboard = returnableURL;
   }
 
   return { user, referrals, images, announcement, siteData, clipboard };
