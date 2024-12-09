@@ -1,4 +1,4 @@
-import { Progress } from "@prisma/client";
+import { Progress } from "~/lib/enums/progress";
 import { Link } from "@remix-run/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "~/components/ui/checkbox";
