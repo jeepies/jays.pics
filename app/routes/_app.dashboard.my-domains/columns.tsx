@@ -9,7 +9,6 @@ export type URL = {
   created_at: string;
   last_checked_at: string;
   public: boolean;
-  status: Progress;
 };
 
 export const columns: ColumnDef<URL>[] = [

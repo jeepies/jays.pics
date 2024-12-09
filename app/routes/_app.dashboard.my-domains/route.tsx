@@ -5,7 +5,6 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { prisma } from "~/services/database.server";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
-import { Progress } from "@prisma/client";
 import { getSession, getUserBySession } from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -13,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     await getSession(request.headers.get("Cookie"))
   );
 
-  return await prisma.uRL.findMany({
+  const urls = await prisma.uRL.findMany({
     where: {
       donator_id: user!.id,
     },
@@ -25,6 +24,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       progress: true,
     },
   });
+
+  return urls;
 }
 
 export default function MyDomains() {
