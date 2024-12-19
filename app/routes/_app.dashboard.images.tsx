@@ -56,6 +56,7 @@ export default function Images() {
 
   if(clipboard) {
     navigator.clipboard.writeText(clipboard);
+    window.location.href = "/dashboard/images"
   }
 
   return (
