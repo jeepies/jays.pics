@@ -101,16 +101,6 @@ export function Sidebar({ className, user }: SidebarProps) {
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/dashboard/settings">
-                <Cog className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
               <Link to="/dashboard/help">
                 <FileQuestion className="mr-2 h-4 w-4" />
                 Help
@@ -121,23 +111,16 @@ export function Sidebar({ className, user }: SidebarProps) {
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
-          {user.is_admin ? (
-            <>
-              {" "}
-              <Button
-                asChild
-                variant="ghost"
-                className="w-full justify-start text-gray-900 dark:text-gray-100"
-              >
-                <Link to="/admin/index">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin Dashboard
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <></>
-          )}
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <Link to="/dashboard/settings">
+              <Cog className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
+          </Button>
           <Button
             asChild
             variant="ghost"
@@ -155,6 +138,23 @@ export function Sidebar({ className, user }: SidebarProps) {
           >
             <ThemeToggle />
           </Button>
+          {user.is_admin ? (
+            <>
+              {" "}
+              <Button
+                asChild
+                variant="ghost"
+                className="w-full justify-start text-gray-900 dark:text-gray-100"
+              >
+                <Link to="/admin/index">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Admin Dashboard
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <></>
+          )}
           <Button
             asChild
             variant="ghost"
