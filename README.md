@@ -1,10 +1,4 @@
-Here is a draft for the README file of the `jeepies/jays.pics` project:
-
----
-
 # jays.pics
-
-Invite-only Image Hosting using Remix & AWS.
 
 ## Table of Contents
 - [Introduction](#introduction)
