@@ -1,40 +1,82 @@
-# Welcome to Remix!
+Here is a draft for the README file of the `jeepies/jays.pics` project:
 
-- 📖 [Remix docs](https://remix.run/docs)
+---
+
+# jays.pics
+
+Invite-only Image Hosting using Remix & AWS.
+
+## Table of Contents
+- [Introduction](#introduction)
+- [Development](#development)
+- [Deployment](#deployment)
+- [Styling](#styling)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Introduction
+
+jays.pics is an invite-only image hosting service built using Remix and AWS. The main goal of this project is to provide a secure and reliable platform for hosting images with restricted access.
 
 ## Development
 
-Run the dev server:
+To set up the development environment, follow these steps:
 
-```shellscript
-npm run dev
-```
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/jeepies/jays.pics.git
+    cd jays.pics
+    ```
+
+2. Install dependencies:
+    ```sh
+    npm install
+    ```
+
+3. Run the development server:
+    ```sh
+    npm run dev
+    ```
 
 ## Deployment
 
-First, build your app for production:
+To deploy the application, follow these steps:
 
-```sh
-npm run build
-```
+1. Build the app for production:
+    ```sh
+    npm run build
+    ```
 
-Then run the app in production mode:
+2. Run the app in production mode:
+    ```sh
+    npm start
+    ```
 
-```sh
-npm start
-```
-
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+3. Deploy the output of `npm run build` which includes:
+    - `build/server`
+    - `build/client`
 
 ## Styling
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling. You can customize the styles or use any other CSS framework as per your preference.
+
+## Contributing
+
+We welcome contributions from the community. Here are the steps to get started:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Make your changes and commit them with a descriptive message.
+4. Push your changes to your fork.
+5. Create a pull request describing your changes.
+
+## Contributors
+
+- [jeepies](https://github.com/jeepies) - Main contributor
+- [occorune](https://github.com/occorune)
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+---
