@@ -56,6 +56,7 @@ export default function Images() {
 
   if(clipboard) {
     navigator.clipboard.writeText(clipboard);
+    window.location.href = "/dashboard/images"
   }
 
   return (
@@ -68,7 +69,7 @@ export default function Images() {
               alt={image.display_name}
               className="aspect-square rounded-md object-cover h-12"
             />
-            <p className="mt-2 truncate text-sm font-medium">
+            <p className="mt-2 truncate text-sm font-medium hover:text-primary">
               <a href={`/i/${image.id}`}>{image.display_name}</a>
             </p>
             <p className="text-xs text-muted-foreground">
