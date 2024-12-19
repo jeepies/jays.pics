@@ -12,6 +12,9 @@
 
 jays.pics is an invite-only image hosting service built using Remix and AWS. The main goal of this project is to provide a secure and reliable platform for hosting images with restricted access.
 
+## Setup
+Refer to the `.example.env` on setting up the `.env` file
+
 ## Development
 
 To set up the development environment, follow these steps:
