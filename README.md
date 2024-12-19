@@ -1,10 +1,4 @@
-Here is a draft for the README file of the `jeepies/jays.pics` project:
-
----
-
 # jays.pics
-
-Invite-only Image Hosting using Remix & AWS.
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -17,6 +11,9 @@ Invite-only Image Hosting using Remix & AWS.
 ## Introduction
 
 jays.pics is an invite-only image hosting service built using Remix and AWS. The main goal of this project is to provide a secure and reliable platform for hosting images with restricted access.
+
+## Setup
+Refer to the `.example.env` on setting up the `.env` file
 
 ## Development
 
