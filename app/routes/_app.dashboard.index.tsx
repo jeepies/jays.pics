@@ -57,7 +57,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = url.searchParams.get("generate_link");
 
   let clipboard;
-  if(query !== null) {
+  if (query !== null) {
     const urls = user.upload_preferences!.urls;
     let url;
     if (urls.length === 1) url = urls[0];
@@ -65,8 +65,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const formedURL = `https://${url}/i/${query}/`;
     let returnableURL = formedURL;
 
-    if(user.upload_preferences?.domain_hack) {
-      returnableURL = generateInvisibleURL(returnableURL)
+    if (user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL);
     }
 
     clipboard = returnableURL;
@@ -79,9 +79,10 @@ export default function Dashboard() {
   const { user, referrals, images, announcement, siteData, clipboard } =
     useLoaderData<typeof loader>();
 
-    if(clipboard) {
-      navigator.clipboard.writeText(clipboard);
-    }
+  if (clipboard) {
+    navigator.clipboard.writeText(clipboard);
+    window.location.href = "/dashboard/idex";
+  }
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(user.max_space);
