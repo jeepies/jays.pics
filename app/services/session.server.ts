@@ -19,6 +19,7 @@ export async function getUserBySession(session: Session) {
     select: {
       id: true,
       username: true,
+      email: true,
       images: true,
       referrer_profile: true,
       upload_preferences: true,
@@ -28,6 +29,7 @@ export async function getUserBySession(session: Session) {
       username_history: true,
       max_space: true,
       space_used: true,
+      accounts: true,
       notifications: {
         where: {
           seen: false,

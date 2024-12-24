@@ -40,9 +40,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Application() {
   const { user } = useLoaderData<typeof loader>();
 
+  const processedUser = {
+    username: user.username,
+    is_admin: user.is_admin,
+    notifications: user.notifications.map((n) => ({
+      ...n,
+      created_at: new Date(n.created_at),
+    })),
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar user={user} className="border-r" />
+      <Sidebar user={processedUser} className="border-r" />
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <Outlet />
       </div>

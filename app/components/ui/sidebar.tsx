@@ -17,14 +17,19 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
-import { Prisma } from "@prisma/client";
 
 interface SidebarProps {
   className?: string;
   user: {
     username: string;
     is_admin: boolean;
-    notifications: Prisma.User$notificationsArgs[];
+    notifications: {
+      id: string;
+      created_at: Date;
+      seen: boolean;
+      receiver_id: string;
+      content: string;
+    }[];
   };
 }
 
