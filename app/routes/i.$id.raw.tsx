@@ -30,7 +30,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           "public, immutable, no-transform, s-maxage=31536000, max-age=31536000",
       },
     });
-  } catch {}
+  } catch (error) {
+    console.log(error);
+    return json({ success: false, message: "Failed to fetch image" });
+  }
 
   return null;
 }

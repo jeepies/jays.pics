@@ -1,4 +1,5 @@
-const { PrismaClient, Progress, LogType } = require("@prisma/client");
+import pkg from "@prisma/client";
+const { PrismaClient, Progress, LogType } = pkg;
 const { Cloudflare } = require("cloudflare");
 
 const prisma = new PrismaClient();

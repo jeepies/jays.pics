@@ -1,3 +1,4 @@
+import { LogType } from "@prisma/client";
 import {
   ActionFunctionArgs,
   json,
@@ -7,7 +8,7 @@ import {
 import { Form, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { prisma } from "~/services/database.server";
-import { uploadToS3 } from "~/services/s3.server";
+import { upload } from "~/services/s3.server";
 import {
   destroySession,
   getSession,
@@ -19,79 +20,126 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const payload = Object.fromEntries(formData);
-  const result = schema.safeParse(payload);
+  try {
+    const formData = await request.formData();
+    const payload = Object.fromEntries(formData);
+    const result = schema.safeParse(payload);
 
-  if (!result.success) {
-    return json({ success: false, errors: result.error });
-  }
+    if (!result.success) {
+      return json({ success: false, errors: result.error });
+    }
 
-  const image = result.data.image;
+    const image = result.data.image;
 
-  const url = new URL(request.url);
-  const paramEntries = Object.fromEntries(url.searchParams.entries());
+    const url = new URL(request.url);
+    const paramEntries = Object.fromEntries(url.searchParams.entries());
 
-  if (!paramEntries.upload_key)
+    if (!paramEntries.upload_key) {
+      return json({
+        success: false,
+        message: "Upload key is not set",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { upload_key: paramEntries.upload_key },
+    });
+
+    if (!user) {
+      return json({
+        success: false,
+        message: "You are not authorised",
+      });
+    }
+
+    if (
+      !["image/png", "image/gif", "image/jpeg", "image/webp"].includes(
+        image.type
+      )
+    ) {
+      return json({
+        success: false,
+        message: "Incorrect file type",
+      });
+    }
+
+    if (user.space_used + image.size > user.max_space) {
+      return json({
+        success: false,
+        message:
+          "When uploading this image, your allocated space was exceeded.",
+      });
+    }
+
+    const dbImage = await prisma.image.create({
+      data: {
+        display_name: image.name,
+        uploader_id: user.id,
+        size: image.size,
+        type: image.type,
+      },
+    });
+
+    try {
+      const storageKey = `${user.id}/${dbImage.id}`;
+      const response = await upload(result.data.image, storageKey);
+
+      if (!response || response.$metadata.httpStatusCode !== 200) {
+        await prisma.image.delete({
+          where: { id: dbImage.id },
+        });
+
+        await prisma.log.create({
+          data: {
+            message: `Storage upload failed for key ${storageKey}. Status: ${response?.$metadata.httpStatusCode}`,
+            type: LogType.ERROR,
+          },
+        });
+
+        return json({
+          success: false,
+          message: "Failed to upload image to storage",
+        });
+      }
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { space_used: user.space_used + image.size },
+      });
+
+      return json({
+        success: true,
+      });
+    } catch (error) {
+      await prisma.image.delete({
+        where: { id: dbImage.id },
+      });
+
+      await prisma.log.create({
+        data: {
+          message: `Upload error: ${error}`,
+          type: LogType.ERROR,
+        },
+      });
+
+      return json({
+        success: false,
+        message: "Error uploading image",
+      });
+    }
+  } catch (error) {
+    await prisma.log.create({
+      data: {
+        message: `Unexpected error in upload: ${error}`,
+        type: LogType.ERROR,
+      },
+    });
+
     return json({
       success: false,
-      message: "Upload key is not set",
-    });
-
-  const user = await prisma.user.findFirst({
-    where: { upload_key: paramEntries.upload_key },
-  });
-
-  if (!user) {
-    return json({
-      success: false,
-      message: "You are not authorised",
+      message: "An unexpected error occurred",
     });
   }
-
-  if (
-    !["image/png", "image/gif", "image/jpeg", "image/webp"].includes(image.type)
-  ) {
-    return json({
-      success: false,
-      message: "Incorrect file type",
-    });
-  }
-
-  if (user.space_used + image.size > user.max_space) {
-    return json({
-      success: false,
-      message: "When uploading this image, your allocated space was exceeded.",
-    });
-  }
-
-  const dbImage = await prisma.image.create({
-    data: {
-      display_name: image.name,
-      uploader_id: user!.id,
-      size: image.size,
-      type: image.type,
-    },
-  });
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { space_used: user.space_used + image.size },
-  });
-
-  const response = await uploadToS3(
-    result.data.image,
-    `${user.id}/${dbImage.id}`
-  );
-  if (response?.$metadata.httpStatusCode === 200) {
-    return json({
-      success: true,
-    });
-  }
-
-  return json({
-    success: false,
-  });
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {

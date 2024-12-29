@@ -1,40 +1,64 @@
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import { Delete } from "lucide-react";
-import { Readable } from "stream";
-import { prisma } from "./database.server";
 import { LogType } from "@prisma/client";
+import { prisma } from "./database.server";
 
-const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
-  process.env;
+const {
+  STORAGE_PROVIDER,
+  STORAGE_ACCESS_KEY,
+  STORAGE_SECRET,
+  STORAGE_REGION,
+  STORAGE_BUCKET,
+  CLOUDFLARE_USER_ID,
+} = process.env;
 
 if (
-  !(STORAGE_ACCESS_KEY && STORAGE_SECRET && STORAGE_REGION && STORAGE_BUCKET)
+  !(STORAGE_ACCESS_KEY && STORAGE_SECRET && STORAGE_BUCKET && STORAGE_PROVIDER)
 ) {
   throw new Error(`Storage is missing required configuration.`);
 }
 
-const S3 = new S3Client({
-  credentials: {
-    secretAccessKey: STORAGE_SECRET,
-    accessKeyId: STORAGE_ACCESS_KEY,
-  },
-  region: STORAGE_REGION,
-});
+if (STORAGE_PROVIDER !== "r2" && STORAGE_PROVIDER !== "aws") {
+  throw new Error(`Invalid storage provider.`);
+}
 
-export async function uploadToS3(file: File, filename: string) {
+function getStorageClient() {
+  const baseConfig = {
+    credentials: {
+      accessKeyId: STORAGE_ACCESS_KEY as string,
+      secretAccessKey: STORAGE_SECRET as string,
+    },
+  };
+
+  if (STORAGE_PROVIDER === "r2" && CLOUDFLARE_USER_ID) {
+    return new S3Client({
+      ...baseConfig,
+      endpoint: `https://${CLOUDFLARE_USER_ID}.r2.cloudflarestorage.com`,
+      region: STORAGE_REGION || "auto",
+    });
+  } else {
+    if (!STORAGE_REGION) {
+      throw new Error("AWS S3 requires STORAGE_REGION to be set");
+    }
+    return new S3Client({
+      ...baseConfig,
+      region: STORAGE_REGION,
+    });
+  }
+}
+
+const storageClient = getStorageClient();
+
+export async function upload(file: File, filename: string) {
   try {
     const upload = new Upload({
-      client: S3,
+      client: storageClient,
       leavePartsOnError: false,
       params: {
         Bucket: STORAGE_BUCKET,
         Key: filename,
         Body: file.stream(),
+        ContentType: file.type,
       },
     });
 
@@ -43,20 +67,51 @@ export async function uploadToS3(file: File, filename: string) {
   } catch (err) {
     await prisma.log.create({
       data: {
-        message: "S3 failed with err " + err,
-        type: LogType.ERROR
+        message: `Storage upload failed with error: ${err}`,
+        type: LogType.ERROR,
       },
     });
+    throw err;
   }
 }
 
 export async function get(key: string) {
-  const res = await fetch(
-    `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`
-  );
-  return await res.blob();
+  try {
+    let url;
+    if (STORAGE_PROVIDER === "r2" && CLOUDFLARE_USER_ID) {
+      url = `https://${CLOUDFLARE_USER_ID}.r2.cloudflarestorage.com/${STORAGE_BUCKET}/${key}`;
+    } else {
+      url = `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`;
+    }
+    console.log(url);
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch file: ${res.statusText}`);
+    }
+    return await res.blob();
+  } catch (err) {
+    await prisma.log.create({
+      data: {
+        message: `Storage fetch failed with error: ${err}`,
+        type: LogType.ERROR,
+      },
+    });
+    throw err;
+  }
 }
 
 export async function del(key: string) {
-  await S3.send(new DeleteObjectCommand({ Bucket: STORAGE_BUCKET, Key: key }));
+  try {
+    await storageClient.send(
+      new DeleteObjectCommand({ Bucket: STORAGE_BUCKET, Key: key })
+    );
+  } catch (err) {
+    await prisma.log.create({
+      data: {
+        message: `Storage deletion failed with error: ${err}`,
+        type: LogType.ERROR,
+      },
+    });
+    throw err;
+  }
 }

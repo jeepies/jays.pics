@@ -7,7 +7,7 @@ import {
 import { z } from "zod";
 import { generateInvisibleURL } from "~/lib/utils";
 import { prisma } from "~/services/database.server";
-import { uploadToS3 } from "~/services/s3.server";
+import { upload } from "~/services/s3.server";
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -26,7 +26,8 @@ export const meta: MetaFunction = () => {
 
 export async function action({ request }: ActionFunctionArgs) {
   const siteData = await prisma.site.findFirst();
-  if(siteData?.is_upload_blocked) return json({success: false, message: "Uploading is currently blocked"}) 
+  if (siteData?.is_upload_blocked)
+    return json({ success: false, message: "Uploading is currently blocked" });
 
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
@@ -94,10 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
     data: { space_used: user.space_used + image.size },
   });
 
-  const response = await uploadToS3(
-    result.data.image,
-    `${user.id}/${dbImage.id}`
-  );
+  const response = await upload(result.data.image, `${user.id}/${dbImage.id}`);
   if (response?.$metadata.httpStatusCode === 200) {
     const urls = user.upload_preferences!.urls;
     let url;
@@ -107,8 +105,8 @@ export async function action({ request }: ActionFunctionArgs) {
     const formedURL = `https://${url}/i/${dbImage.id}/`;
     let returnableURL = formedURL;
 
-    if(user.upload_preferences?.domain_hack) {
-      returnableURL = generateInvisibleURL(returnableURL)
+    if (user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL);
     }
 
     return json({
