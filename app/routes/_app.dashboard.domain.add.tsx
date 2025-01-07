@@ -1,4 +1,5 @@
-import { LogType, Progress } from "@prisma/client";
+import { Progress } from "~/lib/enums/progress";
+import { LogType } from "~/lib/enums/logtype";
 import { Label } from "@radix-ui/react-label";
 import {
   ActionFunctionArgs,
