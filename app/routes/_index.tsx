@@ -4,7 +4,7 @@ import type {
   ActionFunctionArgs,
 } from "@remix-run/node";
 import {
-  Outlet, // dont forget this guy :3
+  Outlet,
   redirect,
   useLoaderData,
   Form,
