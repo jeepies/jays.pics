@@ -81,7 +81,7 @@ export default function Dashboard() {
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
-    window.location.href = "/dashboard/idex";
+    window.location.href = "/dashboard/index";
   }
 
   const [totalStorage, setTotalStorage] = useState(0);
