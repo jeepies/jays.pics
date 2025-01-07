@@ -9,13 +9,15 @@ export function Navbar() {
       <div className="container px-4 mx-auto flex h-14 items-center">
         <div className="flex-1">
           <Link to="/" className="flex items-center">
-            <span className="font-bold">UploadBytes</span>
+            <span className="font-bold text-white">jays.pics</span>
           </Link>
         </div>
         <div className="flex justify-end">
-          <Button variant="secondary" size="sm">
-            Get Started
-          </Button>
+          <Link to="/register">
+            <Button variant="secondary" size="sm">
+              Get Started
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
