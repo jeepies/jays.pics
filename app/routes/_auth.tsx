@@ -13,38 +13,29 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
-
   if (session.has("userID")) return redirect("/dashboard/index");
-
   return null;
 }
 
-export default function Auth() {
-  const [showEmoji, setShowEmoji] = useState(true);
-  const [showContent, setShowContent] = useState(false);
-  const [hasShownEmoji, setHasShownEmoji] = useState(false);
-  const location = useLocation();
+export default function Authorization() {
+  const [shouldShowEmoji, setShouldShowEmoji] = useState(true);
 
   useEffect(() => {
-    if (!hasShownEmoji) {
-      const emojiTimer = setTimeout(() => setShowEmoji(false), 2000);
-      const contentTimer = setTimeout(() => setShowContent(true), 2500);
-      setHasShownEmoji(true);
-      return () => {
-        clearTimeout(emojiTimer);
-        clearTimeout(contentTimer);
-      };
-    } else {
-      setShowEmoji(false);
-      setShowContent(true);
-    }
+    if (localStorage.getItem("has_seen_wave") === "true")
+      return setShouldShowEmoji(false);
+
+    const animationTimer = setTimeout(() => setShouldShowEmoji(false), 2000);
+    return () => {
+      clearTimeout(animationTimer);
+      localStorage.setItem("has_seen_wave", "true");
+    };
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="relative w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background dark">
+      <div className="relative w-full max-w-md dark">
         <AnimatePresence>
-          {showEmoji && (
+          {shouldShowEmoji ? (
             <motion.div
               initial={{ opacity: 1 }}
               animate={{
@@ -58,24 +49,8 @@ export default function Auth() {
             >
               👋
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showContent && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="w-full"
-            >
-              <h2 className="text-2xl font-bold text-center mb-6">
-                {location.pathname.includes("register")
-                  ? "Create an Account"
-                  : "Log In"}
-              </h2>
-              <Outlet />
-            </motion.div>
+          ) : (
+            <Outlet />
           )}
         </AnimatePresence>
       </div>
