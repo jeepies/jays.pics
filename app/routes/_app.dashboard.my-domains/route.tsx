@@ -6,6 +6,7 @@ import { prisma } from "~/services/database.server";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { getSession, getUserBySession } from "~/services/session.server";
+import { PrivacyPickerURL } from "~/components/privacyPicker";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(
@@ -39,7 +40,11 @@ export default function MyDomains() {
         </CardHeader>
         <CardContent>
           <DataTable columns={columns} data={urls} selected={[]} />
-          <Button className="mt-2">
+          <PrivacyPickerURL/>
+          <Button className="ml-2 mt-2">
+            <Link to="/dashboard/my-domains/">Save</Link>
+          </Button>
+          <Button className="ml-2 mt-2">
             <Link to="/dashboard/domain/add">Add Domain</Link>
           </Button>
           <Button className="mt-2 ml-2">
