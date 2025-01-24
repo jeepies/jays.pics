@@ -19,40 +19,50 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Authorization() {
   const [shouldShowEmoji, setShouldShowEmoji] = useState(true);
+  const [shouldRenderContent, setShouldRenderContent] = useState(false);
+
+  // shouldRenderContent is an extremely awful implementation
+  // as slower connections could assume an error with the website
+  // as they will see a grey screen for longer/forever
+  // This is a temporary workaround to stop the wave emoji
+  // from flickering when navigating to this page
 
   useEffect(() => {
-    if (localStorage.getItem("has_seen_wave") === "true")
-      return setShouldShowEmoji(false);
-
-    const animationTimer = setTimeout(() => setShouldShowEmoji(false), 2000);
-    return () => {
-      clearTimeout(animationTimer);
-      localStorage.setItem("has_seen_wave", "true");
-    };
-  }, []);
+    if (localStorage.getItem("hasSeenEmoji") === "true") {
+      setShouldShowEmoji(false);
+    } else {
+      setTimeout(() => {
+        localStorage.setItem("hasSeenEmoji", "true");
+        setShouldShowEmoji(false);
+      }, 2000);
+    }
+    setShouldRenderContent(true);
+  }, [shouldShowEmoji]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background dark">
       <div className="relative w-full max-w-md dark">
-        <AnimatePresence>
-          {shouldShowEmoji ? (
-            <motion.div
-              initial={{ opacity: 1 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                rotate: [0, -10, 10, -10, 10, 0],
-              }}
-              exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.5 } }}
-              transition={{ duration: 2, ease: "easeInOut" }}
-              className="absolute inset-0 flex items-center justify-center text-9xl"
-            >
-              👋
-            </motion.div>
-          ) : (
-            <Outlet />
-          )}
-        </AnimatePresence>
+        {shouldRenderContent && (
+          <AnimatePresence>
+            {shouldShowEmoji ? (
+              <motion.div
+                initial={{ opacity: 1 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  rotate: [0, -10, 10, -10, 10, 0],
+                }}
+                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.5 } }}
+                transition={{ duration: 2, ease: "easeInOut" }}
+                className="absolute inset-0 flex items-center justify-center text-9xl"
+              >
+                👋
+              </motion.div>
+            ) : (
+              <Outlet />
+            )}
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
