@@ -23,7 +23,7 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <Form className="space-y-4" method="post">
+    <Form className="space-y-4 dark text-white" method="post">
       <div className="space-y-1">
         <Label htmlFor="username">Username</Label>
         <Input

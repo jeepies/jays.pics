@@ -35,11 +35,11 @@ export default function Register() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <Form className="space-y-4" method="post">
+    <Form className="space-y-4 dark text-white" method="post">
       <div className="space-y-1">
         <Label htmlFor="username">Username</Label>
         <Input id="username" name="username" placeholder="jeepies" required />
-        <div className="text-red-500 text-sm">
+        <div className="text-red-500 text-sm dark">
           {actionData?.fieldErrors.username}
         </div>
       </div>
