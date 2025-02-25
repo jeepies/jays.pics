@@ -7,6 +7,7 @@ import {
   Database,
   FileImage,
   Globe,
+  Link2,
   MessageSquare,
   User,
   Zap,
@@ -19,6 +20,7 @@ import FlickeringGrid from "~/components/ui/flickering-grid";
 import { FaGithub } from "react-icons/fa";
 import { prisma } from "~/services/database.server";
 import prettyBytes from "pretty-bytes";
+import { Progress } from "@prisma/client";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -34,12 +36,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     })
   )._sum.space_used;
+  const domainsTotal = await prisma.uRL.count({
+    where: {
+      progress: Progress.DONE,
+    },
+  });
 
-  return { imageTotal, userTotal, storageTotal };
+  return { imageTotal, userTotal, storageTotal, domainsTotal };
 }
 
 export default function Index() {
-  const { imageTotal, userTotal, storageTotal } =
+  const { imageTotal, userTotal, storageTotal, domainsTotal } =
     useLoaderData<typeof loader>();
 
   return (
@@ -109,7 +116,7 @@ export default function Index() {
                 height={1440}
               />
             </div>
-            <div className="border-x border-t grid grid-cols-1 sm:grid-cols-3">
+            <div className="border-x border-t grid grid-cols-1 sm:grid-cols-4">
               <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
                 <div className="text-[4rem] font-bold font-mono tracking-tight">
                   {imageTotal}
@@ -128,13 +135,22 @@ export default function Index() {
                   <span>Users</span>
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center space-y-2 p-4">
+              <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
                 <div className="text-[4rem] font-bold font-mono tracking-tight">
                   {prettyBytes(storageTotal).replace(" ", "")}
                 </div>
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
                   <span>Stored</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center space-y-2 p-4">
+                <div className="text-[4rem] font-bold font-mono tracking-tight">
+                  {domainsTotal}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4" />
+                  <span>Domains</span>
                 </div>
               </div>
             </div>
