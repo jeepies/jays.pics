@@ -137,7 +137,7 @@ export default function Index() {
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
                 <div className="text-[4rem] font-bold font-mono tracking-tight">
-                  {prettyBytes(storageTotal).replace(" ", "")}
+                  {prettyBytes(storageTotal ?? 0).replace(" ", "")}
                 </div>
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
