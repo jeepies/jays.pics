@@ -1,26 +1,22 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
-import { generateInvisibleURL } from "~/lib/utils";
-import { prisma } from "~/services/database.server";
-import {
-  destroySession,
-  getSession,
-  getUserBySession,
-} from "~/services/session.server";
+import { LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent } from '~/components/ui/card';
+import { generateInvisibleURL } from '~/lib/utils';
+import { prisma } from '~/services/database.server';
+import { destroySession, getSession, getUserBySession } from '~/services/session.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
 
-  if (!session.has("userID")) return redirect("/");
+  if (!session.has('userID')) return redirect('/');
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect("/", {
+    return redirect('/', {
       headers: {
-        "Set-Cookie": await destroySession(session),
+        'Set-Cookie': await destroySession(session),
       },
     });
 
@@ -29,10 +25,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   const url = new URL(request.url);
-  const query = url.searchParams.get("generate_link");
+  const query = url.searchParams.get('generate_link');
 
   let clipboard;
-  if(query !== null) {
+  if (query !== null) {
     const urls = user.upload_preferences!.urls;
     let url;
     if (urls.length === 1) url = urls[0];
@@ -41,8 +37,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const formedURL = `https://${url}/i/${query}/`;
     let returnableURL = formedURL;
 
-    if(user.upload_preferences?.domain_hack) {
-      returnableURL = generateInvisibleURL(returnableURL)
+    if (user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL);
     }
 
     clipboard = returnableURL;
@@ -54,9 +50,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Images() {
   const { images, clipboard } = useLoaderData<typeof loader>();
 
-  if(clipboard) {
+  if (clipboard) {
     navigator.clipboard.writeText(clipboard);
-    window.location.href = "/dashboard/images"
+    window.location.href = '/dashboard/images';
+  }
+
+  if (images.length === 0) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <h1 className='text-5xl'>Nothing here :(</h1>
+      </div>
+    );
+    // TODO: Put text underneath linking to the help guides
   }
 
   return (
@@ -72,13 +77,11 @@ export default function Images() {
             <p className="mt-2 truncate text-sm font-medium hover:text-primary">
               <a href={`/i/${image.id}`}>{image.display_name}</a>
             </p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(image.created_at).toLocaleDateString()}
-            </p>
+            <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
             <Form>
-            <Link to={`?generate_link=${image.id}`}>
-              <Button>Link</Button>
-            </Link>
+              <Link to={`?generate_link=${image.id}`}>
+                <Button>Link</Button>
+              </Link>
             </Form>
             <Link to={`/i/${image.id}/delete`}>
               <Button>Delete</Button>
