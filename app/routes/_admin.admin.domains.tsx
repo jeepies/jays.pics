@@ -48,7 +48,7 @@ export default function Users() {
 
   return (
     <>
-      {" "}
+      
       <Card className="mt-4">
         <CardHeader>
           <CardTitle>Domains</CardTitle>
@@ -80,7 +80,7 @@ export default function Users() {
                       </a>
                     </TableCell>
                     <TableCell className="text-right">
-                      {new Date(url.created_at).toLocaleDateString()} @{" "}
+                      {new Date(url.created_at).toLocaleDateString()} @
                       {new Date(url.created_at).toLocaleTimeString()}
                     </TableCell>
                   </TableRow>

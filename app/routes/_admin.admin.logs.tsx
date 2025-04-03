@@ -34,7 +34,7 @@ export default function Users() {
 
   return (
     <>
-      {" "}
+      
       <Card className="mt-4">
         <CardHeader>
           <CardTitle>Logs</CardTitle>
@@ -56,7 +56,7 @@ export default function Users() {
                     <TableCell className="font-medium">{log.message}</TableCell>
                     <TableCell>{log.type}</TableCell>
                     <TableCell className="text-right">
-                      {new Date(log.created_at).toLocaleDateString()} @{" "}
+                      {new Date(log.created_at).toLocaleDateString()} @
                       {new Date(log.created_at).toLocaleTimeString()}
                     </TableCell>
                   </TableRow>

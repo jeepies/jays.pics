@@ -114,7 +114,7 @@ export default function Profile() {
                     <a href={`/i/${image.id}`}>{image.display_name}</a>
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()} at{" "}
+                    {new Date(image.created_at).toLocaleDateString()} at
                     {new Date(image.created_at).toLocaleTimeString()}
                   </p>
                 </CardContent>
@@ -132,11 +132,11 @@ export default function Profile() {
             </CardHeader>
             <CardContent>
               <p>
-                This user has been a member since{" "}
+                This user has been a member since
                 {new Date(user.created_at).toLocaleDateString()}.
               </p>
               <p className="mt-2">
-                They have uploaded {images.length} images and have{" "}
+                They have uploaded {images.length} images and have
                 {referrals.length} referral(s).
               </p>
 
