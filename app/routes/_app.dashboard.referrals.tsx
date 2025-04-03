@@ -1,42 +1,28 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import { prisma } from "~/services/database.server";
-import { getSession, getUserBySession } from "~/services/session.server";
+import { LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { Link, useLoaderData, useParams } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
+import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
 import { v4 } from 'uuid';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
   const user = await getUserBySession(session);
 
   const url = new URL(request.url);
-  const query = url.searchParams.get("regenerate");
+  const query = url.searchParams.get('regenerate');
 
-  if(query !== null) {
+  if (query !== null) {
     await prisma.referrerProfile.update({
       where: { userId: user!.id },
       data: {
-        referral_code: v4()
-      }
-    })
-    return redirect('/dashboard/referrals')
+        referral_code: v4(),
+      },
+    });
+    return redirect('/dashboard/referrals');
   }
 
   const referrals = await prisma.referral.findMany({
@@ -50,14 +36,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return await { data: { referrals: referrals }, user };
 }
 
-function copy() {
-  const referralCode = document.getElementById("referral-code");
+function copy(event: any) {
+  const referralCode = document.getElementById('referral-code');
+  const button = event.target;
   // @ts-ignore
   referralCode.select();
   // @ts-ignore
   referralCode.setSelectionRange(0, 99999);
   // @ts-ignore
   navigator.clipboard.writeText(referralCode!.value);
+
+  button.innerText = 'Copied';
+
+  setTimeout(() => {
+    button.innerText = 'Copy';
+  }, 1200);
 
   // TODO change button text to copied, then after an interval back to Copy
 }
@@ -73,13 +66,8 @@ export default function Referrals() {
             <CardTitle>Your Referral Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              id="referral-code"
-              className="text-center"
-              value={user?.referrer_profile?.referral_code}
-              readOnly
-            />
-            <Button onClick={copy} className="mt-2 w-full">
+            <Input id="referral-code" className="text-center" value={user?.referrer_profile?.referral_code} readOnly />
+            <Button id="copy-button" onClick={copy} className="mt-2 w-full">
               Copy
             </Button>
             <Link to="?regenerate">
@@ -91,8 +79,7 @@ export default function Referrals() {
           <CardHeader>
             <CardTitle>Your Referrals</CardTitle>
             <CardDescription>
-              You have used {data.referrals.length} of{" "}
-              {user?.referrer_profile?.referral_limit} referrals
+              You have used {data.referrals.length} of {user?.referrer_profile?.referral_limit} referrals
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -108,13 +95,9 @@ export default function Referrals() {
                   return (
                     <TableRow key={referral.referred.id}>
                       <TableCell className="font-medium">
-                        <a href={`/profile/${referral.referred.id}`}>
-                          {referral.referred.username}
-                        </a>
+                        <a href={`/profile/${referral.referred.id}`}>{referral.referred.username}</a>
                       </TableCell>
-                      <TableCell className="text-right">
-                        {new Date(referral.created_at).toLocaleDateString()}
-                      </TableCell>
+                      <TableCell className="text-right">{new Date(referral.created_at).toLocaleDateString()}</TableCell>
                     </TableRow>
                   );
                 })}
