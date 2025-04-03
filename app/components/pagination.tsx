@@ -9,7 +9,7 @@ interface PaginationProps {
   totalCount: number;
 }
 
-export function Pagination(props: PaginationProps) {
+export function Pagination(props: Readonly<PaginationProps>) {
   const [page, setPage] = useState(props.currentPage);
 
   const totalPages = Math.ceil(props.totalCount / PAGE_SIZE);
