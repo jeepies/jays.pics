@@ -82,7 +82,7 @@ export default function AddDomain() {
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardHeader>
-              {" "}
+              
               <CardTitle>What domain would you like to link?</CardTitle>
             </CardHeader>
             <CardContent>
@@ -132,7 +132,7 @@ export default function AddDomain() {
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardHeader>
-              {" "}
+              
               <CardTitle>What domain would you like to link?</CardTitle>
             </CardHeader>
             <CardContent>

@@ -57,7 +57,7 @@ export default function Index() {
           <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-x-8 w-full p-6 lg:p-12 border-x overflow-hidden">
             <div className="z-10 flex min-h-64 items-start justify-center flex-col">
               <AnimatedGradientText align="left">
-                🎉 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />{" "}
+                🎉 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
                 <span
                   className={cn(
                     `inline animate-gradient bg-gradient-to-r from-primary via-secondary to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`

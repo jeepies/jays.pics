@@ -140,7 +140,7 @@ export function Sidebar({ className, user }: SidebarProps) {
           </Button>
           {user.is_admin ? (
             <>
-              {" "}
+              
               <Button
                 asChild
                 variant="ghost"

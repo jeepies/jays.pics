@@ -162,7 +162,7 @@ export default function Dashboard() {
                 className="mt-2"
               />
               <p className="text-xs text-muted-foreground mt-2">
-                {((totalStorage / storageLimit) * 100).toFixed(2)}% of{" "}
+                {((totalStorage / storageLimit) * 100).toFixed(2)}% of
                 {prettyBytes(storageLimit)} limit
               </p>
             </CardContent>
