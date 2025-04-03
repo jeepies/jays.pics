@@ -47,12 +47,9 @@ function copy(event: any) {
   navigator.clipboard.writeText(referralCode!.value);
 
   button.innerText = 'Copied';
-
   setTimeout(() => {
     button.innerText = 'Copy';
   }, 1200);
-
-  // TODO change button text to copied, then after an interval back to Copy
 }
 
 export default function Referrals() {
