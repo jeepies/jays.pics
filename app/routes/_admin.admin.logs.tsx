@@ -54,7 +54,7 @@ export default function Users() {
                 })}
             </TableBody>
           </Table>
-          <Pagination path={'/admin/logs'} currentPage={page} totalCount={count}/>
+          <Pagination path="/admin/logs" currentPage={page} totalCount={count} />
         </CardContent>
       </Card>
     </>

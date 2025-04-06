@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
+import { PAGE_SIZE, Pagination } from '~/components/pagination';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
 import { generateInvisibleURL } from '~/lib/utils';
@@ -20,11 +21,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+
   const images = await prisma.image.findMany({
+    where: { uploader_id: user.id },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
+  });
+  const imageCount = await prisma.image.count({
     where: { uploader_id: user.id },
   });
 
-  const url = new URL(request.url);
   const query = url.searchParams.get('generate_link');
 
   let clipboard;
@@ -44,11 +52,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { images, clipboard };
+  return { images, clipboard, page, imageCount };
 }
 
 export default function Images() {
-  const { images, clipboard } = useLoaderData<typeof loader>();
+  const { images, clipboard, page, imageCount } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -58,7 +66,7 @@ export default function Images() {
   if (images.length === 0) {
     return (
       <div className="h-screen flex items-center justify-center">
-        <h1 className='text-5xl'>Nothing here :(</h1>
+        <h1 className="text-5xl">Nothing here :(</h1>
       </div>
     );
     // TODO: Put text underneath linking to the help guides
@@ -67,7 +75,7 @@ export default function Images() {
   return (
     <div className="p-4">
       {images.map((image) => (
-        <Card key={image.id}>
+        <Card key={image.id} className="m-2">
           <CardContent className="p-2">
             <img
               src={`/i/${image.id}/raw`}
@@ -89,6 +97,7 @@ export default function Images() {
           </CardContent>
         </Card>
       ))}
+      <Pagination path="/dashboard/images" currentPage={page} totalCount={imageCount} />
     </div>
   );
 }
