@@ -72,8 +72,8 @@ export default function Users() {
                       {
                         user.images.filter((image) => image.deleted_at === null)
                           .length
-                      }{" "}
-                      ({prettyBytes(user.space_used)}, w/ deleted:{" "}
+                      }
+                      ({prettyBytes(user.space_used)}, w/ deleted:
                       {user.images.length})
                     </TableCell>
                     <TableCell>{user.donated_urls.length}</TableCell>
