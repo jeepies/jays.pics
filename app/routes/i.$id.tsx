@@ -56,7 +56,7 @@ export default function Image() {
       <div className="container mx-auto px-4 py-8">
         <Card className="w-full h-2/3">
           <CardContent>
-            <img src={`/i/${data.image.id}/raw`} />
+            <img src={`/i/${data.image.id}/raw`} title={data.image.display_name} />
           </CardContent>
         </Card>
       </div>
