@@ -20,7 +20,7 @@ export function Pagination(props: Readonly<PaginationProps>) {
       </Button>
 
       {new Array(10).fill(0).map((_, idx) => (
-        <Button variant="outline" disabled={idx > totalPages-1}>
+        <Button variant="outline" disabled={idx > totalPages-1} key={idx}>
           <Link to={`${props.path}?page=${idx+1}`}>{idx+1}</Link>
         </Button>
       ))}

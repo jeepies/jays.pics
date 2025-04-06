@@ -1,6 +1,6 @@
-import { Link } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
+import { Link } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
+import { cn } from '~/lib/utils';
 import {
   Cog,
   Home,
@@ -14,10 +14,10 @@ import {
   Globe2,
   BellDotIcon,
   Bell,
-} from "lucide-react";
-import { ThemeToggle } from "./themetoggle";
-import { Separator } from "./separator";
-import { Prisma } from "@prisma/client";
+} from 'lucide-react';
+import { ThemeToggle } from './themetoggle';
+import { Separator } from './separator';
+import { Prisma } from '@prisma/client';
 
 interface SidebarProps {
   className?: string;
@@ -30,7 +30,7 @@ interface SidebarProps {
 
 export function Sidebar({ className, user }: SidebarProps) {
   return (
-    <div className={cn("pb-12 w-64 relative", className)}>
+    <div className={cn('pb-12 w-64 relative', className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -43,21 +43,13 @@ export function Sidebar({ className, user }: SidebarProps) {
           </h2>
           <Separator className="my-4" />
           <div className="space-y-1">
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/index">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/images">
                 <Image className="mr-2 h-4 w-4" />
                 Images
@@ -66,41 +58,25 @@ export function Sidebar({ className, user }: SidebarProps) {
                 </span> */}
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/referrals">
                 <Link2 className="mr-2 h-4 w-4" />
                 Referrals
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/upload-settings">
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Upload Config
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/domains">
                 <Globe2 className="mr-2 h-4 w-4" />
                 Domains
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="w-full justify-start text-gray-900 dark:text-gray-100"
-            >
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/help">
                 <FileQuestion className="mr-2 h-4 w-4" />
                 Help
@@ -111,47 +87,28 @@ export function Sidebar({ className, user }: SidebarProps) {
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-gray-900 dark:text-gray-100"
-          >
+          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <Link to="/dashboard/settings">
               <Cog className="mr-2 h-4 w-4" />
               Settings
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-gray-900 dark:text-gray-100"
-          >
+          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <Link to="/profile/me">
               <User className="mr-2 h-4 w-4" />
               {user.username}
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-gray-900 dark:text-gray-100"
-          >
+          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <ThemeToggle />
           </Button>
           {user.is_admin ? (
-            <>
-              
-              <Button
-                asChild
-                variant="ghost"
-                className="w-full justify-start text-gray-900 dark:text-gray-100"
-              >
-                <Link to="/admin/index">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin Dashboard
-                </Link>
-              </Button>
-            </>
+            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+              <Link to="/admin/index">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Dashboard
+              </Link>
+            </Button>
           ) : (
             <></>
           )}

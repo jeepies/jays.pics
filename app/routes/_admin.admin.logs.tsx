@@ -22,41 +22,38 @@ export default function Users() {
   const { count, logs, page } = useLoaderData<typeof loader>();
 
   return (
-    <>
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Logs - {page}</CardTitle>
-          <CardDescription>There are {count} logs</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="max-w-96">Message</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Date of Creation</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs
-                .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
-                .map((log) => {
-                  return (
-                    <TableRow>
-                      <TableCell className="font-medium">{log.message}</TableCell>
-                      <TableCell>{log.type}</TableCell>
-                      <TableCell className="text-right">
-                        {new Date(log.created_at).toLocaleDateString()} @{' '}
-                        {new Date(log.created_at).toLocaleTimeString()}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-          <Pagination path="/admin/logs" currentPage={page} totalCount={count} />
-        </CardContent>
-      </Card>
-    </>
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle>Logs - {page}</CardTitle>
+        <CardDescription>There are {count} logs</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="max-w-96">Message</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Date of Creation</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {logs
+              .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
+              .map((log) => {
+                return (
+                  <TableRow>
+                    <TableCell className="font-medium">{log.message}</TableCell>
+                    <TableCell>{log.type}</TableCell>
+                    <TableCell className="text-right">
+                      {new Date(log.created_at).toLocaleDateString()} @ {new Date(log.created_at).toLocaleTimeString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+        <Pagination path="/admin/logs" currentPage={page} totalCount={count} />
+      </CardContent>
+    </Card>
   );
 }
