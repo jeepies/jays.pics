@@ -1,31 +1,22 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, Link, useLoaderData } from "@remix-run/react";
-import { getSession } from "~/services/session.server";
-import { Button } from "~/components/ui/button";
-import {
-  ChevronRight,
-  Database,
-  FileImage,
-  Globe,
-  Link2,
-  MessageSquare,
-  User,
-  Zap,
-} from "lucide-react";
-import { Navbar } from "~/components/navbar";
-import AnimatedGradientText from "~/components/ui/animated-gradient-text";
-import { cn } from "~/lib/utils";
-import uploadIllustration from "~/assets/uploadIllustration.svg";
-import FlickeringGrid from "~/components/ui/flickering-grid";
-import { FaGithub } from "react-icons/fa";
-import { prisma } from "~/services/database.server";
-import prettyBytes from "pretty-bytes";
-import { Progress } from "@prisma/client";
+import { Progress } from '@prisma/client';
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import { Link, redirect, useLoaderData } from '@remix-run/react';
+import { ChevronRight, Database, FileImage, Globe, Link2, MessageSquare, User, Zap } from 'lucide-react';
+import prettyBytes from 'pretty-bytes';
+import { FaGithub } from 'react-icons/fa';
+import uploadIllustration from '~/assets/uploadIllustration.svg';
+import { Navbar } from '~/components/navbar';
+import AnimatedGradientText from '~/components/ui/animated-gradient-text';
+import { Button } from '~/components/ui/button';
+import FlickeringGrid from '~/components/ui/flickering-grid';
+import { cn } from '~/lib/utils';
+import { prisma } from '~/services/database.server';
+import { getSession } from '~/services/session.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
 
-  if (session.has("userID")) return redirect("/dashboard/index");
+  if (session.has('userID')) return redirect('/dashboard/index');
 
   const imageTotal = await prisma.image.count();
   const userTotal = await prisma.user.count();
@@ -46,8 +37,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { imageTotal, userTotal, storageTotal, domainsTotal } =
-    useLoaderData<typeof loader>();
+  const { imageTotal, userTotal, storageTotal, domainsTotal } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-background dark">
@@ -72,10 +62,8 @@ export default function Index() {
               </p>
 
               <h2 className="mt-[.5rem] text-[1rem] leading-relaxed max-w-md text-left text-white">
-                Say goodbye to complicated image hosting. jays.pics gives you a
-                streamlined platform to store and share your files, with
-                enterprise-grade security and lightning-fast delivery on your
-                images.
+                Say goodbye to complicated image hosting. jays.pics gives you a streamlined platform to store and share
+                your files, with enterprise-grade security and lightning-fast delivery on your images.
               </h2>
 
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start text-lg">
@@ -90,11 +78,7 @@ export default function Index() {
               </div>
             </div>
             <div className="z-0 relative flex items-center justify-center">
-              <img
-                src={uploadIllustration}
-                alt="A person uploading a file"
-                className="w-full"
-              />
+              <img src={uploadIllustration} alt="A person uploading a file" className="w-full" />
             </div>
           </div>
         </section>
@@ -118,18 +102,14 @@ export default function Index() {
             </div>
             <div className="border-x border-t grid grid-cols-1 sm:grid-cols-4">
               <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
-                <div className="text-[4rem] font-bold font-mono tracking-tight">
-                  {imageTotal}
-                </div>
+                <div className="text-[4rem] font-bold font-mono tracking-tight">{imageTotal}</div>
                 <div className="flex items-center gap-2">
                   <FileImage className="h-4 w-4" />
                   <span>Uploads</span>
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
-                <div className="text-[4rem] font-bold font-mono tracking-tight">
-                  {userTotal}
-                </div>
+                <div className="text-[4rem] font-bold font-mono tracking-tight">{userTotal}</div>
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   <span>Users</span>
@@ -137,7 +117,7 @@ export default function Index() {
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-4 border-r">
                 <div className="text-[4rem] font-bold font-mono tracking-tight">
-                  {prettyBytes(storageTotal ?? 0).replace(" ", "")}
+                  {prettyBytes(storageTotal ?? 0).replace(' ', '')}
                 </div>
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4" />
@@ -145,9 +125,7 @@ export default function Index() {
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-4">
-                <div className="text-[4rem] font-bold font-mono tracking-tight">
-                  {domainsTotal}
-                </div>
+                <div className="text-[4rem] font-bold font-mono tracking-tight">{domainsTotal}</div>
                 <div className="flex items-center gap-2">
                   <Link2 className="h-4 w-4" />
                   <span>Domains</span>
@@ -227,8 +205,7 @@ export default function Index() {
               <div className="flex flex-col items-center justify-center space-y-2 p-8 border-r">
                 <h3 className="font-semibold text-lg">What is jays.pics?</h3>
                 <p className="text-sm text-muted-foreground text-center">
-                  jays.pics is a modern image hosting platform focused on
-                  simplicity and speed.
+                  jays.pics is a modern image hosting platform focused on simplicity and speed.
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-8 border-r">
@@ -238,13 +215,10 @@ export default function Index() {
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center space-y-2 p-8">
-                <h3 className="font-semibold text-lg">
-                  What files can I upload?
-                </h3>
+                <h3 className="font-semibold text-lg">What files can I upload?</h3>
                 {/* TODO: update this lol */}
                 <p className="text-sm text-muted-foreground text-center">
-                  We support most common image formats including PNG, JPEG, GIF
-                  etc.
+                  We support most common image formats including PNG, JPEG, GIF etc.
                 </p>
               </div>
             </div>
@@ -254,14 +228,9 @@ export default function Index() {
       <footer className="w-full border-t">
         <div className="container mx-auto text-white">
           <div className="flex items-center justify-between p-4">
-            <div className="text-sm text-muted-foreground">
-              © 2025 jays.pics. All rights reserved.
-            </div>
+            <div className="text-sm text-muted-foreground">© 2025 jays.pics. All rights reserved.</div>
             <div className="flex items-center space-x-4">
-              <Link
-                to="https://github.com/jeepies/jays.pics"
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Link to="https://github.com/jeepies/jays.pics" className="text-muted-foreground hover:text-foreground">
                 <FaGithub className="h-4 w-4" />
               </Link>
             </div>

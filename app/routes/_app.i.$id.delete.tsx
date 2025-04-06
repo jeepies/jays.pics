@@ -1,10 +1,6 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { prisma } from "~/services/database.server";
-import { del } from "~/services/s3.server";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { prisma } from '~/services/database.server';
+import { del } from '~/services/s3.server';
 
 export async function action({ params }: ActionFunctionArgs) {
   const image = await prisma.image.findFirst({
@@ -27,7 +23,7 @@ export async function action({ params }: ActionFunctionArgs) {
   });
 
   del(`${image?.uploader.id}/${image?.id}`);
-  return redirect("/dashboard/images");
+  return redirect('/dashboard/images');
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -51,5 +47,5 @@ export async function loader({ params }: LoaderFunctionArgs) {
   });
 
   del(`${image?.uploader.id}/${image?.id}`);
-  return redirect("/dashboard/images");
+  return redirect('/dashboard/images');
 }

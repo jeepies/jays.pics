@@ -1,13 +1,8 @@
-import {
-  ActionFunctionArgs,
-  json,
-  MetaFunction,
-  redirect,
-} from "@remix-run/node";
-import { z } from "zod";
-import { generateInvisibleURL } from "~/lib/utils";
-import { prisma } from "~/services/database.server";
-import { uploadToS3 } from "~/services/s3.server";
+import { ActionFunctionArgs, json, MetaFunction, redirect } from '@remix-run/node';
+import { z } from 'zod';
+import { generateInvisibleURL } from '~/lib/utils';
+import { prisma } from '~/services/database.server';
+import { uploadToS3 } from '~/services/s3.server';
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -15,18 +10,18 @@ const schema = z.object({
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Upload | jays.pics" },
-    { name: "description", content: "Administration Dashboard" },
+    { title: 'Upload | jays.pics' },
+    { name: 'description', content: 'Administration Dashboard' },
     {
-      name: "theme-color",
-      content: "#e05cd9",
+      name: 'theme-color',
+      content: '#e05cd9',
     },
   ];
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   const siteData = await prisma.site.findFirst();
-  if(siteData?.is_upload_blocked) return json({success: false, message: "Uploading is currently blocked"}) 
+  if (siteData?.is_upload_blocked) return json({ success: false, message: 'Uploading is currently blocked' });
 
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
@@ -37,14 +32,14 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const image = result.data.image;
-
+  /*  */
   const url = new URL(request.url);
   const paramEntries = Object.fromEntries(url.searchParams.entries());
 
   if (!paramEntries.upload_key)
     return json({
       success: false,
-      message: "Upload key is not set",
+      message: 'Upload key is not set',
     });
 
   const user = await prisma.user.findFirst({
@@ -60,23 +55,21 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!user) {
     return json({
       success: false,
-      message: "You are not authorised",
+      message: 'You are not authorised',
     });
   }
 
-  if (
-    !["image/png", "image/gif", "image/jpeg", "image/webp"].includes(image.type)
-  ) {
+  if (!['image/png', 'image/gif', 'image/jpeg', 'image/webp'].includes(image.type)) {
     return json({
       success: false,
-      message: "Incorrect file type",
+      message: 'Incorrect file type',
     });
   }
 
   if (user.space_used + image.size > user.max_space) {
     return json({
       success: false,
-      message: "When uploading this image, your allocated space was exceeded.",
+      message: 'When uploading this image, your allocated space was exceeded.',
     });
   }
 
@@ -94,10 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
     data: { space_used: user.space_used + image.size },
   });
 
-  const response = await uploadToS3(
-    result.data.image,
-    `${user.id}/${dbImage.id}`
-  );
+  const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
   if (response?.$metadata.httpStatusCode === 200) {
     const urls = user.upload_preferences!.urls;
     let url;
@@ -107,8 +97,8 @@ export async function action({ request }: ActionFunctionArgs) {
     const formedURL = `https://${url}/i/${dbImage.id}/`;
     let returnableURL = formedURL;
 
-    if(user.upload_preferences?.domain_hack) {
-      returnableURL = generateInvisibleURL(returnableURL)
+    if (user.upload_preferences?.domain_hack) {
+      returnableURL = generateInvisibleURL(returnableURL);
     }
 
     return json({
@@ -119,10 +109,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return json({
     success: false,
-    message: "An unknown error occured.",
+    message: 'An unknown error occured.',
   });
 }
 
 export async function loader() {
-  return redirect("/");
+  return redirect('/');
 }

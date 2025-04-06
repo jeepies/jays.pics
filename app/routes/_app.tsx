@@ -1,34 +1,30 @@
-import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
-import {
-  destroySession,
-  getSession,
-  getUserBySession,
-} from "~/services/session.server";
-import { Sidebar } from "~/components/ui/sidebar";
+import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
+import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
+import { Sidebar } from '~/components/ui/sidebar';
+import { destroySession, getSession, getUserBySession } from '~/services/session.server';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Dashboard | jays.pics" },
-    { name: "description", content: "Invite-only Image Hosting" },
+    { title: 'Dashboard | jays.pics' },
+    { name: 'description', content: 'Invite-only Image Hosting' },
     {
-      name: "theme-color",
-      content: "#e05cd9",
+      name: 'theme-color',
+      content: '#e05cd9',
     },
   ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
 
-  if (!session.has("userID")) return redirect("/");
+  if (!session.has('userID')) return redirect('/');
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect("/", {
+    return redirect('/', {
       headers: {
-        "Set-Cookie": await destroySession(session),
+        'Set-Cookie': await destroySession(session),
       },
     });
 
@@ -51,5 +47,5 @@ export default function Application() {
 }
 
 export function useAppLoaderData() {
-  return useRouteLoaderData<typeof loader>("routes/_app");
+  return useRouteLoaderData<typeof loader>('routes/_app');
 }

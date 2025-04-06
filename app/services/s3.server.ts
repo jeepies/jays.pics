@@ -1,20 +1,11 @@
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { Upload } from "@aws-sdk/lib-storage";
-import { Delete } from "lucide-react";
-import { Readable } from "stream";
-import { prisma } from "./database.server";
-import { LogType } from "@prisma/client";
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
+import { LogType } from '@prisma/client';
+import { prisma } from './database.server';
 
-const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } =
-  process.env;
+const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } = process.env;
 
-if (
-  !(STORAGE_ACCESS_KEY && STORAGE_SECRET && STORAGE_REGION && STORAGE_BUCKET)
-) {
+if (!(STORAGE_ACCESS_KEY && STORAGE_SECRET && STORAGE_REGION && STORAGE_BUCKET)) {
   throw new Error(`Storage is missing required configuration.`);
 }
 
@@ -43,17 +34,15 @@ export async function uploadToS3(file: File, filename: string) {
   } catch (err) {
     await prisma.log.create({
       data: {
-        message: "S3 failed with err " + err,
-        type: LogType.ERROR
+        message: 'S3 failed with err ' + err,
+        type: LogType.ERROR,
       },
     });
   }
 }
 
 export async function get(key: string) {
-  const res = await fetch(
-    `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`
-  );
+  const res = await fetch(`https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`);
   return await res.blob();
 }
 

@@ -1,38 +1,35 @@
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { prisma } from "~/services/database.server";
-import prettyBytes from "pretty-bytes";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Button } from "~/components/ui/button";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { z } from "zod";
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import prettyBytes from 'pretty-bytes';
+import { z } from 'zod';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { prisma } from '~/services/database.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const query = url.searchParams.get("action");
-  const value = url.searchParams.get("value")
+  const query = url.searchParams.get('action');
+  const value = url.searchParams.get('value');
 
-  if(query !== null) {
-    switch(query) {
-      case "site_block_toggle":
+  if (query !== null) {
+    switch (query) {
+      case 'site_block_toggle':
         await prisma.site.update({
           where: {
-            id: "",
+            id: '',
           },
           data: {
-            is_upload_blocked: (value === "true")
-          }
-        })
+            is_upload_blocked: value === 'true',
+          },
+        });
         break;
     }
   }
 
   const users = await prisma.user.count();
   const images = await prisma.image.count();
-  const bytesUsed = (
-    await prisma.image.findMany({ select: { size: true } })
-  ).reduce((acc, val) => acc + val.size, 0);
+  const bytesUsed = (await prisma.image.findMany({ select: { size: true } })).reduce((acc, val) => acc + val.size, 0);
 
   const imagesWithoutDeleted = await prisma.image.count({
     where: { deleted_at: null },
@@ -43,7 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       content: true,
     },
     orderBy: {
-      created_at: "desc",
+      created_at: 'desc',
     },
     take: 1,
   });
@@ -82,9 +79,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-medium">Storage</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {prettyBytes(data.bytesUsed)}
-            </div>
+            <div className="text-2xl font-bold">{prettyBytes(data.bytesUsed)}</div>
           </CardContent>
         </Card>
       </div>
@@ -95,16 +90,8 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input
-              className="hidden"
-              value={"update_annoucement"}
-              name="type"
-            />
-            <Input
-              className="mb-2"
-              name="content"
-              defaultValue={data.announcement[0].content}
-            />
+            <Input className="hidden" value={'update_annoucement'} name="type" />
+            <Input className="mb-2" name="content" defaultValue={data.announcement[0].content} />
             <Button type="submit">Post</Button>
           </Form>
         </CardContent>
@@ -119,11 +106,11 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={"danger_zone"} name="type" />
+            <Input className="hidden" value={'danger_zone'} name="type" />
           </Form>
           <div>
             <Link to={`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`}>
-            <Button>{data.siteData?.is_upload_blocked ? "Unblock Uploads" : "Block Uploads"}</Button>
+              <Button>{data.siteData?.is_upload_blocked ? 'Unblock Uploads' : 'Block Uploads'}</Button>
             </Link>
           </div>
         </CardContent>
@@ -134,9 +121,9 @@ export default function AdminDashboard() {
 
 const announcementSchema = z.object({
   content: z
-    .string({ required_error: "Content is required" })
-    .min(1, { message: "Should be atleast one character" })
-    .max(256, { message: "Should be 256 or less characters" }),
+    .string({ required_error: 'Content is required' })
+    .min(1, { message: 'Should be atleast one character' })
+    .max(256, { message: 'Should be 256 or less characters' }),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -144,10 +131,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get("type");
-  formData.delete("type");
+  const requestType = formData.get('type');
+  formData.delete('type');
 
-  if (requestType === "update_annoucement") {
+  if (requestType === 'update_annoucement') {
     result = announcementSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();

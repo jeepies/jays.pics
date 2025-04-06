@@ -1,21 +1,20 @@
-import { Prisma, User } from "@prisma/client";
-import { createCookieSessionStorage, Session } from "@remix-run/node";
-import { prisma } from "~/services/database.server";
+import { createCookieSessionStorage, Session } from '@remix-run/node';
+import { prisma } from '~/services/database.server';
 
 export let sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: "_session",
-    sameSite: "lax",
-    path: "/",
+    name: '_session',
+    sameSite: 'lax',
+    path: '/',
     httpOnly: true,
-    secrets: [process.env.SESSION_SECRET ?? "totally_secret"],
-    secure: process.env.NODE_ENV === "production",
+    secrets: [process.env.SESSION_SECRET ?? 'totally_secret'],
+    secure: process.env.NODE_ENV === 'production',
   },
 });
 
 export async function getUserBySession(session: Session) {
   return await prisma.user.findUnique({
-    where: { id: session.get("userID") },
+    where: { id: session.get('userID') },
     select: {
       id: true,
       username: true,

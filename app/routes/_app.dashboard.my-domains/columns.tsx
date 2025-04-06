@@ -1,8 +1,8 @@
-import { Progress } from "~/lib/enums/progress";
-import { Link } from "@remix-run/react";
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Label } from "~/components/ui/label";
+import { Link } from '@remix-run/react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Label } from '~/components/ui/label';
+import { Progress } from '~/lib/enums/progress';
 
 export type URL = {
   url: string;
@@ -13,13 +13,10 @@ export type URL = {
 
 export const columns: ColumnDef<URL>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -35,39 +32,33 @@ export const columns: ColumnDef<URL>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "url",
-    header: "Domain",
+    accessorKey: 'url',
+    header: 'Domain',
   },
   {
-    accessorKey: "public",
-    header: "Public",
-    cell: (cell) => (cell.getValue() ? "Yes" : "No"),
+    accessorKey: 'public',
+    header: 'Public',
+    cell: (cell) => (cell.getValue() ? 'Yes' : 'No'),
   },
   {
-    accessorKey: "progress",
-    header: "Status",
+    accessorKey: 'progress',
+    header: 'Status',
     cell: (cell) => {
       switch (cell.getValue()) {
         case Progress.DONE:
-          return "Linked!";
+          return 'Linked!';
         case Progress.INPUT:
-          const url = cell.row
-            .getAllCells()
-            .filter((cell) => cell.id.includes("_url"))[0];
+          const url = cell.row.getAllCells().filter((cell) => cell.id.includes('_url'))[0];
           if (!url) return <Label>An unknown error occured</Label>;
-          return (
-            <Link to={`/dashboard/domain/add?domain=${url.getValue() ?? ""}`}>
-              Input Required
-            </Link>
-          );
+          return <Link to={`/dashboard/domain/add?domain=${url.getValue() ?? ''}`}>Input Required</Link>;
         case Progress.WAITING:
-          return "Waiting...";
+          return 'Waiting...';
       }
     },
   },
   {
-    accessorKey: "last_checked_at",
-    header: "Last Checked",
+    accessorKey: 'last_checked_at',
+    header: 'Last Checked',
     cell: (cell) =>
       `${new Date(
         // @ts-ignore
@@ -78,8 +69,8 @@ export const columns: ColumnDef<URL>[] = [
       ).toLocaleDateString()}`,
   },
   {
-    accessorKey: "created_at",
-    header: "Donated At",
+    accessorKey: 'created_at',
+    header: 'Donated At',
     // @ts-ignore
     cell: (cell) =>
       `${new Date(
