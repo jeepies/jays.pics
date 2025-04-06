@@ -8,11 +8,11 @@ import * as React from "react";
 import React__default, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { PrismaClient, Progress as Progress$2, LogType as LogType$1 } from "@prisma/client";
+import { Sun, Moon, Bell, BellDotIcon, Home, Image as Image$1, Link2, ImageIcon, Globe2, FileQuestion, Cog, User, Shield, LogOut, CalendarIcon, ChevronLeft, ChevronRight, Users as Users$3, Images as Images$2, Logs, ArrowLeft, Ban, Upload as Upload$2, Link as Link$1, Plus, UserIcon, FileImage, Database, Globe, MessageSquare, Zap, LogIn } from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
-import { Sun, Moon, Bell, BellDotIcon, Home, Image as Image$1, Link2, ImageIcon, Globe2, FileQuestion, Cog, User, Shield, LogOut, CalendarIcon, ChevronLeft, ChevronRight, Users as Users$3, Images as Images$2, Logs, ArrowLeft, Ban, Upload as Upload$2, Link as Link$1, Plus, UserIcon, FileImage, Database, Globe, MessageSquare, Zap, LogIn } from "lucide-react";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
+import { PrismaClient, Progress as Progress$2, LogType as LogType$1 } from "@prisma/client";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Label as Label$1 } from "@radix-ui/react-label";
 import { z } from "zod";
@@ -25,11 +25,10 @@ import { AvatarImage as AvatarImage$1 } from "@radix-ui/react-avatar";
 import { v4 } from "uuid";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload as Upload$1 } from "@aws-sdk/lib-storage";
-import * as ProgressPrimitive from "@radix-ui/react-progress";
 import prettyBytes from "pretty-bytes";
+import * as ProgressPrimitive from "@radix-ui/react-progress";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import bcrypt from "bcryptjs";
-import { getClientIPAddress } from "remix-utils/get-client-ip-address";
 import { FaGithub } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
 const ABORT_DELAY = 5e3;
@@ -203,10 +202,7 @@ function templateReplacer(stringWithTemplates, data) {
     const s_match = match.toString();
     const key = s_match.replace("{{", "").replace("}}", "");
     const value = data[key];
-    stringWithTemplates = stringWithTemplates.replace(
-      s_match,
-      value === "" || value === void 0 ? s_match : value
-    );
+    stringWithTemplates = stringWithTemplates.replace(s_match, value === "" || value === void 0 ? s_match : value);
   });
   return stringWithTemplates;
 }
@@ -266,6 +262,159 @@ const CardFooter = React.forwardRef(({ className, ...props }, ref) => /* @__PURE
   }
 ));
 CardFooter.displayName = "CardFooter";
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline"
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9"
+      }
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default"
+    }
+  }
+);
+const Button = React.forwardRef(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return /* @__PURE__ */ jsx(
+      Comp,
+      {
+        className: cn(buttonVariants({ variant, size, className })),
+        ref,
+        ...props
+      }
+    );
+  }
+);
+Button.displayName = "Button";
+const Separator = React.forwardRef(
+  ({ className, orientation = "horizontal", decorative = true, ...props }, ref) => /* @__PURE__ */ jsx(
+    SeparatorPrimitive.Root,
+    {
+      ref,
+      decorative,
+      orientation,
+      className: cn(
+        "shrink-0 bg-border",
+        orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
+        className
+      ),
+      ...props
+    }
+  )
+);
+Separator.displayName = SeparatorPrimitive.Root.displayName;
+function ThemeToggle() {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      return savedTheme ? savedTheme : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "light";
+  });
+  useEffect(() => {
+    const className = "dark";
+    const bodyClass = window.document.body.classList;
+    theme === "dark" ? bodyClass.add(className) : bodyClass.remove(className);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+  const toggleTheme = () => {
+    setTheme((prevTheme) => prevTheme === "dark" ? "light" : "dark");
+  };
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      onClick: toggleTheme,
+      variant: "ghost",
+      className: "w-full justify-start",
+      children: theme === "dark" ? /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(Sun, { className: "mr-2 h-4 w-4" }),
+        "Light Mode"
+      ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(Moon, { className: "mr-2 h-4 w-4" }),
+        "Dark Mode"
+      ] })
+    }
+  );
+}
+function Sidebar({ className, user }) {
+  return /* @__PURE__ */ jsxs("div", { className: cn("pb-12 w-64 relative", className), children: [
+    /* @__PURE__ */ jsx("div", { className: "space-y-4 py-4", children: /* @__PURE__ */ jsxs("div", { className: "px-3 py-2", children: [
+      /* @__PURE__ */ jsxs("h2", { className: "mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100", children: [
+        "jays.pics",
+        !user.notifications || user.notifications.length === 0 ? /* @__PURE__ */ jsx(Bell, { className: "float-right w-4 m-1" }) : /* @__PURE__ */ jsx(BellDotIcon, { className: "float-right w-4 m-1 hover:text-accent" })
+      ] }),
+      /* @__PURE__ */ jsx(Separator, { className: "my-4" }),
+      /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/index", children: [
+          /* @__PURE__ */ jsx(Home, { className: "mr-2 h-4 w-4" }),
+          "Dashboard"
+        ] }) }),
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/images", children: [
+          /* @__PURE__ */ jsx(Image$1, { className: "mr-2 h-4 w-4" }),
+          "Images"
+        ] }) }),
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/referrals", children: [
+          /* @__PURE__ */ jsx(Link2, { className: "mr-2 h-4 w-4" }),
+          "Referrals"
+        ] }) }),
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/upload-settings", children: [
+          /* @__PURE__ */ jsx(ImageIcon, { className: "mr-2 h-4 w-4" }),
+          "Upload Config"
+        ] }) }),
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/domains", children: [
+          /* @__PURE__ */ jsx(Globe2, { className: "mr-2 h-4 w-4" }),
+          "Domains"
+        ] }) }),
+        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/help", children: [
+          /* @__PURE__ */ jsx(FileQuestion, { className: "mr-2 h-4 w-4" }),
+          "Help"
+        ] }) })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { className: "absolute bottom-4 left-0 right-0 px-3", children: /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
+      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/settings", children: [
+        /* @__PURE__ */ jsx(Cog, { className: "mr-2 h-4 w-4" }),
+        "Settings"
+      ] }) }),
+      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/profile/me", children: [
+        /* @__PURE__ */ jsx(User, { className: "mr-2 h-4 w-4" }),
+        user.username
+      ] }) }),
+      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsx(ThemeToggle, {}) }),
+      user.is_admin ? /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/admin/index", children: [
+        /* @__PURE__ */ jsx(Shield, { className: "mr-2 h-4 w-4" }),
+        "Admin Dashboard"
+      ] }) }) : /* @__PURE__ */ jsx(Fragment, {}),
+      /* @__PURE__ */ jsx(
+        Button,
+        {
+          asChild: true,
+          variant: "ghost",
+          className: "w-full justify-start hover:bg-red-700 hover:text-white text-gray-900 dark:text-gray-100",
+          children: /* @__PURE__ */ jsxs(Link, { to: "/logout", children: [
+            /* @__PURE__ */ jsx(LogOut, { className: "mr-2 h-4 w-4" }),
+            "Log out"
+          ] })
+        }
+      )
+    ] }) })
+  ] });
+}
 const extendedClient = new PrismaClient().$extends({
   model: {
     user: {
@@ -409,159 +558,6 @@ async function getAllReferrals(referrer_id) {
   });
 }
 let { getSession, commitSession, destroySession } = sessionStorage;
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline"
-      },
-      size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9"
-      }
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default"
-    }
-  }
-);
-const Button = React.forwardRef(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return /* @__PURE__ */ jsx(
-      Comp,
-      {
-        className: cn(buttonVariants({ variant, size, className })),
-        ref,
-        ...props
-      }
-    );
-  }
-);
-Button.displayName = "Button";
-function ThemeToggle() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme");
-      return savedTheme ? savedTheme : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    }
-    return "light";
-  });
-  useEffect(() => {
-    const className = "dark";
-    const bodyClass = window.document.body.classList;
-    theme === "dark" ? bodyClass.add(className) : bodyClass.remove(className);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-  const toggleTheme = () => {
-    setTheme((prevTheme) => prevTheme === "dark" ? "light" : "dark");
-  };
-  return /* @__PURE__ */ jsx(
-    Button,
-    {
-      onClick: toggleTheme,
-      variant: "ghost",
-      className: "w-full justify-start",
-      children: theme === "dark" ? /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(Sun, { className: "mr-2 h-4 w-4" }),
-        "Light Mode"
-      ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(Moon, { className: "mr-2 h-4 w-4" }),
-        "Dark Mode"
-      ] })
-    }
-  );
-}
-const Separator = React.forwardRef(
-  ({ className, orientation = "horizontal", decorative = true, ...props }, ref) => /* @__PURE__ */ jsx(
-    SeparatorPrimitive.Root,
-    {
-      ref,
-      decorative,
-      orientation,
-      className: cn(
-        "shrink-0 bg-border",
-        orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
-        className
-      ),
-      ...props
-    }
-  )
-);
-Separator.displayName = SeparatorPrimitive.Root.displayName;
-function Sidebar({ className, user }) {
-  return /* @__PURE__ */ jsxs("div", { className: cn("pb-12 w-64 relative", className), children: [
-    /* @__PURE__ */ jsx("div", { className: "space-y-4 py-4", children: /* @__PURE__ */ jsxs("div", { className: "px-3 py-2", children: [
-      /* @__PURE__ */ jsxs("h2", { className: "mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100", children: [
-        "jays.pics",
-        !user.notifications || user.notifications.length === 0 ? /* @__PURE__ */ jsx(Bell, { className: "float-right w-4 m-1" }) : /* @__PURE__ */ jsx(BellDotIcon, { className: "float-right w-4 m-1 hover:text-accent" })
-      ] }),
-      /* @__PURE__ */ jsx(Separator, { className: "my-4" }),
-      /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/index", children: [
-          /* @__PURE__ */ jsx(Home, { className: "mr-2 h-4 w-4" }),
-          "Dashboard"
-        ] }) }),
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/images", children: [
-          /* @__PURE__ */ jsx(Image$1, { className: "mr-2 h-4 w-4" }),
-          "Images"
-        ] }) }),
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/referrals", children: [
-          /* @__PURE__ */ jsx(Link2, { className: "mr-2 h-4 w-4" }),
-          "Referrals"
-        ] }) }),
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/upload-settings", children: [
-          /* @__PURE__ */ jsx(ImageIcon, { className: "mr-2 h-4 w-4" }),
-          "Upload Config"
-        ] }) }),
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/domains", children: [
-          /* @__PURE__ */ jsx(Globe2, { className: "mr-2 h-4 w-4" }),
-          "Domains"
-        ] }) }),
-        /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/help", children: [
-          /* @__PURE__ */ jsx(FileQuestion, { className: "mr-2 h-4 w-4" }),
-          "Help"
-        ] }) })
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsx("div", { className: "absolute bottom-4 left-0 right-0 px-3", children: /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
-      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/dashboard/settings", children: [
-        /* @__PURE__ */ jsx(Cog, { className: "mr-2 h-4 w-4" }),
-        "Settings"
-      ] }) }),
-      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/profile/me", children: [
-        /* @__PURE__ */ jsx(User, { className: "mr-2 h-4 w-4" }),
-        user.username
-      ] }) }),
-      /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsx(ThemeToggle, {}) }),
-      user.is_admin ? /* @__PURE__ */ jsx(Button, { asChild: true, variant: "ghost", className: "w-full justify-start text-gray-900 dark:text-gray-100", children: /* @__PURE__ */ jsxs(Link, { to: "/admin/index", children: [
-        /* @__PURE__ */ jsx(Shield, { className: "mr-2 h-4 w-4" }),
-        "Admin Dashboard"
-      ] }) }) : /* @__PURE__ */ jsx(Fragment, {}),
-      /* @__PURE__ */ jsx(
-        Button,
-        {
-          asChild: true,
-          variant: "ghost",
-          className: "w-full justify-start hover:bg-red-700 hover:text-white text-gray-900 dark:text-gray-100",
-          children: /* @__PURE__ */ jsxs(Link, { to: "/logout", children: [
-            /* @__PURE__ */ jsx(LogOut, { className: "mr-2 h-4 w-4" }),
-            "Log out"
-          ] })
-        }
-      )
-    ] }) })
-  ] });
-}
 const meta$7 = () => {
   return [
     { title: "Dashboard | jays.pics" },
@@ -572,7 +568,7 @@ const meta$7 = () => {
     }
   ];
 };
-async function loader$t({ request }) {
+async function loader$s({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
   const user = await getUserBySession(session);
@@ -595,10 +591,10 @@ function Application() {
 function useAppLoaderData() {
   return useRouteLoaderData("routes/_app");
 }
-const route35 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Application,
-  loader: loader$t,
+  loader: loader$s,
   meta: meta$7,
   useAppLoaderData
 }, Symbol.toStringTag, { value: "Module" }));
@@ -853,7 +849,7 @@ const columns$2 = [
     header: "Donator"
   }
 ];
-async function loader$s({ request }) {
+async function loader$r({ request }) {
   const user = await getUserBySession(
     await getSession(request.headers.get("Cookie"))
   );
@@ -990,7 +986,7 @@ const embedUpdateSchema$1 = z.object({
 const urlUpdateSchema = z.object({
   selected: z.string()
 });
-async function action$b({ request }) {
+async function action$a({ request }) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   let result;
@@ -1052,19 +1048,18 @@ async function action$b({ request }) {
 }
 const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$b,
+  action: action$a,
   default: UploadSettings,
-  loader: loader$s
+  loader: loader$r
 }, Symbol.toStringTag, { value: "Module" }));
+const LogType = {
+  ERROR: "ERROR",
+  DOMAIN_CHECK: "DOMAIN_CHECK"
+};
 const Progress$1 = {
   INPUT: "INPUT",
   WAITING: "WAITING",
   DONE: "DONE"
-};
-const LogType = {
-  ERROR: "ERROR",
-  DOMAIN_CHECK: "DOMAIN_CHECK",
-  HONEYPOT: "HONEYPOT"
 };
 const cf = new Cloudflare({
   apiToken: process.env.CLOUDFLARE_USER_API
@@ -1080,7 +1075,7 @@ async function createZone(domain) {
 const domainSchema = z.object({
   domain: z.string().regex(/[a-z-]+\.[a-z]+/i, "This domain is invalid.").optional()
 });
-async function loader$r({ request }) {
+async function loader$q({ request }) {
   const url = new URL(request.url);
   const paramEntries = Object.fromEntries(url.searchParams.entries());
   const result = domainSchema.safeParse(paramEntries);
@@ -1109,15 +1104,7 @@ function AddDomain() {
     return /* @__PURE__ */ jsx("div", { className: "container mx-auto px-4 py-8", children: /* @__PURE__ */ jsxs(Card, { children: [
       /* @__PURE__ */ jsx(CardHeader, { children: "What domain would you like to link?" }),
       /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsxs(Form, { method: "POST", children: [
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            name: "action",
-            value: "set_domain",
-            readOnly: true,
-            className: "hidden"
-          }
-        ),
+        /* @__PURE__ */ jsx(Input, { name: "action", value: "set_domain", readOnly: true, className: "hidden" }),
         /* @__PURE__ */ jsx(Input, { name: "domain", placeholder: "domain.com" }),
         /* @__PURE__ */ jsx(Button, { className: "mt-2 w-full", children: "Start" })
       ] }) })
@@ -1137,41 +1124,11 @@ function AddDomain() {
           /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Change Nameservers" }) }),
           /* @__PURE__ */ jsxs(CardContent, { children: [
             /* @__PURE__ */ jsx(Label$1, { children: "Please update your nameservers to point too" }),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                className: "mt-2",
-                readOnly: true,
-                defaultValue: data.nameservers[0]
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                className: "mt-2",
-                readOnly: true,
-                defaultValue: data.nameservers[1]
-              }
-            ),
+            /* @__PURE__ */ jsx(Input, { className: "mt-2", readOnly: true, defaultValue: data.nameservers[0] }),
+            /* @__PURE__ */ jsx(Input, { className: "mt-2", readOnly: true, defaultValue: data.nameservers[1] }),
             /* @__PURE__ */ jsxs(Form, { method: "POST", children: [
-              /* @__PURE__ */ jsx(
-                Input,
-                {
-                  name: "domain",
-                  defaultValue: data.url,
-                  readOnly: true,
-                  className: "hidden"
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                Input,
-                {
-                  name: "action",
-                  value: "updated_nameservers",
-                  readOnly: true,
-                  className: "hidden"
-                }
-              ),
+              /* @__PURE__ */ jsx(Input, { name: "domain", defaultValue: data.url, readOnly: true, className: "hidden" }),
+              /* @__PURE__ */ jsx(Input, { name: "action", value: "updated_nameservers", readOnly: true, className: "hidden" }),
               /* @__PURE__ */ jsx(Button, { className: "mt-2 w-full", children: "Done" })
             ] })
           ] })
@@ -1190,32 +1147,9 @@ function AddDomain() {
           /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Change Nameservers" }) }),
           /* @__PURE__ */ jsxs(CardContent, { children: [
             /* @__PURE__ */ jsx(Label$1, { children: "Please update your nameservers to point too" }),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                className: "mt-2",
-                readOnly: true,
-                defaultValue: data.nameservers[0]
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                className: "mt-2",
-                readOnly: true,
-                defaultValue: data.nameservers[1]
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                name: "action",
-                value: "updated_nameservers",
-                readOnly: true,
-                className: "hidden",
-                disabled: true
-              }
-            ),
+            /* @__PURE__ */ jsx(Input, { className: "mt-2", readOnly: true, defaultValue: data.nameservers[0] }),
+            /* @__PURE__ */ jsx(Input, { className: "mt-2", readOnly: true, defaultValue: data.nameservers[1] }),
+            /* @__PURE__ */ jsx(Input, { name: "action", value: "updated_nameservers", readOnly: true, className: "hidden", disabled: true }),
             /* @__PURE__ */ jsx(Button, { className: "mt-2 w-full", disabled: true, children: "Done" })
           ] })
         ] }),
@@ -1230,7 +1164,7 @@ function AddDomain() {
       ] });
   }
 }
-async function action$a({ request }) {
+async function action$9({ request }) {
   var _a;
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
@@ -1244,9 +1178,7 @@ async function action$a({ request }) {
     };
   }
   const requestAction = formData.get("action");
-  const user = await getUserBySession(
-    await getSession(request.headers.get("Cookie"))
-  );
+  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
   if (requestAction === "set_domain") {
     const domainCheck = await prisma.uRL.count({
       where: { url: (_a = result.data) == null ? void 0 : _a.domain }
@@ -1294,9 +1226,9 @@ async function action$a({ request }) {
 }
 const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$a,
+  action: action$9,
   default: AddDomain,
-  loader: loader$r
+  loader: loader$q
 }, Symbol.toStringTag, { value: "Module" }));
 const columns$1 = [
   {
@@ -1369,10 +1301,8 @@ const columns$1 = [
     ).toLocaleDateString()}`
   }
 ];
-async function loader$q({ request }) {
-  const user = await getUserBySession(
-    await getSession(request.headers.get("Cookie"))
-  );
+async function loader$p({ request }) {
+  const user = await getUserBySession(await getSession(request.headers.get("Cookie")));
   const urls = await prisma.uRL.findMany({
     where: {
       donator_id: user.id
@@ -1401,7 +1331,7 @@ function MyDomains() {
 const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: MyDomains,
-  loader: loader$q
+  loader: loader$p
 }, Symbol.toStringTag, { value: "Module" }));
 const Avatar = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
   AvatarPrimitive.Root,
@@ -1455,7 +1385,7 @@ const badgeVariants = cva(
 function Badge({ className, variant, ...props }) {
   return /* @__PURE__ */ jsx("div", { className: cn(badgeVariants({ variant }), className), ...props });
 }
-async function loader$p({ params }) {
+async function loader$o({ params }) {
   const user = await prisma.user.findFirst({
     where: { id: params.id },
     select: {
@@ -1499,34 +1429,13 @@ function AdminProfile() {
       /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsxs(Form, { method: "post", children: [
         /* @__PURE__ */ jsx(Input, { className: "hidden", value: "update_embed", name: "type" }),
         /* @__PURE__ */ jsx(Label, { htmlFor: "embed_title", children: "Title" }),
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            className: "my-2",
-            name: "embed_title",
-            defaultValue: (_a = user.upload_preferences) == null ? void 0 : _a.embed_title
-          }
-        ),
+        /* @__PURE__ */ jsx(Input, { className: "my-2", name: "embed_title", defaultValue: (_a = user.upload_preferences) == null ? void 0 : _a.embed_title }),
         /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.embed_title }),
         /* @__PURE__ */ jsx(Label, { htmlFor: "embed_author", children: "Author" }),
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            className: "my-2",
-            name: "embed_author",
-            defaultValue: (_b = user.upload_preferences) == null ? void 0 : _b.embed_author
-          }
-        ),
+        /* @__PURE__ */ jsx(Input, { className: "my-2", name: "embed_author", defaultValue: (_b = user.upload_preferences) == null ? void 0 : _b.embed_author }),
         /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.embed_author }),
         /* @__PURE__ */ jsx(Label, { htmlFor: "embed_colour", children: "Colour" }),
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            className: "my-2",
-            name: "embed_colour",
-            defaultValue: (_c = user.upload_preferences) == null ? void 0 : _c.embed_colour
-          }
-        ),
+        /* @__PURE__ */ jsx(Input, { className: "my-2", name: "embed_colour", defaultValue: (_c = user.upload_preferences) == null ? void 0 : _c.embed_colour }),
         /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.embed_colour }),
         /* @__PURE__ */ jsx(Button, { type: "submit", children: "Save" })
       ] }) })
@@ -1551,7 +1460,7 @@ const embedUpdateSchema = z.object({
   embed_author: z.string(),
   embed_colour: z.string().length(7, { message: "Must be 7 characters long" }).regex(/^#/, { message: "Must be a valid hex colour" })
 });
-async function action$9({ request, params }) {
+async function action$8({ request, params }) {
   const user = await prisma.user.findFirst({ where: { id: params.id } });
   if (user === null)
     return {
@@ -1593,11 +1502,11 @@ async function action$9({ request, params }) {
 }
 const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$9,
+  action: action$8,
   default: AdminProfile,
-  loader: loader$p
+  loader: loader$o
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$o({ request }) {
+async function loader$n({ request }) {
   var _a;
   const session = await getSession(request.headers.get("Cookie"));
   const user = await getUserBySession(session);
@@ -1673,14 +1582,12 @@ function Referrals() {
 const route5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Referrals,
-  loader: loader$o
+  loader: loader$n
 }, Symbol.toStringTag, { value: "Module" }));
 function Settings() {
   const data = useAppLoaderData();
   const changedAt = Date.parse(data.user.username_changed_at);
-  const sevenDaysAgo = Date.parse(
-    new Date(data.now - 7 * 24 * 60 * 60 * 1e3).toString()
-  );
+  const sevenDaysAgo = Date.parse(new Date(data.now - 7 * 24 * 60 * 60 * 1e3).toString());
   const canChange = changedAt < sevenDaysAgo;
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx("div", { className: "container mx-auto px-4 py-8", children: /* @__PURE__ */ jsxs(Card, { children: [
     /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Account Details" }) }),
@@ -1725,7 +1632,7 @@ const columns = [
     cell: (cell) => new Date(Date.parse(cell.getValue())).toLocaleDateString()
   }
 ];
-async function loader$n() {
+async function loader$m() {
   return await prisma.uRL.findMany({
     where: {
       progress: Progress$2.DONE
@@ -1756,7 +1663,7 @@ function Domain() {
 const route7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Domain,
-  loader: loader$n
+  loader: loader$m
 }, Symbol.toStringTag, { value: "Module" }));
 function Pagination(props) {
   const totalPages = Math.ceil(props.totalCount / PAGE_SIZE);
@@ -1767,7 +1674,7 @@ function Pagination(props) {
   ] });
 }
 const PAGE_SIZE = 25;
-async function loader$m({ request }) {
+async function loader$l({ request }) {
   var _a;
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
@@ -1834,7 +1741,7 @@ function Images$1() {
 const route8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Images$1,
-  loader: loader$m
+  loader: loader$l
 }, Symbol.toStringTag, { value: "Module" }));
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } = process.env;
 if (!(STORAGE_ACCESS_KEY && STORAGE_SECRET && STORAGE_REGION && STORAGE_BUCKET)) {
@@ -1870,9 +1777,7 @@ async function uploadToS3(file, filename) {
   }
 }
 async function get(key) {
-  const res = await fetch(
-    `https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`
-  );
+  const res = await fetch(`https://s3.${STORAGE_REGION}.amazonaws.com/${STORAGE_BUCKET}/${key}`);
   return await res.blob();
 }
 async function del(key) {
@@ -1881,7 +1786,7 @@ async function del(key) {
 const schema$4 = z.object({
   image: z.instanceof(File)
 });
-async function action$8({ request }) {
+async function action$7({ request }) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   const result = schema$4.safeParse(payload);
@@ -1929,10 +1834,7 @@ async function action$8({ request }) {
     where: { id: user.id },
     data: { space_used: user.space_used + image.size }
   });
-  const response = await uploadToS3(
-    result.data.image,
-    `${user.id}/${dbImage.id}`
-  );
+  const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
   if ((response == null ? void 0 : response.$metadata.httpStatusCode) === 200) {
     return json({
       success: true
@@ -1942,7 +1844,7 @@ async function action$8({ request }) {
     success: false
   });
 }
-async function loader$l({ request }) {
+async function loader$k({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
   const user = await getUserBySession(session);
@@ -1956,25 +1858,17 @@ async function loader$l({ request }) {
 }
 function Upload() {
   const { user } = useLoaderData();
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(
-    Form,
-    {
-      method: "POST",
-      action: `/upload?upload_key=${user.upload_key}`,
-      encType: "multipart/form-data",
-      children: [
-        /* @__PURE__ */ jsx("label", { htmlFor: "img-field", children: "Image to upload" }),
-        /* @__PURE__ */ jsx("input", { id: "img-field", type: "file", name: "image", accept: "image/*" }),
-        /* @__PURE__ */ jsx("button", { type: "submit", children: "Upload" })
-      ]
-    }
-  ) });
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(Form, { method: "POST", action: `/upload?upload_key=${user.upload_key}`, encType: "multipart/form-data", children: [
+    /* @__PURE__ */ jsx("label", { htmlFor: "img-field", children: "Image to upload" }),
+    /* @__PURE__ */ jsx("input", { id: "img-field", type: "file", name: "image", accept: "image/*" }),
+    /* @__PURE__ */ jsx("button", { type: "submit", children: "Upload" })
+  ] }) });
 }
 const route9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$8,
+  action: action$7,
   default: Upload,
-  loader: loader$l
+  loader: loader$k
 }, Symbol.toStringTag, { value: "Module" }));
 function SidebarAdmin({ className, user }) {
   return /* @__PURE__ */ jsxs("div", { className: cn("pb-12 w-64 relative", className), children: [
@@ -2079,7 +1973,7 @@ const meta$6 = () => {
     }
   ];
 };
-async function loader$k({ request }) {
+async function loader$j({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
   const user = await getUserBySession(session);
@@ -2102,14 +1996,14 @@ function AdminDashboard$1() {
 function useAdminLoader() {
   return useRouteLoaderData("routes/_admin");
 }
-const route29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AdminDashboard$1,
-  loader: loader$k,
+  loader: loader$j,
   meta: meta$6,
   useAdminLoader
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$j({ request }) {
+async function loader$i({ request }) {
   const count = await prisma.uRL.count();
   const urls = await prisma.uRL.findMany({
     select: {
@@ -2169,7 +2063,7 @@ function Users$2() {
 const route10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Users$2,
-  loader: loader$j
+  loader: loader$i
 }, Symbol.toStringTag, { value: "Module" }));
 const Progress = React.forwardRef(({ className, value, ...props }, ref) => /* @__PURE__ */ jsx(
   ProgressPrimitive.Root,
@@ -2190,7 +2084,7 @@ const Progress = React.forwardRef(({ className, value, ...props }, ref) => /* @_
   }
 ));
 Progress.displayName = ProgressPrimitive.Root.displayName;
-async function loader$i({ request }) {
+async function loader$h({ request }) {
   var _a;
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
@@ -2241,10 +2135,7 @@ function Dashboard() {
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(user.max_space);
   useEffect(() => {
-    const calculatedStorage = images.reduce(
-      (acc, image) => acc + image.size,
-      0
-    );
+    const calculatedStorage = images.reduce((acc, image) => acc + image.size, 0);
     setTotalStorage(calculatedStorage);
   }, [user.images]);
   return /* @__PURE__ */ jsx("div", { className: "flex h-screen", children: /* @__PURE__ */ jsxs("main", { className: "flex-1 p-8 overflow-y-auto", children: [
@@ -2305,13 +2196,7 @@ function Dashboard() {
         ] }),
         /* @__PURE__ */ jsxs(CardContent, { children: [
           /* @__PURE__ */ jsx("div", { className: "text-2xl font-bold", children: prettyBytes(totalStorage) }),
-          /* @__PURE__ */ jsx(
-            Progress,
-            {
-              value: totalStorage / storageLimit * 100,
-              className: "mt-2"
-            }
-          ),
+          /* @__PURE__ */ jsx(Progress, { value: totalStorage / storageLimit * 100, className: "mt-2" }),
           /* @__PURE__ */ jsxs("p", { className: "text-xs text-muted-foreground mt-2", children: [
             (totalStorage / storageLimit * 100).toFixed(2),
             "% of",
@@ -2361,14 +2246,7 @@ function Dashboard() {
     ] }),
     /* @__PURE__ */ jsx("div", { className: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4", children: images.slice(Math.max(images.length - 15, 0)).reverse().map((image) => {
       return /* @__PURE__ */ jsx(Card, { children: /* @__PURE__ */ jsxs(CardContent, { className: "p-2", children: [
-        /* @__PURE__ */ jsx(
-          "img",
-          {
-            src: `/i/${image.id}/raw`,
-            alt: "Image",
-            className: "w-full h-24 object-cover rounded-md"
-          }
-        ),
+        /* @__PURE__ */ jsx("img", { src: `/i/${image.id}/raw`, alt: "Image", className: "w-full h-24 object-cover rounded-md" }),
         /* @__PURE__ */ jsx("p", { className: "mt-2 text-sm font-medium truncate", children: /* @__PURE__ */ jsx("a", { href: `/i/${image.id}`, children: image.display_name }) }),
         /* @__PURE__ */ jsx("p", { className: "text-xs text-muted-foreground", children: new Date(image.created_at).toLocaleDateString() }),
         /* @__PURE__ */ jsx(Link, { to: `?generate_link=${image.id}`, children: /* @__PURE__ */ jsx(Link$1, { className: "text-sm" }) })
@@ -2383,13 +2261,13 @@ function Dashboard() {
 const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Dashboard,
-  loader: loader$i
+  loader: loader$h
 }, Symbol.toStringTag, { value: "Module" }));
 const schema$3 = z.object({
   target: z.string({ required_error: "Target ID is required" }).cuid(),
   content: z.string({ required_error: "Comment required" }).min(1)
 });
-async function action$7({ request, params }) {
+async function action$6({ request, params }) {
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/");
   const user = await getUserBySession(session);
@@ -2411,13 +2289,13 @@ async function action$7({ request, params }) {
   });
   return redirect(`/profile/${params.id}`);
 }
-async function loader$h({ params }) {
+async function loader$g({ params }) {
   return redirect(`/profile/${params.id}`);
 }
 const route12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$7,
-  loader: loader$h
+  action: action$6,
+  loader: loader$g
 }, Symbol.toStringTag, { value: "Module" }));
 function Images() {
   return /* @__PURE__ */ jsx(Fragment, {});
@@ -2468,46 +2346,38 @@ function Help() {
   const [uploadingActiveTab, setUploadingActiveTab] = useState("onsite");
   return /* @__PURE__ */ jsxs("div", { className: "container mx-auto px-4 py-8", children: [
     /* @__PURE__ */ jsx("p", { children: "Uploading" }),
-    /* @__PURE__ */ jsxs(
-      Tabs,
-      {
-        value: uploadingActiveTab,
-        onValueChange: setUploadingActiveTab,
-        className: "mt-8",
-        children: [
-          /* @__PURE__ */ jsxs(TabsList, { children: [
-            /* @__PURE__ */ jsx(TabsTrigger, { value: "onsite", children: "On-site" }),
-            /* @__PURE__ */ jsx(TabsTrigger, { value: "sharex", children: "ShareX" })
-          ] }),
-          /* @__PURE__ */ jsx(TabsContent, { value: "onsite", className: "mt-4", children: /* @__PURE__ */ jsxs(Card, { children: [
-            /* @__PURE__ */ jsxs(CardHeader, { children: [
-              /* @__PURE__ */ jsx(CardTitle, { children: "On-Site" }),
-              /* @__PURE__ */ jsx(CardDescription, { children: "How to upload images to jays.pics on-site" })
-            ] }),
-            /* @__PURE__ */ jsxs(CardContent, { children: [
-              "1. Navigate to the dashboard",
-              /* @__PURE__ */ jsx("br", {}),
-              "2. Click on the 'Upload New Image' button",
-              /* @__PURE__ */ jsx("br", {}),
-              "3. Select a file to upload",
-              /* @__PURE__ */ jsx("br", {}),
-              "4. Click upload"
-            ] })
-          ] }) }),
-          /* @__PURE__ */ jsx(TabsContent, { value: "sharex", className: "mt-4", children: /* @__PURE__ */ jsxs(Card, { children: [
-            /* @__PURE__ */ jsxs(CardHeader, { children: [
-              /* @__PURE__ */ jsx(CardTitle, { children: "ShareX" }),
-              /* @__PURE__ */ jsx(CardDescription, { children: "How to set up ShareX to automatically upload to jays.pics" })
-            ] }),
-            /* @__PURE__ */ jsxs(CardContent, { children: [
-              "1. Download your ShareX config",
-              /* @__PURE__ */ jsx("br", {}),
-              "2. Double click the file to open it with ShareX"
-            ] })
-          ] }) })
-        ]
-      }
-    )
+    /* @__PURE__ */ jsxs(Tabs, { value: uploadingActiveTab, onValueChange: setUploadingActiveTab, className: "mt-8", children: [
+      /* @__PURE__ */ jsxs(TabsList, { children: [
+        /* @__PURE__ */ jsx(TabsTrigger, { value: "onsite", children: "On-site" }),
+        /* @__PURE__ */ jsx(TabsTrigger, { value: "sharex", children: "ShareX" })
+      ] }),
+      /* @__PURE__ */ jsx(TabsContent, { value: "onsite", className: "mt-4", children: /* @__PURE__ */ jsxs(Card, { children: [
+        /* @__PURE__ */ jsxs(CardHeader, { children: [
+          /* @__PURE__ */ jsx(CardTitle, { children: "On-Site" }),
+          /* @__PURE__ */ jsx(CardDescription, { children: "How to upload images to jays.pics on-site" })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { children: [
+          "1. Navigate to the dashboard",
+          /* @__PURE__ */ jsx("br", {}),
+          "2. Click on the 'Upload New Image' button",
+          /* @__PURE__ */ jsx("br", {}),
+          "3. Select a file to upload",
+          /* @__PURE__ */ jsx("br", {}),
+          "4. Click upload"
+        ] })
+      ] }) }),
+      /* @__PURE__ */ jsx(TabsContent, { value: "sharex", className: "mt-4", children: /* @__PURE__ */ jsxs(Card, { children: [
+        /* @__PURE__ */ jsxs(CardHeader, { children: [
+          /* @__PURE__ */ jsx(CardTitle, { children: "ShareX" }),
+          /* @__PURE__ */ jsx(CardDescription, { children: "How to set up ShareX to automatically upload to jays.pics" })
+        ] }),
+        /* @__PURE__ */ jsxs(CardContent, { children: [
+          "1. Download your ShareX config",
+          /* @__PURE__ */ jsx("br", {}),
+          "2. Double click the file to open it with ShareX"
+        ] })
+      ] }) })
+    ] })
   ] });
 }
 const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -2524,7 +2394,7 @@ const meta$5 = () => {
     }
   ];
 };
-async function loader$g({ params }) {
+async function loader$f({ params }) {
   var _a;
   const image = await prisma.image.findFirst({ where: { id: params.id } });
   if (!image) return json({ success: false, message: "Image does not exist" });
@@ -2549,10 +2419,7 @@ async function loader$g({ params }) {
     "uploader.total_storage_bytes": uploader == null ? void 0 : uploader.max_space,
     "uploader.total_storage": prettyBytes(uploader.max_space)
   };
-  const author = templateReplacer(
-    ((_a = uploader == null ? void 0 : uploader.upload_preferences) == null ? void 0 : _a.embed_author) ?? "",
-    dictionary
-  );
+  const author = templateReplacer(((_a = uploader == null ? void 0 : uploader.upload_preferences) == null ? void 0 : _a.embed_author) ?? "", dictionary);
   return json({
     author_name: author,
     author_url: `https://jays.pics/profile/${uploader == null ? void 0 : uploader.id}`,
@@ -2563,10 +2430,10 @@ async function loader$g({ params }) {
 }
 const route15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  loader: loader$g,
+  loader: loader$f,
   meta: meta$5
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$f({ request }) {
+async function loader$e({ request }) {
   const url = new URL(request.url);
   const query = url.searchParams.get("action");
   const value = url.searchParams.get("value");
@@ -2628,22 +2495,8 @@ function AdminDashboard() {
     /* @__PURE__ */ jsxs(Card, { className: "mb-8", children: [
       /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(CardTitle, { children: "Announcement" }) }),
       /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsxs(Form, { method: "post", children: [
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            className: "hidden",
-            value: "update_annoucement",
-            name: "type"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          Input,
-          {
-            className: "mb-2",
-            name: "content",
-            defaultValue: data.announcement[0].content
-          }
-        ),
+        /* @__PURE__ */ jsx(Input, { className: "hidden", value: "update_annoucement", name: "type" }),
+        /* @__PURE__ */ jsx(Input, { className: "mb-2", name: "content", defaultValue: data.announcement[0].content }),
         /* @__PURE__ */ jsx(Button, { type: "submit", children: "Post" })
       ] }) })
     ] }),
@@ -2662,7 +2515,7 @@ function AdminDashboard() {
 const announcementSchema = z.object({
   content: z.string({ required_error: "Content is required" }).min(1, { message: "Should be atleast one character" }).max(256, { message: "Should be 256 or less characters" })
 });
-async function action$6({ request }) {
+async function action$5({ request }) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   let result;
@@ -2688,11 +2541,11 @@ async function action$6({ request }) {
 }
 const route16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$6,
+  action: action$5,
   default: AdminDashboard,
-  loader: loader$f
+  loader: loader$e
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$e({ request }) {
+async function loader$d({ request }) {
   const count = await prisma.user.count();
   const users = await prisma.user.findMany({
     select: {
@@ -2749,9 +2602,9 @@ function Users$1() {
 const route17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Users$1,
-  loader: loader$e
+  loader: loader$d
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$d({ request }) {
+async function loader$c({ request }) {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page")) || 1;
   const count = await prisma.log.count();
@@ -2801,9 +2654,9 @@ function Users() {
 const route18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Users,
-  loader: loader$d
+  loader: loader$c
 }, Symbol.toStringTag, { value: "Module" }));
-async function action$5({ params }) {
+async function action$4({ params }) {
   const image = await prisma.image.findFirst({
     where: { id: params.id },
     select: { uploader: true, id: true, size: true }
@@ -2823,7 +2676,7 @@ async function action$5({ params }) {
   del(`${image == null ? void 0 : image.uploader.id}/${image == null ? void 0 : image.id}`);
   return redirect("/dashboard/images");
 }
-async function loader$c({ params }) {
+async function loader$b({ params }) {
   const image = await prisma.image.findFirst({
     where: { id: params.id },
     select: { uploader: true, id: true, size: true }
@@ -2845,10 +2698,10 @@ async function loader$c({ params }) {
 }
 const route19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$5,
-  loader: loader$c
+  action: action$4,
+  loader: loader$b
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$b() {
+async function loader$a() {
   return json({
     success: true,
     data: {
@@ -2866,9 +2719,9 @@ async function loader$b() {
 }
 const route20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  loader: loader$b
+  loader: loader$a
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$a({ request, params }) {
+async function loader$9({ request, params }) {
   const session = await getSession(request.headers.get("Cookie"));
   if (params.id === "me") return redirect(`/profile/${session.get("userID")}`);
   const id = params.id ?? session.get("userID");
@@ -2962,27 +2815,8 @@ function Profile() {
             " referral(s)."
           ] }),
           /* @__PURE__ */ jsxs(Form, { method: "POST", action: "/profile/comment", children: [
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                id: "target",
-                name: "target",
-                type: "text",
-                value: user.id,
-                required: true,
-                className: "hidden"
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Input,
-              {
-                id: "content",
-                name: "content",
-                type: "text",
-                placeholder: "Comment",
-                required: true
-              }
-            ),
+            /* @__PURE__ */ jsx(Input, { id: "target", name: "target", type: "text", value: user.id, required: true, className: "hidden" }),
+            /* @__PURE__ */ jsx(Input, { id: "content", name: "content", type: "text", placeholder: "Comment", required: true }),
             /* @__PURE__ */ jsx(Button, { className: "w-full", type: "submit", children: "Comment" })
           ] })
         ] })
@@ -2993,9 +2827,9 @@ function Profile() {
 const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Profile,
-  loader: loader$a
+  loader: loader$9
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$9({ params }) {
+async function loader$8({ params }) {
   const user = await prisma.user.findFirst({ where: { id: params.id } });
   if (!user) {
     return json({
@@ -3028,7 +2862,7 @@ async function loader$9({ params }) {
 }
 const route22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  loader: loader$9
+  loader: loader$8
 }, Symbol.toStringTag, { value: "Module" }));
 const meta$4 = () => {
   return [
@@ -3040,7 +2874,7 @@ const meta$4 = () => {
     }
   ];
 };
-async function loader$8({ request, params }) {
+async function loader$7({ request, params }) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
   if (!image) return json({ success: false, message: "Image does not exist" });
   const user = await prisma.user.findFirst({
@@ -3060,18 +2894,12 @@ async function loader$8({ request, params }) {
 }
 const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  loader: loader$8,
+  loader: loader$7,
   meta: meta$4
 }, Symbol.toStringTag, { value: "Module" }));
 const schema$2 = z.object({
   username: z.string({ required_error: "Username is required" }).regex(/^[a-z0-9_]+$/gim, "Invalid username").min(3, { message: "Must be 3 or more characters" }).max(20, { message: "Must be 20 or less characters" }),
-  password: z.string({ required_error: "Password is required" }).min(8, { message: "Must be 8 or more characters" }).max(256, { message: "Must be 256 or less characters" }).regex(
-    /([!?&-_]+)/g,
-    "Insecure password - Please add one (or more) of (!, ?, &, - or _)"
-  ).regex(
-    /([0-9]+)/g,
-    "Insecure password - Please add one (or more) digit (0-9)"
-  ),
+  password: z.string({ required_error: "Password is required" }).min(8, { message: "Must be 8 or more characters" }).max(256, { message: "Must be 256 or less characters" }).regex(/([!?&-_]+)/g, "Insecure password - Please add one (or more) of (!, ?, &, - or _)").regex(/([0-9]+)/g, "Insecure password - Please add one (or more) digit (0-9)"),
   referralCode: z.string({ required_error: "Referral Code is required" }).uuid("Must be a valid referral code")
 });
 function Register() {
@@ -3084,46 +2912,22 @@ function Register() {
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
       /* @__PURE__ */ jsx(Label, { htmlFor: "password", children: "Password" }),
-      /* @__PURE__ */ jsx(
-        Input,
-        {
-          id: "password",
-          name: "password",
-          type: "password",
-          placeholder: "*********",
-          required: true
-        }
-      ),
+      /* @__PURE__ */ jsx(Input, { id: "password", name: "password", type: "password", placeholder: "*********", required: true }),
       /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.password })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
       /* @__PURE__ */ jsx(Label, { htmlFor: "referralCode", children: "Referral Code" }),
-      /* @__PURE__ */ jsx(
-        Input,
-        {
-          id: "referralCode",
-          name: "referralCode",
-          placeholder: "JX7s...",
-          required: true
-        }
-      ),
+      /* @__PURE__ */ jsx(Input, { id: "referralCode", name: "referralCode", placeholder: "JX7s...", required: true }),
       /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.referralCode })
     ] }),
     /* @__PURE__ */ jsx(Button, { className: "w-full", type: "submit", children: "Sign Up" }),
     /* @__PURE__ */ jsxs("p", { className: "mt-4 text-center text-sm", children: [
       "Already have an account?",
-      /* @__PURE__ */ jsx(
-        "a",
-        {
-          href: "/login",
-          className: "ml-1 text-primary hover:underline focus:outline-none",
-          children: "Log in"
-        }
-      )
+      /* @__PURE__ */ jsx("a", { href: "/login", className: "ml-1 text-primary hover:underline focus:outline-none", children: "Log in" })
     ] })
   ] });
 }
-async function action$4({ request }) {
+async function action$3({ request }) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   const result = schema$2.safeParse(payload);
@@ -3212,10 +3016,10 @@ async function action$4({ request }) {
 }
 const route24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$4,
+  action: action$3,
   default: Register
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$7({ params }) {
+async function loader$6({ params }) {
   const user = await prisma.user.findFirst({ where: { id: params.id } });
   if (!user) {
     return json({
@@ -3246,7 +3050,7 @@ async function loader$7({ params }) {
 }
 const route25 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  loader: loader$7
+  loader: loader$6
 }, Symbol.toStringTag, { value: "Module" }));
 const schema$1 = z.object({
   username: z.string({ required_error: "Username is required" }).min(3, "Must be 3 or more characters").max(20, "Must be 20 or less characters"),
@@ -3257,47 +3061,22 @@ function Login() {
   return /* @__PURE__ */ jsxs(Form, { className: "space-y-4 dark text-white", method: "post", children: [
     /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
       /* @__PURE__ */ jsx(Label, { htmlFor: "username", children: "Username" }),
-      /* @__PURE__ */ jsx(
-        Input,
-        {
-          id: "username",
-          name: "username",
-          type: "text",
-          placeholder: "Username",
-          required: true
-        }
-      ),
+      /* @__PURE__ */ jsx(Input, { id: "username", name: "username", type: "text", placeholder: "Username", required: true }),
       /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.username })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "space-y-1", children: [
       /* @__PURE__ */ jsx(Label, { htmlFor: "password", children: "Password" }),
-      /* @__PURE__ */ jsx(
-        Input,
-        {
-          id: "password",
-          name: "password",
-          type: "password",
-          placeholder: "Password",
-          required: true
-        }
-      ),
+      /* @__PURE__ */ jsx(Input, { id: "password", name: "password", type: "password", placeholder: "Password", required: true }),
       /* @__PURE__ */ jsx("div", { className: "text-red-500 text-sm", children: actionData == null ? void 0 : actionData.fieldErrors.password })
     ] }),
     /* @__PURE__ */ jsx(Button, { className: "w-full", type: "submit", children: "Login" }),
     /* @__PURE__ */ jsxs("p", { className: "mt-4 text-center text-sm", children: [
       "Don't have an account?",
-      /* @__PURE__ */ jsx(
-        "a",
-        {
-          href: "/register",
-          className: "ml-1 text-primary hover:underline focus:outline-none",
-          children: "Sign up"
-        }
-      )
+      /* @__PURE__ */ jsx("a", { href: "/register", className: "ml-1 text-primary hover:underline focus:outline-none", children: "Sign up" })
     ] })
   ] });
 }
-async function action$3({ request }) {
+async function action$2({ request }) {
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   const result = schema$1.safeParse(payload);
@@ -3352,49 +3131,8 @@ async function action$3({ request }) {
 }
 const route26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$3,
-  default: Login
-}, Symbol.toStringTag, { value: "Module" }));
-async function action$2({ request }) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const ipAddress = getClientIPAddress(request);
-  let user = "not logged in";
-  if (session.has("userID")) {
-    const data = await getUserBySession(session);
-    user = data.username;
-  }
-  await prisma.log.create({
-    data: {
-      message: `POST wp-admin/* was requested. user was ${user}, ip was ${ipAddress ? ipAddress : "not found"}`,
-      type: LogType$1.HONEYPOT
-    }
-  });
-  return null;
-}
-async function loader$6({ request }) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const ipAddress = getClientIPAddress(request);
-  let user = "not logged in";
-  if (session.has("userID")) {
-    const data = await getUserBySession(session);
-    user = data.username;
-  }
-  await prisma.log.create({
-    data: {
-      message: `GET wp-admin/* was requested. user was ${user}, ip was ${ipAddress ? ipAddress : "not found"}`,
-      type: LogType$1.HONEYPOT
-    }
-  });
-  return null;
-}
-function WpAdminHoneypot() {
-  return /* @__PURE__ */ jsx(Fragment, { children: "good job man you hacked me!" });
-}
-const route27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
   action: action$2,
-  default: WpAdminHoneypot,
-  loader: loader$6
+  default: Login
 }, Symbol.toStringTag, { value: "Module" }));
 const meta$3 = () => {
   return [
@@ -3424,11 +3162,12 @@ async function loader$5({ request, params }) {
   }
   return null;
 }
-const route28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   loader: loader$5,
   meta: meta$3
 }, Symbol.toStringTag, { value: "Module" }));
+const uploadIllustration = "/assets/uploadIllustration-CIHM2AoU.svg";
 function Navbar() {
   return /* @__PURE__ */ jsx("header", { className: "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", children: /* @__PURE__ */ jsxs("div", { className: "container px-4 mx-auto flex h-14 items-center", children: [
     /* @__PURE__ */ jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsx(Link, { to: "/", className: "flex items-center", children: /* @__PURE__ */ jsx("span", { className: "font-bold text-white", children: "jays.pics" }) }) }),
@@ -3464,7 +3203,6 @@ function AnimatedGradientText({
     }
   );
 }
-const uploadIllustration = "/assets/uploadIllustration-CIHM2AoU.svg";
 const FlickeringGrid = ({
   squareSize = 4,
   gridGap = 6,
@@ -3654,14 +3392,7 @@ function Index() {
             /* @__PURE__ */ jsx(ChevronRight, { className: "ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" })
           ] }) }) }) })
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "z-0 relative flex items-center justify-center", children: /* @__PURE__ */ jsx(
-          "img",
-          {
-            src: uploadIllustration,
-            alt: "A person uploading a file",
-            className: "w-full"
-          }
-        ) })
+        /* @__PURE__ */ jsx("div", { className: "z-0 relative flex items-center justify-center", children: /* @__PURE__ */ jsx("img", { src: uploadIllustration, alt: "A person uploading a file", className: "w-full" }) })
       ] }) }),
       /* @__PURE__ */ jsx("section", { id: "statistics", children: /* @__PURE__ */ jsxs("div", { className: "relative mx-auto container text-white", children: [
         /* @__PURE__ */ jsxs("div", { className: "text-center relative mx-auto border-x border-t overflow-hidden p-2 py-8 md:p-12", children: [
@@ -3784,18 +3515,11 @@ function Index() {
     ] }),
     /* @__PURE__ */ jsx("footer", { className: "w-full border-t", children: /* @__PURE__ */ jsx("div", { className: "container mx-auto text-white", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between p-4", children: [
       /* @__PURE__ */ jsx("div", { className: "text-sm text-muted-foreground", children: "© 2025 jays.pics. All rights reserved." }),
-      /* @__PURE__ */ jsx("div", { className: "flex items-center space-x-4", children: /* @__PURE__ */ jsx(
-        Link,
-        {
-          to: "https://github.com/jeepies/jays.pics",
-          className: "text-muted-foreground hover:text-foreground",
-          children: /* @__PURE__ */ jsx(FaGithub, { className: "h-4 w-4" })
-        }
-      ) })
+      /* @__PURE__ */ jsx("div", { className: "flex items-center space-x-4", children: /* @__PURE__ */ jsx(Link, { to: "https://github.com/jeepies/jays.pics", className: "text-muted-foreground hover:text-foreground", children: /* @__PURE__ */ jsx(FaGithub, { className: "h-4 w-4" }) }) })
     ] }) }) })
   ] });
 }
-const route30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Index,
   loader: loader$4
@@ -3816,7 +3540,7 @@ async function loader$3({ request }) {
     }
   });
 }
-const route31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$1,
   loader: loader$3
@@ -3891,10 +3615,7 @@ async function action({ request }) {
     where: { id: user.id },
     data: { space_used: user.space_used + image.size }
   });
-  const response = await uploadToS3(
-    result.data.image,
-    `${user.id}/${dbImage.id}`
-  );
+  const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
   if ((response == null ? void 0 : response.$metadata.httpStatusCode) === 200) {
     const urls = user.upload_preferences.urls;
     let url2;
@@ -3918,17 +3639,14 @@ async function action({ request }) {
 async function loader$2() {
   return redirect("/");
 }
-const route32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action,
   loader: loader$2,
   meta: meta$2
 }, Symbol.toStringTag, { value: "Module" }));
 const meta$1 = () => {
-  return [
-    { title: "Authorization | jays.pics" },
-    { name: "description", content: "Invite-only Image Hosting" }
-  ];
+  return [{ title: "Authorization | jays.pics" }, { name: "description", content: "Invite-only Image Hosting" }];
 };
 async function loader$1({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -3965,7 +3683,7 @@ function Authorization() {
     }
   ) : /* @__PURE__ */ jsx(Outlet, {}) }) }) });
 }
-const route33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Authorization,
   loader: loader$1,
@@ -4040,7 +3758,7 @@ function Image() {
         className: "border-r"
       }
     ) : /* @__PURE__ */ jsx(SidebarGuest, { className: "border-r" }),
-    /* @__PURE__ */ jsx("div", { className: "container mx-auto px-4 py-8", children: /* @__PURE__ */ jsx(Card, { className: "w-full h-2/3", children: /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx("img", { src: `/i/${data.image.id}/raw` }) }) }) })
+    /* @__PURE__ */ jsx("div", { className: "container mx-auto px-4 py-8", children: /* @__PURE__ */ jsx(Card, { className: "w-full h-2/3", children: /* @__PURE__ */ jsx(CardContent, { children: /* @__PURE__ */ jsx("img", { src: `/i/${data.image.id}/raw`, title: data.image.display_name }) }) }) })
   ] });
 }
 const meta = ({ data }) => {
@@ -4057,10 +3775,7 @@ const meta = ({ data }) => {
     "uploader.total_storage_bytes": (_f = data.data.uploader) == null ? void 0 : _f.max_space,
     "uploader.total_storage": prettyBytes(data.data.uploader.max_space)
   };
-  const title = templateReplacer(
-    ((_h = (_g = data.data.uploader) == null ? void 0 : _g.upload_preferences) == null ? void 0 : _h.embed_title) ?? "",
-    dictionary
-  );
+  const title = templateReplacer(((_h = (_g = data.data.uploader) == null ? void 0 : _g.upload_preferences) == null ? void 0 : _h.embed_title) ?? "", dictionary);
   return [
     { title: (_i = data.data.image) == null ? void 0 : _i.display_name },
     { property: "og:title", content: title },
@@ -4086,7 +3801,7 @@ const meta = ({ data }) => {
     { name: "twitter:card", content: "summary_large_image" }
   ];
 };
-const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Image,
   loader,
@@ -4095,11 +3810,11 @@ const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
 function Error$1() {
   return /* @__PURE__ */ jsx(Fragment, { children: "404" });
 }
-const route36 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route35 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Error$1
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DzUb4j2t.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js", "/assets/components-BwFStQ-X.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/root-HbV5UoCj.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js", "/assets/components-BwFStQ-X.js"], "css": ["/assets/root-AFV2eMa_.css"] }, "routes/_app.dashboard.upload-settings": { "id": "routes/_app.dashboard.upload-settings", "parentId": "routes/_app", "path": "dashboard/upload-settings", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B32Hla9D.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/_app-CESDG6HD.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/label-Bok1Uajx.js", "/assets/url-data-table-9tPtDM2n.js", "/assets/checkbox-7b-1935D.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/sidebar-SdHW3En3.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js", "/assets/index-CFsilEuh.js", "/assets/index-CxDjNTdQ.js", "/assets/table-CFscRwcK.js", "/assets/index-D3MAovHW.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js"], "css": [] }, "routes/_app.dashboard.domain.add": { "id": "routes/_app.dashboard.domain.add", "parentId": "routes/_app", "path": "dashboard/domain/add", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.domain.add-DbxUqB7l.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/progress-D6kZuC7a.js", "/assets/index-CxDjNTdQ.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/components-BwFStQ-X.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.my-domains": { "id": "routes/_app.dashboard.my-domains", "parentId": "routes/_app", "path": "dashboard/my-domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DAeeKZMm.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/url-data-table-9tPtDM2n.js", "/assets/progress-D6kZuC7a.js", "/assets/checkbox-7b-1935D.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/table-CFscRwcK.js", "/assets/input-DHMy5rOh.js", "/assets/index-D3MAovHW.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js", "/assets/index-BlA7Mg33.js", "/assets/index-De4eUs7t.js", "/assets/index-CxDjNTdQ.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.profile.$id": { "id": "routes/_admin.admin.profile.$id", "parentId": "routes/_admin", "path": "admin/profile/:id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.profile._id-ZPePYNKf.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/badge-BX5TskpA.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-D3MAovHW.js", "/assets/index-DX9bpRaH.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.referrals": { "id": "routes/_app.dashboard.referrals", "parentId": "routes/_app", "path": "dashboard/referrals", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.referrals-hIUZa3pV.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/table-CFscRwcK.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.settings": { "id": "routes/_app.dashboard.settings", "parentId": "routes/_app", "path": "dashboard/settings", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.settings-uBxtI11x.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/_app-CESDG6HD.js", "/assets/index-CTHubjAk.js", "/assets/sidebar-SdHW3En3.js", "/assets/button-DVl6wKDh.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js"], "css": [] }, "routes/_app.dashboard.domains": { "id": "routes/_app.dashboard.domains", "parentId": "routes/_app", "path": "dashboard/domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B6eFTnpW.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/url-data-table-9tPtDM2n.js", "/assets/button-DVl6wKDh.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/table-CFscRwcK.js", "/assets/input-DHMy5rOh.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.images": { "id": "routes/_app.dashboard.images", "parentId": "routes/_app", "path": "dashboard/images", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.images-Dviv9i_D.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/pagination-fu27WkNI.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/chevron-right-BQKuohgu.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.upload": { "id": "routes/_app.dashboard.upload", "parentId": "routes/_app", "path": "dashboard/upload", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.upload-CWL2hmN4.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/components-BwFStQ-X.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.domains": { "id": "routes/_admin.admin.domains", "parentId": "routes/_admin", "path": "admin/domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.domains-D69km7ku.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/_admin-TbWPlviG.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/button-DVl6wKDh.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.index": { "id": "routes/_app.dashboard.index", "parentId": "routes/_app", "path": "dashboard/index", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.index-DEQpMzQh.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/index-D3MAovHW.js", "/assets/index-De4eUs7t.js", "/assets/index-CTHubjAk.js", "/assets/index-BuUnCgYx.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.profile.comment": { "id": "routes/_app.profile.comment", "parentId": "routes/_app", "path": "profile/comment", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.profile.comment-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.admin.images": { "id": "routes/_admin.admin.images", "parentId": "routes/_admin", "path": "admin/images", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.images-CfUcifHz.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js"], "css": [] }, "routes/_app.dashboard.help": { "id": "routes/_app.dashboard.help", "parentId": "routes/_app", "path": "dashboard/help", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.help-CIMdQ6Lc.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/tabs-Ddn3-yNf.js", "/assets/index-CTHubjAk.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js", "/assets/index-BlA7Mg33.js", "/assets/index-D3MAovHW.js", "/assets/index-De4eUs7t.js"], "css": [] }, "routes/i.$id.oembed[.json]": { "id": "routes/i.$id.oembed[.json]", "parentId": "routes/i.$id", "path": "oembed.json", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.oembed_.json_-bbh5TKxL.js", "imports": [], "css": [] }, "routes/_admin.admin.index": { "id": "routes/_admin.admin.index", "parentId": "routes/_admin", "path": "admin/index", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.index-DNOt-hrV.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/index-BuUnCgYx.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.users": { "id": "routes/_admin.admin.users", "parentId": "routes/_admin", "path": "admin/users", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.users-DrY5MHEG.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/_admin-TbWPlviG.js", "/assets/index-BuUnCgYx.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/button-DVl6wKDh.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.logs": { "id": "routes/_admin.admin.logs", "parentId": "routes/_admin", "path": "admin/logs", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.logs-CV5WOz6p.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/pagination-fu27WkNI.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/components-BwFStQ-X.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/chevron-right-BQKuohgu.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.i.$id.delete": { "id": "routes/_app.i.$id.delete", "parentId": "routes/_app", "path": "i/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.i._id.delete-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.get-templates": { "id": "routes/api.get-templates", "parentId": "root", "path": "api/get-templates", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.get-templates-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_app.profile.$id": { "id": "routes/_app.profile.$id", "parentId": "routes/_app", "path": "profile/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.profile._id-BCNsdLJL.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/badge-BX5TskpA.js", "/assets/card-CEVsoCFj.js", "/assets/tabs-Ddn3-yNf.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/components-BwFStQ-X.js", "/assets/image-CWpGdlAx.js", "/assets/user-C2m8xjw0.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-D3MAovHW.js", "/assets/index-DX9bpRaH.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-DI2hRbsd.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/api.sharenix.$id": { "id": "routes/api.sharenix.$id", "parentId": "root", "path": "api/sharenix/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.sharenix._id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/i.$id.raw[.gif]": { "id": "routes/i.$id.raw[.gif]", "parentId": "routes/i.$id", "path": "raw.gif", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.raw_.gif_-CHENbSOG.js", "imports": [], "css": [] }, "routes/_auth.register": { "id": "routes/_auth.register", "parentId": "routes/_auth", "path": "register", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth.register-tQTh0BA7.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/api.sharex.$id": { "id": "routes/api.sharex.$id", "parentId": "root", "path": "api/sharex/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.sharex._id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_auth.login": { "id": "routes/_auth.login", "parentId": "routes/_auth", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth.login-CrNV1KUx.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/wp-admin.$": { "id": "routes/wp-admin.$", "parentId": "root", "path": "wp-admin/*", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/wp-admin._-kbiH_ZSf.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js"], "css": [] }, "routes/i.$id.raw": { "id": "routes/i.$id.raw", "parentId": "routes/i.$id", "path": "raw", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.raw-CHENbSOG.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin-D7r22h70.js", "imports": ["/assets/_admin-TbWPlviG.js", "/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-pEzRWxjn.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-BuUnCgYx.js", "/assets/chevron-right-BQKuohgu.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/user-C2m8xjw0.js", "/assets/link-2-hP9I2Wz2.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/logout": { "id": "routes/logout", "parentId": "root", "path": "logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/upload": { "id": "routes/upload", "parentId": "root", "path": "upload", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/upload-DmTghtwf.js", "imports": [], "css": [] }, "routes/_auth": { "id": "routes/_auth", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth-BiGRX_bI.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/i.$id": { "id": "routes/i.$id", "parentId": "root", "path": "i/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id-CSAnDy1S.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-CTHubjAk.js", "/assets/index-BuUnCgYx.js", "/assets/sidebar-SdHW3En3.js", "/assets/button-DVl6wKDh.js", "/assets/separator-Cu6-nCqS.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/card-CEVsoCFj.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app": { "id": "routes/_app", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app-B2A8ulbv.js", "imports": ["/assets/_app-CESDG6HD.js", "/assets/jsx-runtime-BMrMXMSG.js", "/assets/sidebar-SdHW3En3.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/separator-Cu6-nCqS.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js"], "css": [] }, "routes/$": { "id": "routes/$", "parentId": "root", "path": "*", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_-gM_mZ-cG.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js"], "css": [] } }, "url": "/assets/manifest-b3286201.js", "version": "b3286201" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DzUb4j2t.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js", "/assets/components-BwFStQ-X.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/root-HbV5UoCj.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js", "/assets/components-BwFStQ-X.js"], "css": ["/assets/root-AFV2eMa_.css"] }, "routes/_app.dashboard.upload-settings": { "id": "routes/_app.dashboard.upload-settings", "parentId": "routes/_app", "path": "dashboard/upload-settings", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BSrrT0Fs.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/_app-DxyRU9vV.js", "/assets/input-DHMy5rOh.js", "/assets/button-DVl6wKDh.js", "/assets/label-Bok1Uajx.js", "/assets/url-data-table-B-ipv2k9.js", "/assets/checkbox-7b-1935D.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/sidebar-CVIlbyjg.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js", "/assets/index-CFsilEuh.js", "/assets/index-CxDjNTdQ.js", "/assets/table-CFscRwcK.js", "/assets/index-D3MAovHW.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js"], "css": [] }, "routes/_app.dashboard.domain.add": { "id": "routes/_app.dashboard.domain.add", "parentId": "routes/_app", "path": "dashboard/domain/add", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.domain.add-B6Au9O68.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-CxDjNTdQ.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/progress-D6kZuC7a.js", "/assets/components-BwFStQ-X.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.my-domains": { "id": "routes/_app.dashboard.my-domains", "parentId": "routes/_app", "path": "dashboard/my-domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-83uIJFX4.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/url-data-table-B-ipv2k9.js", "/assets/checkbox-7b-1935D.js", "/assets/label-Bok1Uajx.js", "/assets/progress-D6kZuC7a.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/input-DHMy5rOh.js", "/assets/table-CFscRwcK.js", "/assets/index-D3MAovHW.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js", "/assets/index-BlA7Mg33.js", "/assets/index-De4eUs7t.js", "/assets/index-CxDjNTdQ.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.profile.$id": { "id": "routes/_admin.admin.profile.$id", "parentId": "routes/_admin", "path": "admin/profile/:id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.profile._id-ZPePYNKf.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/badge-BX5TskpA.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-D3MAovHW.js", "/assets/index-DX9bpRaH.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.referrals": { "id": "routes/_app.dashboard.referrals", "parentId": "routes/_app", "path": "dashboard/referrals", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.referrals-hIUZa3pV.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/table-CFscRwcK.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.settings": { "id": "routes/_app.dashboard.settings", "parentId": "routes/_app", "path": "dashboard/settings", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.settings-9HWls9mf.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/_app-DxyRU9vV.js", "/assets/index-CTHubjAk.js", "/assets/sidebar-CVIlbyjg.js", "/assets/button-DVl6wKDh.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js"], "css": [] }, "routes/_app.dashboard.domains": { "id": "routes/_app.dashboard.domains", "parentId": "routes/_app", "path": "dashboard/domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BcpsaGM-.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/url-data-table-B-ipv2k9.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/input-DHMy5rOh.js", "/assets/table-CFscRwcK.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.images": { "id": "routes/_app.dashboard.images", "parentId": "routes/_app", "path": "dashboard/images", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.images-Dviv9i_D.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/pagination-fu27WkNI.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/chevron-right-BQKuohgu.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.upload": { "id": "routes/_app.dashboard.upload", "parentId": "routes/_app", "path": "dashboard/upload", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.upload-CWL2hmN4.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/components-BwFStQ-X.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.domains": { "id": "routes/_admin.admin.domains", "parentId": "routes/_admin", "path": "admin/domains", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.domains-B5AFRodn.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/_admin-COm7HkL9.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/button-DVl6wKDh.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.dashboard.index": { "id": "routes/_app.dashboard.index", "parentId": "routes/_app", "path": "dashboard/index", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.index-DtbbRCPd.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BuUnCgYx.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/index-D3MAovHW.js", "/assets/index-De4eUs7t.js", "/assets/index-CTHubjAk.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.profile.comment": { "id": "routes/_app.profile.comment", "parentId": "routes/_app", "path": "profile/comment", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.profile.comment-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.admin.images": { "id": "routes/_admin.admin.images", "parentId": "routes/_admin", "path": "admin/images", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.images-CfUcifHz.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js"], "css": [] }, "routes/_app.dashboard.help": { "id": "routes/_app.dashboard.help", "parentId": "routes/_app", "path": "dashboard/help", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.dashboard.help-CIMdQ6Lc.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/card-CEVsoCFj.js", "/assets/tabs-Ddn3-yNf.js", "/assets/index-CTHubjAk.js", "/assets/index-DI2hRbsd.js", "/assets/index-DX9bpRaH.js", "/assets/index-BlA7Mg33.js", "/assets/index-D3MAovHW.js", "/assets/index-De4eUs7t.js"], "css": [] }, "routes/i.$id.oembed[.json]": { "id": "routes/i.$id.oembed[.json]", "parentId": "routes/i.$id", "path": "oembed.json", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.oembed_.json_-bbh5TKxL.js", "imports": [], "css": [] }, "routes/_admin.admin.index": { "id": "routes/_admin.admin.index", "parentId": "routes/_admin", "path": "admin/index", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.index-Cq5G2DtB.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BuUnCgYx.js", "/assets/button-DVl6wKDh.js", "/assets/card-CEVsoCFj.js", "/assets/input-DHMy5rOh.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.users": { "id": "routes/_admin.admin.users", "parentId": "routes/_admin", "path": "admin/users", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.users-DvE3POPE.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BuUnCgYx.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/_admin-COm7HkL9.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/button-DVl6wKDh.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_admin.admin.logs": { "id": "routes/_admin.admin.logs", "parentId": "routes/_admin", "path": "admin/logs", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin.admin.logs-CV5WOz6p.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/pagination-fu27WkNI.js", "/assets/card-CEVsoCFj.js", "/assets/table-CFscRwcK.js", "/assets/components-BwFStQ-X.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/chevron-right-BQKuohgu.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app.i.$id.delete": { "id": "routes/_app.i.$id.delete", "parentId": "routes/_app", "path": "i/:id/delete", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.i._id.delete-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.get-templates": { "id": "routes/api.get-templates", "parentId": "root", "path": "api/get-templates", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.get-templates-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_app.profile.$id": { "id": "routes/_app.profile.$id", "parentId": "routes/_app", "path": "profile/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app.profile._id-B3kdq23e.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/badge-BX5TskpA.js", "/assets/card-CEVsoCFj.js", "/assets/tabs-Ddn3-yNf.js", "/assets/button-DVl6wKDh.js", "/assets/input-DHMy5rOh.js", "/assets/components-BwFStQ-X.js", "/assets/image-CWpGdlAx.js", "/assets/user-C2m8xjw0.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-D3MAovHW.js", "/assets/index-DX9bpRaH.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CTHubjAk.js", "/assets/index-DI2hRbsd.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/api.sharenix.$id": { "id": "routes/api.sharenix.$id", "parentId": "root", "path": "api/sharenix/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.sharenix._id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/i.$id.raw[.gif]": { "id": "routes/i.$id.raw[.gif]", "parentId": "routes/i.$id", "path": "raw.gif", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.raw_.gif_-CHENbSOG.js", "imports": [], "css": [] }, "routes/_auth.register": { "id": "routes/_auth.register", "parentId": "routes/_auth", "path": "register", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth.register-Dal5stU0.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/input-DHMy5rOh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/api.sharex.$id": { "id": "routes/api.sharex.$id", "parentId": "root", "path": "api/sharex/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.sharex._id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_auth.login": { "id": "routes/_auth.login", "parentId": "routes/_auth", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth.login-CTLZ_Z4U.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/input-DHMy5rOh.js", "/assets/label-Bok1Uajx.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/index-CxDjNTdQ.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/i.$id.raw": { "id": "routes/i.$id.raw", "parentId": "routes/i.$id", "path": "raw", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id.raw-CHENbSOG.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_admin-C9Cz7gLG.js", "imports": ["/assets/_admin-COm7HkL9.js", "/assets/jsx-runtime-BMrMXMSG.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-B2oRyJPz.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BuUnCgYx.js", "/assets/button-DVl6wKDh.js", "/assets/components-BwFStQ-X.js", "/assets/index-CTHubjAk.js", "/assets/chevron-right-BQKuohgu.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/user-C2m8xjw0.js", "/assets/link-2-hP9I2Wz2.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/logout": { "id": "routes/logout", "parentId": "root", "path": "logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/upload": { "id": "routes/upload", "parentId": "root", "path": "upload", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/upload-DmTghtwf.js", "imports": [], "css": [] }, "routes/_auth": { "id": "routes/_auth", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_auth-BiGRX_bI.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/i.$id": { "id": "routes/i.$id", "parentId": "root", "path": "i/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/i._id-9vCskpFT.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js", "/assets/index-BuUnCgYx.js", "/assets/card-CEVsoCFj.js", "/assets/sidebar-CVIlbyjg.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/themetoggle-BISvAWJn.js", "/assets/components-BwFStQ-X.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/index-CFsilEuh.js"], "css": [] }, "routes/_app": { "id": "routes/_app", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_app-CaDlHiWS.js", "imports": ["/assets/_app-DxyRU9vV.js", "/assets/jsx-runtime-BMrMXMSG.js", "/assets/sidebar-CVIlbyjg.js", "/assets/button-DVl6wKDh.js", "/assets/index-CTHubjAk.js", "/assets/themetoggle-BISvAWJn.js", "/assets/createLucideIcon-CKMWKKJc.js", "/assets/index-De4eUs7t.js", "/assets/index-BlA7Mg33.js", "/assets/components-BwFStQ-X.js", "/assets/index-CFsilEuh.js", "/assets/image-CWpGdlAx.js", "/assets/link-2-hP9I2Wz2.js", "/assets/user-C2m8xjw0.js"], "css": [] }, "routes/$": { "id": "routes/$", "parentId": "root", "path": "*", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_-gM_mZ-cG.js", "imports": ["/assets/jsx-runtime-BMrMXMSG.js"], "css": [] } }, "url": "/assets/manifest-185026c4.js", "version": "185026c4" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";
@@ -4324,21 +4039,13 @@ const routes = {
     caseSensitive: void 0,
     module: route26
   },
-  "routes/wp-admin.$": {
-    id: "routes/wp-admin.$",
-    parentId: "root",
-    path: "wp-admin/*",
-    index: void 0,
-    caseSensitive: void 0,
-    module: route27
-  },
   "routes/i.$id.raw": {
     id: "routes/i.$id.raw",
     parentId: "routes/i.$id",
     path: "raw",
     index: void 0,
     caseSensitive: void 0,
-    module: route28
+    module: route27
   },
   "routes/_admin": {
     id: "routes/_admin",
@@ -4346,7 +4053,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route29
+    module: route28
   },
   "routes/_index": {
     id: "routes/_index",
@@ -4354,7 +4061,7 @@ const routes = {
     path: void 0,
     index: true,
     caseSensitive: void 0,
-    module: route30
+    module: route29
   },
   "routes/logout": {
     id: "routes/logout",
@@ -4362,7 +4069,7 @@ const routes = {
     path: "logout",
     index: void 0,
     caseSensitive: void 0,
-    module: route31
+    module: route30
   },
   "routes/upload": {
     id: "routes/upload",
@@ -4370,7 +4077,7 @@ const routes = {
     path: "upload",
     index: void 0,
     caseSensitive: void 0,
-    module: route32
+    module: route31
   },
   "routes/_auth": {
     id: "routes/_auth",
@@ -4378,7 +4085,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route33
+    module: route32
   },
   "routes/i.$id": {
     id: "routes/i.$id",
@@ -4386,7 +4093,7 @@ const routes = {
     path: "i/:id",
     index: void 0,
     caseSensitive: void 0,
-    module: route34
+    module: route33
   },
   "routes/_app": {
     id: "routes/_app",
@@ -4394,7 +4101,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route35
+    module: route34
   },
   "routes/$": {
     id: "routes/$",
@@ -4402,7 +4109,7 @@ const routes = {
     path: "*",
     index: void 0,
     caseSensitive: void 0,
-    module: route36
+    module: route35
   }
 };
 export {
