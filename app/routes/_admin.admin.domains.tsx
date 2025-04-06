@@ -1,11 +1,9 @@
-import { LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { useAdminLoader } from './_admin';
-import { prisma } from '~/services/database.server';
+import { LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
+import { prisma } from '~/services/database.server';
+import { useAdminLoader } from './_admin';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.uRL.count();
