@@ -9,6 +9,7 @@ import { Progress } from '~/components/ui/progress';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { destroySession, getAllReferrals, getSession, getUserBySession } from '~/services/session.server';
+import Markdown from 'react-markdown';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -91,7 +92,9 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Announcement</CardTitle>
           </CardHeader>
-          <CardContent>{announcement[0].content}</CardContent>
+          <CardContent>
+            <Markdown>{announcement[0].content}</Markdown>
+          </CardContent>
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
