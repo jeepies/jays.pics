@@ -1,25 +1,15 @@
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 
 export default function Help() {
-  const [reportingActiveTab, setReportingActiveTab] = useState("images");
-  const [uploadingActiveTab, setUploadingActiveTab] = useState("onsite");
+  const [reportingActiveTab, setReportingActiveTab] = useState('images');
+  const [uploadingActiveTab, setUploadingActiveTab] = useState('onsite');
 
   return (
     <div className="container mx-auto px-4 py-8">
       <p>Uploading</p>
-      <Tabs
-        value={uploadingActiveTab}
-        onValueChange={setUploadingActiveTab}
-        className="mt-8"
-      >
+      <Tabs value={uploadingActiveTab} onValueChange={setUploadingActiveTab} className="mt-8">
         <TabsList>
           <TabsTrigger value="onsite">On-site</TabsTrigger>
           <TabsTrigger value="sharex">ShareX</TabsTrigger>
@@ -28,17 +18,15 @@ export default function Help() {
           <Card>
             <CardHeader>
               <CardTitle>On-Site</CardTitle>
-              <CardDescription>
-                How to upload images to jays.pics on-site
-              </CardDescription>
+              <CardDescription>How to upload images to jays.pics on-site</CardDescription>
             </CardHeader>
             <CardContent>
               1. Navigate to the dashboard
-              <br/>
+              <br />
               2. Click on the 'Upload New Image' button
-              <br/>
+              <br />
               3. Select a file to upload
-              <br/>
+              <br />
               4. Click upload
             </CardContent>
           </Card>
@@ -47,13 +35,11 @@ export default function Help() {
           <Card>
             <CardHeader>
               <CardTitle>ShareX</CardTitle>
-              <CardDescription>
-                How to set up ShareX to automatically upload to jays.pics
-              </CardDescription>
+              <CardDescription>How to set up ShareX to automatically upload to jays.pics</CardDescription>
             </CardHeader>
             <CardContent>
               1. Download your ShareX config
-              <br/>
+              <br />
               2. Double click the file to open it with ShareX
             </CardContent>
           </Card>

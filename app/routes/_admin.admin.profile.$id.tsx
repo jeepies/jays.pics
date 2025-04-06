@@ -1,27 +1,15 @@
-import { AvatarImage } from "@radix-ui/react-avatar";
-import { SelectTrigger, SelectValue } from "@radix-ui/react-select";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { CalendarIcon } from "lucide-react";
-import { z } from "zod";
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Select } from "~/components/ui/select";
-import { prisma } from "~/services/database.server";
+import { AvatarImage } from '@radix-ui/react-avatar';
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { CalendarIcon } from 'lucide-react';
+import { z } from 'zod';
+import { Avatar, AvatarFallback } from '~/components/ui/avatar';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { prisma } from '~/services/database.server';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const user = await prisma.user.findFirst({
@@ -34,7 +22,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     },
   });
 
-  if (user === null) return redirect("/admin/index");
+  if (user === null) return redirect('/admin/index');
 
   return { user };
 }
@@ -53,9 +41,7 @@ export default function AdminProfile() {
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
                 alt={user?.username}
               />
-              <AvatarFallback>
-                {user?.username.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{user?.username.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold">{user?.username}</h1>
@@ -79,34 +65,16 @@ export default function AdminProfile() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={"update_embed"} name="type" />
+            <Input className="hidden" value={'update_embed'} name="type" />
             <Label htmlFor="embed_title">Title</Label>
-            <Input
-              className="my-2"
-              name="embed_title"
-              defaultValue={user.upload_preferences?.embed_title}
-            />
-            <div className="text-red-500 text-sm">
-              {actionData?.fieldErrors.embed_title}
-            </div>
+            <Input className="my-2" name="embed_title" defaultValue={user.upload_preferences?.embed_title} />
+            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_title}</div>
             <Label htmlFor="embed_author">Author</Label>
-            <Input
-              className="my-2"
-              name="embed_author"
-              defaultValue={user.upload_preferences?.embed_author}
-            />
-            <div className="text-red-500 text-sm">
-              {actionData?.fieldErrors.embed_author}
-            </div>
+            <Input className="my-2" name="embed_author" defaultValue={user.upload_preferences?.embed_author} />
+            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_author}</div>
             <Label htmlFor="embed_colour">Colour</Label>
-            <Input
-              className="my-2"
-              name="embed_colour"
-              defaultValue={user.upload_preferences?.embed_colour}
-            />
-            <div className="text-red-500 text-sm">
-              {actionData?.fieldErrors.embed_colour}
-            </div>
+            <Input className="my-2" name="embed_colour" defaultValue={user.upload_preferences?.embed_colour} />
+            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_colour}</div>
             <Button type="submit">Save</Button>
           </Form>
         </CardContent>
@@ -121,15 +89,11 @@ export default function AdminProfile() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={"danger_zone"} name="type" />
+            <Input className="hidden" value={'danger_zone'} name="type" />
           </Form>
           <div className="">
-          <Button>
-            Lock Account
-          </Button>
-          <Button className="ml-2">
-            Purge Images
-          </Button>
+            <Button>Lock Account</Button>
+            <Button className="ml-2">Purge Images</Button>
           </div>
         </CardContent>
       </Card>
@@ -142,8 +106,8 @@ const embedUpdateSchema = z.object({
   embed_author: z.string(),
   embed_colour: z
     .string()
-    .length(7, { message: "Must be 7 characters long" })
-    .regex(/^#/, { message: "Must be a valid hex colour" }),
+    .length(7, { message: 'Must be 7 characters long' })
+    .regex(/^#/, { message: 'Must be a valid hex colour' }),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -153,9 +117,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       undefined,
       formErrors: [],
       fieldErrors: {
-        embed_title: "",
-        embed_author: "",
-        embed_colour: "",
+        embed_title: '',
+        embed_author: '',
+        embed_colour: '',
       },
     };
 
@@ -163,10 +127,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get("type");
-  formData.delete("type");
+  const requestType = formData.get('type');
+  formData.delete('type');
 
-  if (requestType === "update_embed") {
+  if (requestType === 'update_embed') {
     result = embedUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();

@@ -1,31 +1,12 @@
 import { Link } from "@remix-run/react";
+import {
+  Home,
+  LogIn
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
-import {
-  Cog,
-  Home,
-  Image,
-  LogOut,
-  User,
-  Shield,
-  FileQuestionIcon,
-  MailQuestion,
-  FileQuestion,
-  Link2,
-  ImageIcon,
-  Sword,
-  BookDashed,
-  ArrowBigLeft,
-  ArrowLeft,
-  PersonStanding,
-  User2,
-  ImageDown,
-  Images,
-  Users,
-  LogIn,
-} from "lucide-react";
-import { ThemeToggle } from "./themetoggle";
 import { Separator } from "./separator";
+import { ThemeToggle } from "./themetoggle";
 
 interface SidebarProps {
   className?: string;

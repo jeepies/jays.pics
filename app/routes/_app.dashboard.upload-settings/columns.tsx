@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "~/components/ui/checkbox";
+import { ColumnDef } from '@tanstack/react-table';
+import { Checkbox } from '~/components/ui/checkbox';
 
 export type URL = {
   url: string;
@@ -10,13 +10,10 @@ export type URL = {
 
 export const columns: ColumnDef<URL>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
@@ -32,11 +29,11 @@ export const columns: ColumnDef<URL>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "url",
-    header: "Domain",
+    accessorKey: 'url',
+    header: 'Domain',
   },
   {
-    accessorKey: "donator.username",
-    header: "Donator",
+    accessorKey: 'donator.username',
+    header: 'Donator',
   },
 ];

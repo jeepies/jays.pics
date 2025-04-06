@@ -1,23 +1,23 @@
+import { Prisma } from '@prisma/client';
 import { Link } from '@remix-run/react';
-import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
 import {
+  Bell,
+  BellDotIcon,
   Cog,
+  FileQuestion,
+  Globe2,
   Home,
   Image,
-  LogOut,
-  User,
-  Shield,
-  FileQuestion,
-  Link2,
   ImageIcon,
-  Globe2,
-  BellDotIcon,
-  Bell,
+  Link2,
+  LogOut,
+  Shield,
+  User,
 } from 'lucide-react';
-import { ThemeToggle } from './themetoggle';
+import { Button } from '~/components/ui/button';
+import { cn } from '~/lib/utils';
 import { Separator } from './separator';
-import { Prisma } from '@prisma/client';
+import { ThemeToggle } from './themetoggle';
 
 interface SidebarProps {
   className?: string;

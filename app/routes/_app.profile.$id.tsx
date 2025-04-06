@@ -1,37 +1,27 @@
-import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import { useState } from "react";
-import {
-  getAllReferrals,
-  getSession,
-  getUserByID,
-} from "~/services/session.server";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
+import { Form, useLoaderData } from '@remix-run/react';
+import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { getAllReferrals, getSession, getUserByID } from '~/services/session.server';
 
-import { CalendarIcon, ImageIcon, UserIcon } from "lucide-react";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import { prisma } from "~/services/database.server";
+import { CalendarIcon, ImageIcon, UserIcon } from 'lucide-react';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { prisma } from '~/services/database.server';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
 
-  if (params.id === "me") return redirect(`/profile/${session.get("userID")}`);
-  const id = params.id ?? session.get("userID");
+  if (params.id === 'me') return redirect(`/profile/${session.get('userID')}`);
+  const id = params.id ?? session.get('userID');
 
   const user = await getUserByID(id);
   const referrals = await getAllReferrals(user!.referrer_profile!.id);
 
-  if (!user) return redirect(`/profile/${session.get("userID")}`);
+  if (!user) return redirect(`/profile/${session.get('userID')}`);
   // Who the fuck wrote this piece of shit???
   // fuck you @occorune that code does its job....
 
@@ -42,7 +32,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function Profile() {
   const { user, referrals, images } = useLoaderData<typeof loader>();
-  const [activeTab, setActiveTab] = useState("images");
+  const [activeTab, setActiveTab] = useState('images');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -54,9 +44,7 @@ export default function Profile() {
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
                 alt={user.username}
               />
-              <AvatarFallback>
-                {user.username.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold">{user.username}</h1>
@@ -126,9 +114,7 @@ export default function Profile() {
           <Card>
             <CardHeader>
               <CardTitle>About {user.username}</CardTitle>
-              <CardDescription>
-                More information about this user
-              </CardDescription>
+              <CardDescription>More information about this user</CardDescription>
             </CardHeader>
             <CardContent>
               <p>
@@ -141,21 +127,8 @@ export default function Profile() {
               </p>
 
               <Form method="POST" action="/profile/comment">
-                <Input
-                  id="target"
-                  name="target"
-                  type="text"
-                  value={user.id}
-                  required
-                  className="hidden"
-                />
-                <Input
-                  id="content"
-                  name="content"
-                  type="text"
-                  placeholder="Comment"
-                  required
-                />
+                <Input id="target" name="target" type="text" value={user.id} required className="hidden" />
+                <Input id="content" name="content" type="text" placeholder="Comment" required />
                 <Button className="w-full" type="submit">
                   Comment
                 </Button>

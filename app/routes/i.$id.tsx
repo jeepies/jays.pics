@@ -1,16 +1,16 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { MetaFunction, useLoaderData } from "@remix-run/react";
-import { templateReplacer } from "~/lib/utils";
-import { prisma } from "~/services/database.server";
-import { getSession, getUserBySession } from "~/services/session.server";
-import prettyBytes from "pretty-bytes";
-import { Sidebar } from "~/components/ui/sidebar";
-import { SidebarGuest } from "~/components/ui/sidebar-guest";
-import { Card, CardContent } from "~/components/ui/card";
+import { LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { MetaFunction, useLoaderData } from '@remix-run/react';
+import prettyBytes from 'pretty-bytes';
+import { Card, CardContent } from '~/components/ui/card';
+import { Sidebar } from '~/components/ui/sidebar';
+import { SidebarGuest } from '~/components/ui/sidebar-guest';
+import { templateReplacer } from '~/lib/utils';
+import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
-  if (!image) return redirect("/");
+  if (!image) return redirect('/');
   const uploader = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
     select: {
@@ -21,10 +21,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  const session = await getSession(request.headers.get("Cookie"));
-  const user = session.has("userID")
-    ? await getUserBySession(session)
-    : { id: "", username: "Guest", is_admin: false };
+  const session = await getSession(request.headers.get('Cookie'));
+  const user = session.has('userID') ? await getUserBySession(session) : { id: '', username: 'Guest', is_admin: false };
 
   return { data: { image: image, uploader: uploader }, user };
 }
@@ -47,7 +45,7 @@ export default function Image() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {user!.id !== "" ? (
+      {user!.id !== '' ? (
         <Sidebar
           user={{ username: user!.username, is_admin: user!.is_admin, notifications: user!.notifications }}
           className="border-r"
@@ -80,47 +78,42 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) return [{ title: `Image | jays.pics ` }];
 
   const dictionary = {
-    "image.name": data.data.image?.display_name,
-    "image.size_bytes": data.data.image?.size,
-    "image.size": prettyBytes(data.data.image!.size),
-    "image.created_at": data.data.image?.created_at,
+    'image.name': data.data.image?.display_name,
+    'image.size_bytes': data.data.image?.size,
+    'image.size': prettyBytes(data.data.image!.size),
+    'image.created_at': data.data.image?.created_at,
 
-    "uploader.name": data.data.uploader?.username,
-    "uploader.storage_used_bytes": data.data.uploader?.space_used,
-    "uploader.storage_used": prettyBytes(data.data.uploader!.space_used),
-    "uploader.total_storage_bytes": data.data.uploader?.max_space,
-    "uploader.total_storage": prettyBytes(data.data.uploader!.max_space),
+    'uploader.name': data.data.uploader?.username,
+    'uploader.storage_used_bytes': data.data.uploader?.space_used,
+    'uploader.storage_used': prettyBytes(data.data.uploader!.space_used),
+    'uploader.total_storage_bytes': data.data.uploader?.max_space,
+    'uploader.total_storage': prettyBytes(data.data.uploader!.max_space),
   };
 
-  const title = templateReplacer(
-    data.data.uploader?.upload_preferences?.embed_title ?? "",
-    dictionary
-  );
+  const title = templateReplacer(data.data.uploader?.upload_preferences?.embed_title ?? '', dictionary);
 
   return [
     { title: data.data.image?.display_name },
-    { property: "og:title", content: title },
-    { property: "og:description", content: "" },
-    { property: "og:type", content: "website" },
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: '' },
+    { property: 'og:type', content: 'website' },
     {
-      property: "og:url",
+      property: 'og:url',
       content: `https://jays.pics/i/${data.data.image?.id}`,
     },
     {
-      property: "og:image",
-      content: `https://jays.pics/i/${data.data.image?.id}/raw${
-        data.data.image.type === "image/gif" ? ".gif" : ""
-      }`,
+      property: 'og:image',
+      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'image/gif' ? '.gif' : ''}`,
     },
     {
-      name: "theme-color",
+      name: 'theme-color',
       content: data.data.uploader?.upload_preferences?.embed_colour,
     },
     {
-      tagName: "link",
-      type: "application/json+oembed",
+      tagName: 'link',
+      type: 'application/json+oembed',
       href: `https://jays.pics/i/${data.data.image!.id}/oembed.json`,
     },
-    { name: "twitter:card", content: "summary_large_image" },
+    { name: 'twitter:card', content: 'summary_large_image' },
   ];
 };

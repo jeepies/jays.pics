@@ -1,11 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { DataTable } from "~/components/ui/url-data-table";
-import { columns } from "./columns";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { prisma } from "~/services/database.server";
+import { Progress } from "@prisma/client";
 import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
-import { Progress } from "@prisma/client";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { DataTable } from "~/components/ui/url-data-table";
+import { prisma } from "~/services/database.server";
+import { columns } from "./columns";
 
 export async function loader() {
   return await prisma.uRL.findMany({

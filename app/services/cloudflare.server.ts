@@ -1,4 +1,4 @@
-import Cloudflare from "cloudflare";
+import Cloudflare from 'cloudflare';
 
 const cf = new Cloudflare({
   apiToken: process.env.CLOUDFLARE_USER_API,
@@ -8,7 +8,7 @@ export async function createZone(domain: string) {
   const zone = await cf.zones.create({
     account: { id: process.env.CLOUDFLARE_USER_ID },
     name: domain,
-    type: "full",
+    type: 'full',
   });
   return zone;
 }

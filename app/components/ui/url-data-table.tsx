@@ -4,10 +4,13 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  useReactTable,
   getPaginationRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
 
+import React from "react";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import {
   Table,
   TableBody,
@@ -16,9 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from "./table";
-import React from "react";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

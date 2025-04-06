@@ -1,16 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { DataTable } from "~/components/ui/url-data-table";
-import { columns } from "./columns";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { prisma } from "~/services/database.server";
-import { Link, useLoaderData } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import { getSession, getUserBySession } from "~/services/session.server";
+import { LoaderFunctionArgs } from '@remix-run/node';
+import { Link, useLoaderData } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { DataTable } from '~/components/ui/url-data-table';
+import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
+import { columns } from './columns';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUserBySession(
-    await getSession(request.headers.get("Cookie"))
-  );
+  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
 
   const urls = await prisma.uRL.findMany({
     where: {

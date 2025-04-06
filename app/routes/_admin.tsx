@@ -1,36 +1,32 @@
-import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
-import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
-import { SidebarAdmin } from "~/components/ui/sidebar-admin";
-import {
-  destroySession,
-  getSession,
-  getUserBySession,
-} from "~/services/session.server";
+import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
+import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
+import { SidebarAdmin } from '~/components/ui/sidebar-admin';
+import { destroySession, getSession, getUserBySession } from '~/services/session.server';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Admin Dashboard | jays.pics" },
-    { name: "description", content: "Administration Dashboard" },
+    { title: 'Admin Dashboard | jays.pics' },
+    { name: 'description', content: 'Administration Dashboard' },
     {
-      name: "theme-color",
-      content: "#e05cd9",
+      name: 'theme-color',
+      content: '#e05cd9',
     },
   ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
+  const session = await getSession(request.headers.get('Cookie'));
 
-  if (!session.has("userID")) return redirect("/");
+  if (!session.has('userID')) return redirect('/');
 
   const user = await getUserBySession(session);
 
-  if (!user?.is_admin) return redirect("/");
+  if (!user?.is_admin) return redirect('/');
 
   if (user === null)
-    return redirect("/", {
+    return redirect('/', {
       headers: {
-        "Set-Cookie": await destroySession(session),
+        'Set-Cookie': await destroySession(session),
       },
     });
 
@@ -53,5 +49,5 @@ export default function AdminDashboard() {
 }
 
 export function useAdminLoader() {
-  return useRouteLoaderData<typeof loader>("routes/_admin");
+  return useRouteLoaderData<typeof loader>('routes/_admin');
 }
