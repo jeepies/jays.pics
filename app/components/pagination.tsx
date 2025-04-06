@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from '@remix-run/react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface PaginationProps {
   path: string;
@@ -10,26 +9,30 @@ interface PaginationProps {
 }
 
 export function Pagination(props: Readonly<PaginationProps>) {
-  const [page, setPage] = useState(props.currentPage);
-
   const totalPages = Math.ceil(props.totalCount / PAGE_SIZE);
 
   return (
     <>
-      <Link to={`${props.path}?page=${props.currentPage - 1}`}>
-        <Button variant="outline">
+      <Button variant="outline">
+        <Link to={`${props.path}?page=${props.currentPage - 1}`}>
           <ChevronLeft />
-        </Button>
-      </Link>
+        </Link>
+      </Button>
 
-      <Link to={`${props.path}?page=${props.currentPage + 1}`}>
-        <Button variant="outline">
-          <ChevronRight />
+      {new Array(10).fill(0).map((_, idx) => (
+        <Button variant="outline" disabled={idx > totalPages-1}>
+          <Link to={`${props.path}?page=${idx+1}`}>{idx+1}</Link>
         </Button>
-      </Link>
+      ))}
+
+      <Button variant="outline">
+        <Link to={`${props.path}?page=${props.currentPage + 1}`}>
+          <ChevronRight />
+        </Link>
+      </Button>
     </>
   );
 }
 
-// how many rows should we take?
+// how many rows to take per page
 export const PAGE_SIZE = 25;
