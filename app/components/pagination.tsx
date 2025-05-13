@@ -13,23 +13,25 @@ export function Pagination(props: Readonly<PaginationProps>) {
 
   return (
     <>
-      <Button variant="outline">
-        <Link to={`${props.path}?page=${props.currentPage - 1}`}>
+      <Link to={`${props.path}?page=${props.currentPage !== 1 ? props.currentPage - 1 : 1}`}>
+        <Button variant="outline">
           <ChevronLeft />
-        </Link>
-      </Button>
+        </Button>
+      </Link>
 
       {new Array(10).fill(0).map((_, idx) => (
-        <Button variant="outline" disabled={idx > totalPages - 1} key={idx}>
-          <Link to={`${props.path}?page=${idx + 1}`}>{idx + 1}</Link>
-        </Button>
+        <Link to={`${props.path}?page=${idx + 1}`}>
+          <Button variant="outline" disabled={idx > totalPages - 1} key={idx}>
+            {idx + 1}
+          </Button>
+        </Link>
       ))}
 
-      <Button variant="outline">
-        <Link to={`${props.path}?page=${props.currentPage + 1}`}>
+      <Link to={`${props.path}?page=${props.currentPage !== totalPages ? props.currentPage + 1 : totalPages}`}>
+        <Button variant="outline">
           <ChevronRight />
-        </Link>
-      </Button>
+        </Button>
+      </Link>
     </>
   );
 }
