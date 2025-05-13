@@ -45,6 +45,8 @@ model User {
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
   deleted_at    DateTime?
+
+  tags Tag[]
 }
 
 model ReferrerProfile {
@@ -105,6 +107,9 @@ model Image {
   comments ImageComment[]
 
   privacy ImagePrivacy @default(PUBLIC)
+
+  tag Tag? @relation(fields: [tag_id], references: [id])
+  tag_id String?
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
@@ -193,4 +198,14 @@ model Notification {
 model Site {
   id String @unique @default(cuid()) // i hate that this is required
   is_upload_blocked Boolean @default(true)
+}
+
+model Tag {
+  id String @unique @default(cuid())
+  owner_id String
+  owner User? @relation(fields: [owner_id], references: [id])
+  text String
+  color String @default("FFFFFF")
+
+  images Image[]
 }
