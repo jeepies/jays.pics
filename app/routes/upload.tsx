@@ -32,7 +32,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const image = result.data.image;
-  /*  */
   const url = new URL(request.url);
   const paramEntries = Object.fromEntries(url.searchParams.entries());
 

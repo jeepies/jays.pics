@@ -2,6 +2,7 @@ import { AvatarImage } from '@radix-ui/react-avatar';
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import { CalendarIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
 import { Badge } from '~/components/ui/badge';
@@ -30,6 +31,17 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export default function AdminProfile() {
   const { user } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+
+  const [templates, setTemplates] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/get-templates')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success) setTemplates(Object.keys(d.data));
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -67,13 +79,28 @@ export default function AdminProfile() {
           <Form method="post">
             <Input className="hidden" value={'update_embed'} name="type" />
             <Label htmlFor="embed_title">Title</Label>
-            <Input className="my-2" name="embed_title" defaultValue={user.upload_preferences?.embed_title} />
+            <Input
+              className="my-2"
+              name="embed_title"
+              defaultValue={user.upload_preferences?.embed_title}
+              list="embed-templates"
+            />
             <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_title}</div>
             <Label htmlFor="embed_author">Author</Label>
-            <Input className="my-2" name="embed_author" defaultValue={user.upload_preferences?.embed_author} />
+            <Input
+              className="my-2"
+              name="embed_author"
+              defaultValue={user.upload_preferences?.embed_author}
+              list="embed-templates"
+            />
             <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_author}</div>
             <Label htmlFor="embed_colour">Colour</Label>
             <Input className="my-2" name="embed_colour" defaultValue={user.upload_preferences?.embed_colour} />
+            <datalist id="embed-templates">
+              {templates.map((t) => (
+                <option key={t} value={`{{${t}}}`} />
+              ))}
+            </datalist>
             <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_colour}</div>
             <Button type="submit">Save</Button>
           </Form>
