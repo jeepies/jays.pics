@@ -1,1 +1,2 @@
 */5 * * * * checkNameserver
+0 0 * * * cleanDomains
