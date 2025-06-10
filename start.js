@@ -4,7 +4,7 @@ import "dotenv/config";
 concurrently(
   [
     {
-      command: "npm run dev",
+      command: "npm start",
       name: "server",
     },
     {
