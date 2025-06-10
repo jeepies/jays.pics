@@ -177,7 +177,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
         embed_colour: result.data.embed_colour,
       },
     });
+    await prisma.notification.create({
+      data: {
+        receiver_id: user!.id,
+        content: 'Your embed configuration was updated by an admin',
+      },
+    });
   }
-
   return null;
 }
