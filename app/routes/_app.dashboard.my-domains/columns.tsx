@@ -1,14 +1,16 @@
-import { Link } from '@remix-run/react';
+import { Form, Link } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
 import { Progress } from '~/lib/enums/progress';
+import { Button } from '~/components/ui/button';
 
 export type URL = {
   url: string;
   created_at: string;
   last_checked_at: string;
   public: boolean;
+  progress: Progress;
 };
 
 export const columns: ColumnDef<URL>[] = [
@@ -80,5 +82,36 @@ export const columns: ColumnDef<URL>[] = [
         // @ts-ignore
         Date.parse(cell.getValue())
       ).toLocaleDateString()}`,
+  },
+  {
+    id: 'action',
+    header: 'Action',
+    // @ts-ignore
+    cell: ({ row }) => {
+      const data = row.original as URL;
+      if (data.progress === Progress.DONE) {
+        if (!data.public) {
+          return (
+            <Form method="post">
+              <input type="hidden" name="action" value="make_public" />
+              <input type="hidden" name="url" value={data.url} />
+              <Button type="submit" variant="outline" size="sm">
+                Make Public
+              </Button>
+            </Form>
+          );
+        }
+        return (
+          <Form method="post">
+            <input type="hidden" name="action" value="make_private" />
+            <input type="hidden" name="url" value={data.url} />
+            <Button type="submit" variant="outline" size="sm">
+              Make Private
+            </Button>
+          </Form>
+        );
+      }
+      return null;
+    },
   },
 ];
