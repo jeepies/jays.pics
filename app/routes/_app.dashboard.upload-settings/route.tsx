@@ -1,22 +1,22 @@
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { useAppLoaderData } from "../_app";
-import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { Label } from "~/components/ui/label";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { z } from "zod";
-import { prisma } from "~/services/database.server";
-import { getSession, getUserBySession } from "~/services/session.server";
-import { DataTable } from "../../components/ui/url-data-table";
-import { columns } from "./columns";
-import { Progress } from "@prisma/client";
-import { Checkbox } from "~/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { useAppLoaderData } from '../_app';
+import { Input } from '~/components/ui/input';
+import { Button } from '~/components/ui/button';
+import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { Label } from '~/components/ui/label';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { z } from 'zod';
+import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
+import { DataTable } from '../../components/ui/url-data-table';
+import { columns } from './columns';
+import { Progress } from '@prisma/client';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { useEffect, useState } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUserBySession(
-    await getSession(request.headers.get("Cookie"))
-  );
+  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
 
   const public_domains = await prisma.uRL.findMany({
     where: {
@@ -57,6 +57,18 @@ export default function UploadSettings() {
   const urls = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const [templates, setTemplates] = useState<string[]>([]);
+  useEffect(() => {
+    fetch('/api/get-templates')
+      .then((res) => res.json())
+      .then((d) => {
+        if (d.success) {
+          setTemplates(Object.keys(d.data));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const selected = data!.user.upload_preferences!.urls;
 
   return (
@@ -85,17 +97,13 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input
-                className="hidden"
-                value={"update_embed"}
-                name="type"
-                readOnly
-              />
+              <Input className="hidden" value={'update_embed'} name="type" readOnly />
               <Label htmlFor="embed_title">Title</Label>
               <Input
                 className="my-2"
                 name="embed_title"
                 defaultValue={data?.user.upload_preferences?.embed_title}
+                list="embed-templates"
               />
               <div className="text-red-500 text-sm">
                 {/* @ts-ignore */}
@@ -106,19 +114,23 @@ export default function UploadSettings() {
                 className="my-2"
                 name="embed_author"
                 defaultValue={data?.user.upload_preferences?.embed_author}
+                list="embed-templates"
               />
               <div className="text-red-500 text-sm">
                 {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_author}
               </div>
               <Label htmlFor="embed_colour">Colour</Label>
-              <Input
-                className="my-2"
-                name="embed_colour"
-                defaultValue={data?.user.upload_preferences?.embed_colour}
-              />
+              <Input className="my-2" name="embed_colour" defaultValue={data?.user.upload_preferences?.embed_colour} />
+              <datalist id="embed-templates">
+                {templates.map((t) => (
+                  <option key={t} value={`{{${t}}}`} />
+                ))}
+              </datalist>
               <div className="items-top flex space-x-2 my-2">
-                <Checkbox name="domain_hack" defaultChecked={data?.user.upload_preferences?.domain_hack}>Invisible Extension</Checkbox>
+                <Checkbox name="domain_hack" defaultChecked={data?.user.upload_preferences?.domain_hack}>
+                  Invisible Extension
+                </Checkbox>
                 <div className="grid gap-1.5 leading-none">
                   <label
                     htmlFor="terms1"
@@ -143,12 +155,7 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input
-                className="hidden"
-                value={"update_urls"}
-                name="type"
-                readOnly
-              />
+              <Input className="hidden" value={'update_urls'} name="type" readOnly />
               <DataTable columns={columns} data={urls} selected={selected} />
               <Button type="submit">Save</Button>
             </Form>
@@ -164,9 +171,9 @@ const embedUpdateSchema = z.object({
   embed_author: z.string(),
   embed_colour: z
     .string()
-    .length(7, { message: "Must be 7 characters long" })
-    .regex(/^#/, { message: "Must be a valid hex colour" }),
-  domain_hack: z.string().optional()
+    .length(7, { message: 'Must be 7 characters long' })
+    .regex(/^#/, { message: 'Must be a valid hex colour' }),
+  domain_hack: z.string().optional(),
 });
 
 const urlUpdateSchema = z.object({
@@ -178,13 +185,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get("type");
+  const requestType = formData.get('type');
 
-  const user = await getUserBySession(
-    await getSession(request.headers.get("Cookie"))
-  );
+  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
 
-  if (requestType === "update_embed") {
+  if (requestType === 'update_embed') {
     result = embedUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -202,12 +207,12 @@ export async function action({ request }: ActionFunctionArgs) {
         embed_author: result.data.embed_author,
         embed_title: result.data.embed_title,
         embed_colour: result.data.embed_colour,
-        domain_hack: (result.data.domain_hack === 'on')
+        domain_hack: result.data.domain_hack === 'on',
       },
     });
   }
 
-  if (requestType === "update_urls") {
+  if (requestType === 'update_urls') {
     result = urlUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -228,7 +233,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return urls[+val].url;
     });
 
-    if (selected.length === 0) selected = ["jays.pics"];
+    if (selected.length === 0) selected = ['jays.pics'];
 
     await prisma.uploaderPreferences.update({
       where: {
