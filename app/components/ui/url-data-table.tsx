@@ -23,7 +23,7 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  selected: [];
+  selected: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -34,7 +34,17 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>(
+    () => {
+      const initial: Record<string, boolean> = {};
+      data.forEach((row: any, index) => {
+        if (selected.includes((row as any).url)) {
+          initial[index] = true;
+        }
+      });
+      return initial;
+    }
+  );
 
   const table = useReactTable({
     data,
