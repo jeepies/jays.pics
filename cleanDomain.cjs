@@ -23,8 +23,27 @@ module.exports = async () => {
         data: { last_checked_at: new Date() },
       });
       if (!zone || zone.status !== "active") {
+        
         await prisma.uRL.delete({ where: { id: domain.id } });
         await cf.zones.delete({ zone_id: domain.zone_id }).catch(() => {});
+
+        const prefs = await prisma.uploaderPreferences.findMany({
+          where: { urls: { has: domain.url } },
+          select: { userId: true, urls: true },
+        });
+        for (const pref of prefs) {
+          await prisma.notification.create({
+            data: {
+              receiver_id: pref.userId,
+              content: `Domain ${domain.url} was removed`,
+            },
+          });
+          await prisma.uploaderPreferences.update({
+            where: { userId: pref.userId },
+            data: { urls: pref.urls.filter((u) => u !== domain.url) },
+          });
+        }
+
         await prisma.log.create({
           data: {
             message: `removed ${domain.url} (${domain.id}) due to inactive zone`,
@@ -35,6 +54,24 @@ module.exports = async () => {
     } catch (err) {
       await prisma.uRL.delete({ where: { id: domain.id } }).catch(() => {});
       await cf.zones.delete({ zone_id: domain.zone_id }).catch(() => {});
+
+      const prefs = await prisma.uploaderPreferences.findMany({
+        where: { urls: { has: domain.url } },
+        select: { userId: true, urls: true },
+      });
+      for (const pref of prefs) {
+        await prisma.notification.create({
+          data: {
+            receiver_id: pref.userId,
+            content: `Domain ${domain.url} was removed`,
+          },
+        });
+        await prisma.uploaderPreferences.update({
+          where: { userId: pref.userId },
+          data: { urls: pref.urls.filter((u) => u !== domain.url) },
+        });
+      }
+
       await prisma.log.create({
         data: {
           message: `error checking ${domain.url}: ${err}`,

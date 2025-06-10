@@ -18,27 +18,43 @@ import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { Separator } from './separator';
 import { ThemeToggle } from './themetoggle';
+import { useState } from 'react';
+import { NotificationTray } from './notification-tray';
 
 interface SidebarProps {
   className?: string;
   user: {
     username: string;
     is_admin: boolean;
-    notifications: Prisma.User$notificationsArgs[];
+    notifications: { id: string; content: string; created_at: string }[];
   };
 }
 
 export function Sidebar({ className, user }: SidebarProps) {
+  const [showTray, setShowTray] = useState(false);
+  const [notifications, setNotifications] = useState(
+    user.notifications ?? []
+  );
+
+  const removeNotification = (id: string) =>
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+
   return (
     <div className={cn('pb-12 w-64 relative', className)}>
+      {showTray && (
+        <NotificationTray
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+      )}
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             jays.pics
             {!user.notifications || user.notifications.length === 0 ? (
-              <Bell className="float-right w-4 m-1" />
+              <Bell className="float-right w-4 m-1 cursor-pointer" onClick={() => setShowTray(!showTray)} />
             ) : (
-              <BellDotIcon className="float-right w-4 m-1 hover:text-accent" />
+              <BellDotIcon className="float-right w-4 m-1 hover:text-accent cursor-pointer" onClick={() => setShowTray(!showTray)} />
             )}
           </h2>
           <Separator className="my-4" />
