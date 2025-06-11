@@ -82,6 +82,7 @@ model UploaderPreferences {
   domain_hack Boolean @default(false)
 
   urls String[] @default(["jays.pics"])
+  subdomains Json     @default("{}")
 }
 
 model Comment {
