@@ -64,7 +64,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
 
-    const formedURL = `https://${url}/i/${query}/`;
+    const sub = user.upload_preferences?.subdomains?.[url];
+    const domain = sub ? `${sub}.${url}` : url;
+    const formedURL = `https://${domain}/i/${query}/`;
     let returnableURL = formedURL;
 
     if (user.upload_preferences?.domain_hack) {

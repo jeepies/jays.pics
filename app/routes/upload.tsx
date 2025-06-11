@@ -92,8 +92,10 @@ export async function action({ request }: ActionFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-
-    const formedURL = `https://${url}/i/${dbImage.id}/`;
+    
+    const sub = user.upload_preferences?.subdomains?.[url];
+    const domain = sub ? `${sub}.${url}` : url;
+    const formedURL = `https://${domain}/i/${dbImage.id}/`;
     let returnableURL = formedURL;
 
     if (user.upload_preferences?.domain_hack) {
