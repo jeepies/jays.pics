@@ -10,10 +10,17 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { PAGE_SIZE, Pagination } from '~/components/pagination';
 import prettyBytes from 'pretty-bytes';
 import { prisma } from '~/services/database.server';
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+  const search = url.searchParams.get('search') ?? '';
+  const sort = url.searchParams.get('sort') ?? 'desc';
+
   const user = await prisma.user.findFirst({
     where: { id: params.id },
     select: {
@@ -28,21 +35,33 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   if (user === null) return redirect('/admin/index');
 
+  const where = {
+    uploader_id: params.id as string,
+    display_name: { contains: search, mode: 'insensitive' as const },
+  };
+
   const images = await prisma.image.findMany({
-    where: { uploader_id: params.id },
+    where,
     select: {
       id: true,
       display_name: true,
       created_at: true,
+      _count: { select: { ImageReport: true } },
     },
-    orderBy: { created_at: 'desc' },
+    orderBy: {
+      ImageReport: { _count: sort === 'asc' ? 'asc' : 'desc' },
+    },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
   });
 
-  return { user, images };
+  const imageCount = await prisma.image.count({ where });
+
+  return { user, images, page, imageCount, search, sort, id: params.id };
 }
 
 export default function AdminProfile() {
-  const { user, images } = useLoaderData<typeof loader>();
+  const { user, images, page, imageCount, search, sort, id } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [templates, setTemplates] = useState<string[]>([]);
@@ -138,10 +157,7 @@ export default function AdminProfile() {
                 <Form method="post" key={idx} className="flex items-center gap-1">
                   <Input type="hidden" name="type" value="remove_badge" />
                   <Input type="hidden" name="index" value={idx.toString()} />
-                  <Badge
-                    style={{ backgroundColor: badge.colour ?? undefined }}
-                    className="mr-1"
-                  >
+                  <Badge style={{ backgroundColor: badge.colour ?? undefined }} className="mr-1">
                     {badge.text}
                   </Badge>
                   <Button type="submit" size="sm" variant="ghost">
@@ -150,35 +166,30 @@ export default function AdminProfile() {
                 </Form>
               ))}
             </div>
-          <Form method="post" className="mt-2 flex gap-2">
-            <Input type="hidden" name="type" value="add_badge" />
-            <Input name="text" placeholder="Text" className="flex-1" />
-            <Input name="colour" placeholder="#ffffff" className="w-24" />
-            <Button type="submit" size="sm">
-              Add
-            </Button>
-          </Form>
-          <div className="pt-4">
-            <h3 className="font-medium">Storage Limit</h3>
-            <p className="text-sm text-muted-foreground">
-              {prettyBytes(user.space_used)} used of {prettyBytes(user.max_space)}
-            </p>
             <Form method="post" className="mt-2 flex gap-2">
-              <Input type="hidden" name="type" value="update_space" />
-              <Input
-                name="max_space"
-                type="number"
-                className="w-36"
-                defaultValue={user.max_space}
-              />
+              <Input type="hidden" name="type" value="add_badge" />
+              <Input name="text" placeholder="Text" className="flex-1" />
+              <Input name="colour" placeholder="#ffffff" className="w-24" />
               <Button type="submit" size="sm">
-                Update
+                Add
               </Button>
             </Form>
+            <div className="pt-4">
+              <h3 className="font-medium">Storage Limit</h3>
+              <p className="text-sm text-muted-foreground">
+                {prettyBytes(user.space_used)} used of {prettyBytes(user.max_space)}
+              </p>
+              <Form method="post" className="mt-2 flex gap-2">
+                <Input type="hidden" name="type" value="update_space" />
+                <Input name="max_space" type="number" className="w-36" defaultValue={user.max_space} />
+                <Button type="submit" size="sm">
+                  Update
+                </Button>
+              </Form>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
 
       <Card className="mb-8">
         <CardHeader>
@@ -186,6 +197,19 @@ export default function AdminProfile() {
           <CardDescription>Uploaded by this user</CardDescription>
         </CardHeader>
         <CardContent>
+          <Form method="get" className="mb-4 flex items-end gap-2">
+            <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+            <Select name="sort" defaultValue={sort}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="desc">Most Reports</SelectItem>
+                <SelectItem value="asc">Least Reports</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button type="submit">Apply</Button>
+          </Form>
           {images.length === 0 ? (
             <p className="text-sm text-muted-foreground">No images uploaded</p>
           ) : (
@@ -215,8 +239,13 @@ export default function AdminProfile() {
             </div>
           )}
         </CardContent>
+        <Pagination
+          path={`/admin/profile/${id}`}
+          currentPage={page}
+          totalCount={imageCount}
+          query={`search=${search}&sort=${sort}`}
+        />
       </Card>
-
 
       <Card className="mb-8 border-red-900 ">
         <CardHeader>
@@ -350,7 +379,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         },
       });
     }
-    return null
+    return null;
   } else if (requestType === 'soft_delete_image') {
     const imageId = formData.get('image_id');
     if (typeof imageId === 'string') {
