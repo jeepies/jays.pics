@@ -30,15 +30,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const now = Date.now();
 
-  return { user, now };
+  return { user, now, version: process.env.VERSION ?? '0.0.0' };
 }
 
 export default function Application() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, version } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar user={user} className="border-r" />
+      <Sidebar user={user} version={version} className="border-r" />
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <Outlet />
       </div>

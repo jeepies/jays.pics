@@ -28,9 +28,10 @@ interface SidebarProps {
     is_admin: boolean;
     notifications: { id: string; content: string; created_at: string }[];
   };
+  version: string
 }
 
-export function Sidebar({ className, user }: SidebarProps) {
+export function Sidebar({ className, user, version }: SidebarProps) {
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(
     user.notifications ?? []
@@ -138,6 +139,12 @@ export function Sidebar({ className, user }: SidebarProps) {
               Log out
             </Link>
           </Button>
+        </div>
+        <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400 px-3">
+          <span>v{version}</span>
+          <Link to="/tos" className="underline">
+            TOS
+          </Link>
         </div>
       </div>
     </div>
