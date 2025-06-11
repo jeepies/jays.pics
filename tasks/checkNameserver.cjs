@@ -38,8 +38,14 @@ module.exports = async (payload, helpers) => {
     },
   });
 
+
   waiting.forEach(async (domain) => {
     checked += 1;
+    const donator = await prisma.user.findFirst({
+      where: {
+        id: domain.donator_id
+      }
+    })
     const zone = await cf.zones.get({ zone_id: domain.zone_id });
     if (zone.activated_on != null) {
       cf.dns.records
@@ -72,6 +78,20 @@ module.exports = async (payload, helpers) => {
               type: LogType.DOMAIN_CHECK,
             },
           });
+          if (process.env.DISCORD_WEBHOOK_URL) {
+            fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                embeds: [
+                  {
+                    title: "Domain added",
+                    description: `✅ ${domain.url} was added by ${donator.username}`,
+                  },
+                ],
+              }),
+            }).catch(() => {});
+          }
         })
         .catch(async (err) => {
           await prisma.log.create({
