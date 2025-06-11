@@ -28,6 +28,8 @@ model User {
   upload_key         String               @unique @default(cuid())
   upload_preferences UploaderPreferences?
 
+  pinned_images String[] @default([])
+
   images     Image[]
   space_used Int     @default(0)
   max_space  Int     @default(100000000)
