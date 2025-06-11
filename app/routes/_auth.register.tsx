@@ -30,7 +30,7 @@ export default function Register() {
     <Form className="space-y-4 dark text-white" method="post">
       <div className="space-y-1">
         <Label htmlFor="username">Username</Label>
-        <Input id="username" name="username" placeholder="jeepies" required />
+        <Input id="username" name="username" placeholder="Username" required />
         <div className="text-red-500 text-sm dark">{actionData?.fieldErrors.username}</div>
       </div>
       <div className="space-y-1">
