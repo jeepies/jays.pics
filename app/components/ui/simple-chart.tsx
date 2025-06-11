@@ -1,4 +1,3 @@
-import React from 'react';
 import { cn } from '~/lib/utils';
 import {
   BarChart,
@@ -17,10 +16,10 @@ export interface ChartPoint {
 export function SimpleBarChart({
   data,
   className,
-}: {
+}: Readonly<{
   data: ChartPoint[];
   className?: string;
-}) {
+}>) {
   return (
     <div className={cn('w-full h-40', className)}>
       <ResponsiveContainer width="100%" height="100%" className="text-primary">

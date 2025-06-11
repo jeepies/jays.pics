@@ -19,12 +19,12 @@ interface DataTableProps<TData, TValue> {
   selected: string[];
 }
 
-export function DataTable<TData, TValue>({ columns, data, selected }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, selected }: Readonly<DataTableProps<TData, TValue>>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     data.forEach((row: any, index) => {
-      if (selected.includes((row as any).url)) {
+      if (selected.includes(row.url)) {
         initial[index] = true;
       }
     });

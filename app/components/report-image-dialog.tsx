@@ -18,7 +18,7 @@ interface Props {
   imageId: string
 }
 
-export function ReportImageDialog({ imageId }: Props) {
+export function ReportImageDialog({ imageId }: Readonly<Props>) {
   const [open, setOpen] = React.useState(false)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
