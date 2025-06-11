@@ -336,6 +336,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
     }
     return null;
+  } else if (requestType === 'update_space') {
+    const maxSpace = Number(formData.get('max_space'));
+    if (!isNaN(maxSpace) && maxSpace > 0) {
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: { max_space: maxSpace },
+      });
+      await prisma.notification.create({
+        data: {
+          receiver_id: user!.id,
+          content: 'Your storage limit was changed by an admin',
+        },
+      });
+    }
   } else if (requestType === 'soft_delete_image') {
     const imageId = formData.get('image_id');
     if (typeof imageId === 'string') {
