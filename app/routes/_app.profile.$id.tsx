@@ -1,14 +1,15 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
 import { getAllReferrals, getSession, getUserByID, getUserBySession } from '~/services/session.server';
 import { Textarea } from '~/components/ui/textarea';
-import { CalendarIcon, ImageIcon, UserIcon } from 'lucide-react';
+import { CalendarIcon, ImageIcon } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { prisma } from '~/services/database.server';
+import { ReportCommentDialog } from '~/components/report-comment-dialog';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -23,15 +24,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ? await getUserBySession(session)
     : { id: '', username: 'Guest', is_admin: false };
 
-    if(!viewer) return redirect('/')
+  if (!viewer) return redirect('/');
 
   const referrals = await getAllReferrals(user.referrer_profile!.id);
 
   const images = await prisma.image.findMany({ where: { uploader_id: id } });
 
-  const pinnedImages = user.pinned_images.length
+  const pinnedImagesRaw = user.pinned_images.length
     ? await prisma.image.findMany({ where: { id: { in: user.pinned_images } } })
     : [];
+  const pinnedMap = new Map(pinnedImagesRaw.map((i) => [i.id, i]));
+  const pinnedImages = user.pinned_images.slice(0, 4).map((id) => pinnedMap.get(id) ?? null);
+  while (pinnedImages.length < 4) pinnedImages.push(null);
 
   const comments = await prisma.comment.findMany({
     where: { receiver_id: id },
@@ -77,19 +81,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
         where: { id: commentId },
         select: { commenter_id: true },
       });
-      if (comment && (comment.commenter_id === user!.id || user!.is_admin)) {
+      if (comment && (comment.commenter_id === user!.id || user!.id === params.id || user!.is_admin)) {
         await prisma.comment.delete({ where: { id: commentId } });
       }
     }
   }
 
-  if (type === 'add_pin') {
-    const imageId = formData.get('image_id');
-    if (typeof imageId === 'string' && user!.id === params.id) {
-      await prisma.user.update({
-        where: { id: user!.id },
-        data: { pinned_images: { push: imageId } },
+  if (type === 'report_comment') {
+    const commentId = formData.get('comment_id');
+    const reasonType = formData.get('reason_type');
+    const detail = formData.get('detail');
+    if (typeof commentId === 'string' && typeof reasonType === 'string') {
+      await prisma.commentReport.create({
+        data: {
+          reporter_id: user!.id,
+          comment_id: commentId,
+          reason_type: reasonType,
+          detail: typeof detail === 'string' ? detail : null,
+        },
       });
+    }
+  }
+
+  if (type === 'set_pin') {
+    const imageId = formData.get('image_id');
+    const indexStr = formData.get('index');
+    if (typeof imageId === 'string' && typeof indexStr === 'string' && user!.id === params.id) {
+      const index = parseInt(indexStr, 10);
+      if (index >= 0 && index < 4) {
+        const current = await prisma.user.findUnique({
+          where: { id: user!.id },
+          select: { pinned_images: true },
+        });
+        if (current) {
+          const pins = current.pinned_images;
+          pins[index] = imageId;
+          await prisma.user.update({
+            where: { id: user!.id },
+            data: { pinned_images: { set: pins.slice(0, 4) } },
+          });
+        }
+      }
     }
   }
 
@@ -117,7 +149,7 @@ export default function Profile() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="mb-8">
+      <Card className="">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <Avatar className="h-24 w-24">
@@ -143,36 +175,54 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {pinnedImages.length > 0 && (
-        <div className="my-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {pinnedImages.map((img) => (
-            <div key={img.id} className="relative">
-              <a href={`/i/${img.id}`} className="block aspect-square overflow-hidden bg-muted">
-                <img src={`/i/${img.id}/raw`} className="object-cover w-full h-full" />
-              </a>
-              {viewer.id === user.id && (
-                <Form method="POST" className="absolute top-1 right-1">
-                  <Input type="hidden" name="type" value="remove_pin" />
-                  <Input type="hidden" name="image_id" value={img.id} />
-                  <Button variant="ghost" size="icon">
-                    ✕
-                  </Button>
-                </Form>
+      <div className="my-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((idx) => {
+          const img = pinnedImages[idx];
+          return (
+            <Card key={idx} className="relative overflow-hidden p-0">
+              {img ? (
+                <a href={`/i/${img.id}`} className="block aspect-square overflow-hidden bg-muted">
+                  <img alt={img.display_name} src={`/i/${img.id}/raw`} className="object-cover w-full h-full" />
+                </a>
+              ) : (
+                <div className="flex aspect-square items-center justify-center border-2 border-dashed border-muted p-2">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                </div>
               )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {viewer.id === user.id && pinnedImages.length < 4 && (
-        <Form method="POST" className="flex gap-2 mb-4">
-          <Input type="hidden" name="type" value="add_pin" />
-          <Input name="image_id" placeholder="Image ID" className="flex-1" />
-          <Button type="submit" size="sm">
-            Pin
-          </Button>
-        </Form>
-      )}
+              {viewer.id === user.id && (
+                <>
+                  <Form method="POST" className="absolute inset-0">
+                    <Input type="hidden" name="type" value="set_pin" />
+                    <Input type="hidden" name="index" value={idx.toString()} />
+                    <select
+                    title='select image'
+                      name="image_id"
+                      className="h-full w-full opacity-0 cursor-pointer"
+                      onChange={(e) => e.currentTarget.form?.submit()}
+                    >
+                      <option value="">Select image</option>
+                      {images.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          {i.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  </Form>
+                  {img && (
+                    <Form method="POST" className="absolute top-1 right-1">
+                      <Input type="hidden" name="type" value="remove_pin" />
+                      <Input type="hidden" name="image_id" value={img.id} />
+                      <Button variant="ghost" size="icon">
+                        ✕
+                      </Button>
+                    </Form>
+                  )}
+                </>
+              )}
+            </Card>
+          );
+        })}
+      </div>
 
       <Card className="mt-4">
         <CardHeader>
@@ -196,15 +246,18 @@ export default function Profile() {
                     <p className="font-medium">{c.commenter.username}</p>
                     <p className="text-muted-foreground break-words">{c.content}</p>
                   </div>
-                  {viewer.id === c.commenter_id && (
-                    <Form method="POST">
-                      <Input type="hidden" name="type" value="delete_comment" />
-                      <Input type="hidden" name="comment_id" value={c.id} />
-                      <Button variant="ghost" size="icon">
-                        ✕
-                      </Button>
-                    </Form>
-                  )}
+                  <div className="flex items-center space-x-1">
+                    {(viewer.id === c.commenter_id || viewer.id === user.id || viewer.is_admin) && (
+                      <Form method="POST">
+                        <Input type="hidden" name="type" value="delete_comment" />
+                        <Input type="hidden" name="comment_id" value={c.id} />
+                        <Button variant="ghost" size="icon">
+                          ✕
+                        </Button>
+                      </Form>
+                    )}
+                    <ReportCommentDialog commentId={c.id} />
+                  </div>
                 </div>
               ))}
             </div>
