@@ -9,10 +9,9 @@ import { z } from 'zod';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
 import { DataTable } from '../../components/ui/url-data-table';
-import { columns } from './columns';
+import { getColumns } from './columns';
 import { Progress } from '@prisma/client';
 import { Checkbox } from '~/components/ui/checkbox';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { useEffect, useState } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -156,7 +155,7 @@ export default function UploadSettings() {
           <CardContent>
             <Form method="post">
               <Input className="hidden" value={'update_urls'} name="type" readOnly />
-              <DataTable columns={columns} data={urls} selected={selected} />
+              <DataTable columns={getColumns(data!.user.upload_preferences?.subdomains ?? {})} data={urls} selected={selected} />
               <Button type="submit">Save</Button>
             </Form>
           </CardContent>
@@ -229,11 +228,19 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     });
 
-    let selected = Object.keys(JSON.parse(result.data.selected)).map((val) => {
+    const selectedIndices = Object.keys(JSON.parse(result.data.selected));
+    let selected = selectedIndices.map((val) => {
       return urls[+val].url;
     });
 
     if (selected.length === 0) selected = ['jays.pics'];
+
+    const subdomains: Record<string, string> = {};
+    for (const idx of selectedIndices) {
+      const domain = urls[+idx].url;
+      const sub = formData.get(`subdomain_${idx}`)?.toString().trim();
+      if (sub) subdomains[domain] = sub;
+    }
 
     await prisma.uploaderPreferences.update({
       where: {
@@ -241,6 +248,7 @@ export async function action({ request }: ActionFunctionArgs) {
       },
       data: {
         urls: selected,
+        subdomains
       },
     });
   }
