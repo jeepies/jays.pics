@@ -6,6 +6,8 @@ import { Card, CardContent } from '~/components/ui/card';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
+import { Input } from '~/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -23,14 +25,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
+  const search = url.searchParams.get('search') ?? '';
+  const sort = url.searchParams.get('sort') ?? 'desc';
 
   const images = await prisma.image.findMany({
-    where: { uploader_id: user.id },
+    where: {
+      uploader_id: user.id,
+      display_name: { contains: search, mode: 'insensitive' },
+    },
+    orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
   });
   const imageCount = await prisma.image.count({
-    where: { uploader_id: user.id },
+    where: {
+      uploader_id: user.id,
+      display_name: { contains: search, mode: 'insensitive' },
+    },
+    orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
   });
 
   const query = url.searchParams.get('generate_link');
@@ -52,11 +64,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { images, clipboard, page, imageCount };
+  return { images, clipboard, page, imageCount, search, sort };
 }
 
 export default function Images() {
-  const { images, clipboard, page, imageCount } = useLoaderData<typeof loader>();
+  const { images, clipboard, page, imageCount, search, sort } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -74,30 +86,52 @@ export default function Images() {
 
   return (
     <div className="p-4">
-      {images.map((image) => (
-        <Card key={image.id} className="m-2">
-          <CardContent className="p-2">
-            <img
-              src={`/i/${image.id}/raw`}
-              alt={image.display_name}
-              className="aspect-square rounded-md object-cover h-12"
-            />
-            <p className="mt-2 truncate text-sm font-medium hover:text-primary">
-              <a href={`/i/${image.id}`}>{image.display_name}</a>
-            </p>
-            <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
-            <Form>
-              <Link to={`?generate_link=${image.id}`}>
-                <Button>Link</Button>
-              </Link>
-            </Form>
-            <Link to={`/i/${image.id}/delete`}>
-              <Button>Delete</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      ))}
-      <Pagination path="/dashboard/images" currentPage={page} totalCount={imageCount} />
+      <Form method="get" className="mb-4 flex items-end gap-2">
+        <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+        <Select name="sort" defaultValue={sort}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">Newest</SelectItem>
+            <SelectItem value="asc">Oldest</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button type="submit">Apply</Button>
+      </Form>
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {images.map((image) => (
+          <Card key={image.id}>
+            <CardContent className="p-2">
+              <img
+                src={`/i/${image.id}/raw`}
+                alt={image.display_name}
+                className="aspect-square w-full rounded-md object-cover"
+              />
+              <p className="mt-2 truncate text-sm font-medium hover:text-primary">
+                <a href={`/i/${image.id}`}>{image.display_name}</a>
+              </p>
+              <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+              <div className="mt-2 flex justify-between">
+                <Link to={`?generate_link=${image.id}`}>
+                  <Button size="sm">Link</Button>
+                </Link>
+                <Link to={`/i/${image.id}/delete`}>
+                  <Button variant="destructive" size="sm">
+                    Delete
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Pagination
+        path="/dashboard/images"
+        currentPage={page}
+        totalCount={imageCount}
+        query={`search=${search}&sort=${sort}`}
+      />
     </div>
   );
 }
