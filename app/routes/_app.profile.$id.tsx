@@ -166,9 +166,10 @@ export default function Profile() {
                 Joined {new Date(user.created_at).toLocaleDateString()}
               </p>
               <div className="mt-2">
-                {JSON.parse(user.badges).map((badge: { text: string }) => (
-                  <Badge className="mr-2">{badge.text}</Badge>
-                ))}
+                {JSON.parse(user.badges).map((badge: { text: string; colour: string }) => {
+                  const colour = badge.colour ?  `bg-[${badge.colour.toUpperCase()}]` : '';
+                  return <Badge className={`mr-2 ${colour}`}>{badge.text}</Badge>;
+                })}
               </div>
             </div>
           </div>
@@ -195,7 +196,7 @@ export default function Profile() {
                     <Input type="hidden" name="type" value="set_pin" />
                     <Input type="hidden" name="index" value={idx.toString()} />
                     <select
-                    title='select image'
+                      title="select image"
                       name="image_id"
                       className="h-full w-full opacity-0 cursor-pointer"
                       onChange={(e) => e.currentTarget.form?.submit()}
