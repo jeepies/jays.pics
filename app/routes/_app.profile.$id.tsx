@@ -83,60 +83,30 @@ export default function Profile() {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-        <TabsList>
-          <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="about">About</TabsTrigger>
-        </TabsList>
-        <TabsContent value="images" className="mt-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {images.map((image) => (
-              <Card key={image.id}>
-                <CardContent className="p-2">
-                  <img
-                    src={`/i/${image.id}/raw`}
-                    alt="Image"
-                    className="aspect-square w-full rounded-md object-cover"
-                  />
-                  <p className="mt-2 truncate text-sm font-medium">
-                    <a href={`/i/${image.id}`}>{image.display_name}</a>
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()} at
-                    {new Date(image.created_at).toLocaleTimeString()}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="about" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>About {user.username}</CardTitle>
-              <CardDescription>More information about this user</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                This user has been a member since
-                {new Date(user.created_at).toLocaleDateString()}.
-              </p>
-              <p className="mt-2">
-                They have uploaded {images.length} images and have
-                {referrals.length} referral(s).
-              </p>
+      <Card>
+        <CardHeader>
+          <CardTitle>About {user.username}</CardTitle>
+          <CardDescription>More information about this user</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>
+            This user has been a member since
+            {new Date(user.created_at).toLocaleDateString()}.
+          </p>
+          <p className="mt-2">
+            They have uploaded {images.length} images and have
+            {referrals.length} referral(s).
+          </p>
 
-              <Form method="POST" action="/profile/comment">
-                <Input id="target" name="target" type="text" value={user.id} required className="hidden" />
-                <Input id="content" name="content" type="text" placeholder="Comment" required />
-                <Button className="w-full" type="submit">
-                  Comment
-                </Button>
-              </Form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <Form method="POST" action="/profile/comment">
+            <Input id="target" name="target" type="text" value={user.id} required className="hidden" />
+            <Input id="content" name="content" type="text" placeholder="Comment" required />
+            <Button className="w-full" type="submit">
+              Comment
+            </Button>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
