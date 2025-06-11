@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient, Progress, LogType } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
