@@ -40,4 +40,4 @@ export function Pagination(props: Readonly<PaginationProps>) {
 }
 
 // how many rows to take per page
-export const PAGE_SIZE = 25;
+export const PAGE_SIZE = 20;
