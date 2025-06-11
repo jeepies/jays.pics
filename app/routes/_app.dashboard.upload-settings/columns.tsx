@@ -39,7 +39,7 @@ export function getColumns(subdomains: Record<string, string>): ColumnDef<URL>[]
       header: 'Subdomain',
       cell: ({ row }) => (
         <Input
-          name={`subdomain_${row.index}`}
+          name={`subdomain_${row.original.url}`}
           defaultValue={subdomains[row.original.url] ?? ''}
           className="w-32"
           placeholder="optional"

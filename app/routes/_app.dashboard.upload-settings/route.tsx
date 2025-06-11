@@ -238,7 +238,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const subdomains: Record<string, string> = {};
     for (const idx of selectedIndices) {
       const domain = urls[+idx].url;
-      const sub = formData.get(`subdomain_${idx}`)?.toString().trim();
+      const sub = formData.get(`subdomain_${domain}`)?.toString().trim();
       if (sub) subdomains[domain] = sub;
     }
 
