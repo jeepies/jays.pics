@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Link } from '@remix-run/react';
 import {
   Bell,
@@ -31,7 +30,7 @@ interface SidebarProps {
   version: string
 }
 
-export function Sidebar({ className, user, version }: SidebarProps) {
+export function Sidebar({ className, user, version }: Readonly<SidebarProps>) {
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(
     user.notifications ?? []
