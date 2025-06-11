@@ -142,6 +142,21 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
+  if (process.env.DISCORD_WEBHOOK_URL) {
+    fetch(process.env.DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [
+          {
+            title: 'New user joined',
+            description: `🎉 ${user.username} just signed up`,
+          },
+        ],
+      }),
+    }).catch(() => {});
+  }
+
   await prisma.referral.create({
     data: {
       referred_id: user.id,
