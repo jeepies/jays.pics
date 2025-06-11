@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, Link, MetaFunction, useLoaderData } from '@remix-run/react';
+import { Form, MetaFunction, useLoaderData } from '@remix-run/react';
 import prettyBytes from 'pretty-bytes';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -11,6 +11,7 @@ import { SidebarGuest } from '~/components/ui/sidebar-guest';
 import { templateReplacer } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
+import { ReportImageDialog } from '~/components/report-image-dialog';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({ where: { id: params.id } });
@@ -79,24 +80,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await prisma.imageComment.delete({ where: { id: commentId } });
   }
 
+  if (type === 'report_image') {
+    const reasonType = formData.get('reason_type');
+    const detail = formData.get('detail');
+    if (typeof reasonType !== 'string') return redirect(`/i/${params.id}`);
+    await prisma.imageReport.create({
+      data: {
+        reporter_id: user!.id,
+        image_id: params.id!,
+        reason_type: reasonType,
+        detail: typeof detail === 'string' ? detail : null,
+      },
+    });
+  }
+
+
   return redirect(`/i/${params.id}`);
 }
 
 export default function Image() {
   const { data, user, comments } = useLoaderData<typeof loader>();
-
-  // {data.image !== null ? (
-  //   <>
-  //     <img src={`/i/${data.image.id}/raw`} />
-  //     {user !== null ? (
-  //       <>comment box with comment ability</>
-  //     ) : (
-  //       <>comment box, but no comment ability :(</>
-  //     )}
-  //   </>
-  // ) : (
-  //   <>no image</>
-  // )}
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -121,9 +124,10 @@ export default function Image() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button variant="destructive" className="w-full" asChild>
+            <ReportImageDialog imageId={data.image.id} />
+              {/* <Button variant="destructive" className="w-full" asChild>
                 <Link to="/dashboard/help">Report</Link>
-              </Button>
+              </Button> */}
             </CardFooter>
           </Card>
 

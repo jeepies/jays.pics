@@ -45,6 +45,8 @@ model User {
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
   deleted_at    DateTime?
+
+  ImageReport ImageReport[]
 }
 
 model ReferrerProfile {
@@ -109,6 +111,8 @@ model Image {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
+
+  ImageReport ImageReport[]
 }
 
 model ImageComment {
@@ -193,4 +197,22 @@ model Notification {
 model Site {
   id String @unique @default(cuid()) // i hate that this is required
   is_upload_blocked Boolean @default(true)
+}
+
+enum ImageReportReason {
+  SPAM
+  COPYRIGHT
+  INAPPROPRIATE
+  OTHER
+}
+
+model ImageReport {
+  id          String @unique @default(cuid())
+  image_id    String
+  image       Image @relation(fields: [image_id], references: [id])
+  reporter_id String
+  reporter    User  @relation(fields: [reporter_id], references: [id])
+  reason_type ImageReportReason
+  detail      String?
+  created_at  DateTime @default(now())
 }
