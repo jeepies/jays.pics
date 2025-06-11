@@ -31,6 +31,7 @@ jobs:
               deploy@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             cd /var/www/jays.pics
+            rm -rf build
             npm install
             npx prisma migrate deploy
             npx prisma generate
