@@ -1,16 +1,15 @@
-import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
-import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { getAllReferrals, getSession, getUserByID } from '~/services/session.server';
-
-import { CalendarIcon, ImageIcon, UserIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
+import { getAllReferrals, getSession, getUserByID, getUserBySession } from '~/services/session.server';
+import { Textarea } from '~/components/ui/textarea';
+import { CalendarIcon, ImageIcon } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { prisma } from '~/services/database.server';
+import { ReportCommentDialog } from '~/components/report-comment-dialog';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -19,24 +18,138 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const id = params.id ?? session.get('userID');
 
   const user = await getUserByID(id);
-  const referrals = await getAllReferrals(user!.referrer_profile!.id);
-
   if (!user) return redirect(`/profile/${session.get('userID')}`);
-  // Who the fuck wrote this piece of shit???
-  // fuck you @occorune that code does its job....
+
+  const viewer = session.has('userID')
+    ? await getUserBySession(session)
+    : { id: '', username: 'Guest', is_admin: false };
+
+  if (!viewer) return redirect('/');
+
+  const referrals = await getAllReferrals(user.referrer_profile!.id);
 
   const images = await prisma.image.findMany({ where: { uploader_id: id } });
 
-  return { user, referrals, images };
+  const pinnedImagesRaw = user.pinned_images.length
+    ? await prisma.image.findMany({ where: { id: { in: user.pinned_images } } })
+    : [];
+  const pinnedMap = new Map(pinnedImagesRaw.map((i) => [i.id, i]));
+  const pinnedImages = user.pinned_images.slice(0, 4).map((id) => pinnedMap.get(id) ?? null);
+  while (pinnedImages.length < 4) pinnedImages.push(null);
+
+  const comments = await prisma.comment.findMany({
+    where: { receiver_id: id },
+    orderBy: { created_at: 'desc' },
+    select: {
+      id: true,
+      content: true,
+      commenter_id: true,
+      commenter: { select: { username: true } },
+    },
+  });
+
+  return json({ user, viewer, referrals, images, pinnedImages, comments });
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session.has('userID')) return redirect('/login');
+  const user = await getUserBySession(session);
+
+  const formData = await request.formData();
+  const type = formData.get('type');
+
+  if (type === 'create_comment') {
+    const content = formData.get('content');
+    if (typeof content === 'string' && content.length > 0) {
+      await prisma.comment.create({
+        data: {
+          commenter_id: user!.id,
+          receiver_id: params.id!,
+          content,
+          hidden: false,
+          flagged: false,
+        },
+      });
+    }
+  }
+
+  if (type === 'delete_comment') {
+    const commentId = formData.get('comment_id');
+    if (typeof commentId === 'string') {
+      const comment = await prisma.comment.findFirst({
+        where: { id: commentId },
+        select: { commenter_id: true },
+      });
+      if (comment && (comment.commenter_id === user!.id || user!.id === params.id || user!.is_admin)) {
+        await prisma.comment.delete({ where: { id: commentId } });
+      }
+    }
+  }
+
+  if (type === 'report_comment') {
+    const commentId = formData.get('comment_id');
+    const reasonType = formData.get('reason_type');
+    const detail = formData.get('detail');
+    if (typeof commentId === 'string' && typeof reasonType === 'string') {
+      await prisma.commentReport.create({
+        data: {
+          reporter_id: user!.id,
+          comment_id: commentId,
+          reason_type: reasonType,
+          detail: typeof detail === 'string' ? detail : null,
+        },
+      });
+    }
+  }
+
+  if (type === 'set_pin') {
+    const imageId = formData.get('image_id');
+    const indexStr = formData.get('index');
+    if (typeof imageId === 'string' && typeof indexStr === 'string' && user!.id === params.id) {
+      const index = parseInt(indexStr, 10);
+      if (index >= 0 && index < 4) {
+        const current = await prisma.user.findUnique({
+          where: { id: user!.id },
+          select: { pinned_images: true },
+        });
+        if (current) {
+          const pins = current.pinned_images;
+          pins[index] = imageId;
+          await prisma.user.update({
+            where: { id: user!.id },
+            data: { pinned_images: { set: pins.slice(0, 4) } },
+          });
+        }
+      }
+    }
+  }
+
+  if (type === 'remove_pin') {
+    const imageId = formData.get('image_id');
+    if (typeof imageId === 'string' && user!.id === params.id) {
+      const current = await prisma.user.findUnique({
+        where: { id: user!.id },
+        select: { pinned_images: true },
+      });
+      if (current) {
+        await prisma.user.update({
+          where: { id: user!.id },
+          data: { pinned_images: { set: current.pinned_images.filter((i) => i !== imageId) } },
+        });
+      }
+    }
+  }
+
+  return redirect(`/profile/${params.id}`);
 }
 
 export default function Profile() {
-  const { user, referrals, images } = useLoaderData<typeof loader>();
-  const [activeTab, setActiveTab] = useState('images');
+  const { user, viewer, referrals, images, comments, pinnedImages } = useLoaderData<typeof loader>();
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="mb-8">
+      <Card className="">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <Avatar className="h-24 w-24">
@@ -62,81 +175,106 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Images</CardTitle>
-            <ImageIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{images.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Referrals</CardTitle>
-            <UserIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{referrals.length}</div>
-          </CardContent>
-        </Card>
+      <div className="my-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[0, 1, 2, 3].map((idx) => {
+          const img = pinnedImages[idx];
+          return (
+            <Card key={idx} className="relative overflow-hidden p-0">
+              {img ? (
+                <a href={`/i/${img.id}`} className="block aspect-square overflow-hidden bg-muted">
+                  <img alt={img.display_name} src={`/i/${img.id}/raw`} className="object-cover w-full h-full" />
+                </a>
+              ) : (
+                <div className="flex aspect-square items-center justify-center border-2 border-dashed border-muted p-2">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                </div>
+              )}
+              {viewer.id === user.id && (
+                <>
+                  <Form method="POST" className="absolute inset-0">
+                    <Input type="hidden" name="type" value="set_pin" />
+                    <Input type="hidden" name="index" value={idx.toString()} />
+                    <select
+                    title='select image'
+                      name="image_id"
+                      className="h-full w-full opacity-0 cursor-pointer"
+                      onChange={(e) => e.currentTarget.form?.submit()}
+                    >
+                      <option value="">Select image</option>
+                      {images.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          {i.display_name}
+                        </option>
+                      ))}
+                    </select>
+                  </Form>
+                  {img && (
+                    <Form method="POST" className="absolute top-1 right-1">
+                      <Input type="hidden" name="type" value="remove_pin" />
+                      <Input type="hidden" name="image_id" value={img.id} />
+                      <Button variant="ghost" size="icon">
+                        ✕
+                      </Button>
+                    </Form>
+                  )}
+                </>
+              )}
+            </Card>
+          );
+        })}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-        <TabsList>
-          <TabsTrigger value="images">Images</TabsTrigger>
-          <TabsTrigger value="about">About</TabsTrigger>
-        </TabsList>
-        <TabsContent value="images" className="mt-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {images.map((image) => (
-              <Card key={image.id}>
-                <CardContent className="p-2">
-                  <img
-                    src={`/i/${image.id}/raw`}
-                    alt="Image"
-                    className="aspect-square w-full rounded-md object-cover"
-                  />
-                  <p className="mt-2 truncate text-sm font-medium">
-                    <a href={`/i/${image.id}`}>{image.display_name}</a>
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(image.created_at).toLocaleDateString()} at
-                    {new Date(image.created_at).toLocaleTimeString()}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-        <TabsContent value="about" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>About {user.username}</CardTitle>
-              <CardDescription>More information about this user</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                This user has been a member since
-                {new Date(user.created_at).toLocaleDateString()}.
-              </p>
-              <p className="mt-2">
-                They have uploaded {images.length} images and have
-                {referrals.length} referral(s).
-              </p>
-
-              <Form method="POST" action="/profile/comment">
-                <Input id="target" name="target" type="text" value={user.id} required className="hidden" />
-                <Input id="content" name="content" type="text" placeholder="Comment" required />
-                <Button className="w-full" type="submit">
-                  Comment
-                </Button>
-              </Form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Comments ({comments.length})</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {comments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No comments yet</p>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((c) => (
+                <div key={c.id} className="flex items-start space-x-2 text-sm">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={`https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
+                      alt={c.commenter.username}
+                    />
+                    <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium">{c.commenter.username}</p>
+                    <p className="text-muted-foreground break-words">{c.content}</p>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {(viewer.id === c.commenter_id || viewer.id === user.id || viewer.is_admin) && (
+                      <Form method="POST">
+                        <Input type="hidden" name="type" value="delete_comment" />
+                        <Input type="hidden" name="comment_id" value={c.id} />
+                        <Button variant="ghost" size="icon">
+                          ✕
+                        </Button>
+                      </Form>
+                    )}
+                    <ReportCommentDialog commentId={c.id} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+        {viewer.id !== '' && (
+          <CardFooter>
+            <Form method="POST" className="w-full space-y-2">
+              <Input type="hidden" name="type" value="create_comment" />
+              <Textarea name="content" placeholder="Add a comment" required />
+              <Button type="submit" className="w-full">
+                Post
+              </Button>
+            </Form>
+          </CardFooter>
+        )}
+      </Card>
     </div>
   );
 }

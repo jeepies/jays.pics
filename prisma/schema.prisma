@@ -28,6 +28,8 @@ model User {
   upload_key         String               @unique @default(cuid())
   upload_preferences UploaderPreferences?
 
+  pinned_images String[] @default([])
+
   images     Image[]
   space_used Int     @default(0)
   max_space  Int     @default(100000000)
@@ -49,6 +51,8 @@ model User {
   ImageReport ImageReport[]
 
   Tag Tag[]
+
+  CommentReport CommentReport[]
 }
 
 model ReferrerProfile {
@@ -94,6 +98,8 @@ model Comment {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   deleted_at DateTime?
+
+  CommentReport CommentReport[]
 }
 
 model Image {
@@ -240,4 +246,21 @@ model ImageTag {
   tag_id   String
 
   @@id([image_id, tag_id])
+}
+
+enum CommentReportReason {
+  SPAM
+  INAPPROPRIATE
+  OTHER
+}
+
+model CommentReport {
+  id          String              @unique @default(cuid())
+  comment_id  String
+  comment     Comment             @relation(fields: [comment_id], references: [id])
+  reporter_id String
+  reporter    User                @relation(fields: [reporter_id], references: [id])
+  reason_type CommentReportReason
+  detail      String?
+  created_at  DateTime            @default(now())
 }
