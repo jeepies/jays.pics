@@ -18,7 +18,9 @@ app.use(express.static('public', { maxAge: '1h' }));
 
 app.use((req, res, next) => {
   const host = req.headers.host;
-  if (host && host !== baseDomain && !host.endsWith('.' + baseDomain)) {
+  const isGetRequest = req.method === 'GET' || req.method === 'HEAD';
+
+  if (isGetRequest && host && host !== baseDomain && !host.endsWith('.' + baseDomain)) {
     return res.redirect(301, `https://${baseDomain}${req.originalUrl}`);
   }
   return next();
