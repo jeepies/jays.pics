@@ -18,9 +18,7 @@ import { DataTable } from '../../components/ui/url-data-table';
 import { useAppLoaderData } from '../_app';
 
 import { getColumns, type URL } from './columns';
-
-
-
+import { TemplateInput } from '~/components/template-input';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
@@ -106,22 +104,22 @@ export default function UploadSettings() {
             <Form method="post">
               <Input className="hidden" value={'update_embed'} name="type" readOnly />
               <Label htmlFor="embed_title">Title</Label>
-              <Input
+              <TemplateInput
                 className="my-2"
                 name="embed_title"
                 defaultValue={data?.user.upload_preferences?.embed_title}
-                list="embed-templates"
+                templates={templates}
               />
               <div className="text-red-500 text-sm">
                 {/* @ts-ignore */}
                 {actionData?.fieldErrors.embed_title}
               </div>
               <Label htmlFor="embed_author">Author</Label>
-              <Input
+              <TemplateInput
                 className="my-2"
                 name="embed_author"
                 defaultValue={data?.user.upload_preferences?.embed_author}
-                list="embed-templates"
+                templates={templates}
               />
               <div className="text-red-500 text-sm">
                 {/* @ts-ignore */}
