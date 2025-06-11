@@ -35,5 +35,5 @@ jobs:
             npx prisma migrate deploy
             npx prisma generate
             npm run build
-            pm2 reload jays-pics
+            pm2 reload jays.pics
           EOF
