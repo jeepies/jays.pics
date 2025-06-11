@@ -350,6 +350,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         },
       });
     }
+    return null
   } else if (requestType === 'soft_delete_image') {
     const imageId = formData.get('image_id');
     if (typeof imageId === 'string') {
