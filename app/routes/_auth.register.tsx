@@ -133,7 +133,9 @@ export async function action({ request }: ActionFunctionArgs) {
         create: {},
       },
       upload_preferences: {
-        create: {},
+        create: {
+          subdomains: {},
+        },
       },
       last_login_at: new Date(),
       badges: badges,
