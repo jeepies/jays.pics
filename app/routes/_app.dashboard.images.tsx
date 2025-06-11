@@ -64,7 +64,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
 
-    const sub = user.upload_preferences?.subdomains?.[url];
+    const subdomains = user.upload_preferences?.subdomains as
+      | Record<string, string>
+      | undefined;
+    const sub = subdomains?.[url];
     const domain = sub ? `${sub}.${url}` : url;
     const formedURL = `https://${domain}/i/${query}/`;
     let returnableURL = formedURL;

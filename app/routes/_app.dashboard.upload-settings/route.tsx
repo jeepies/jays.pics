@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
 import { DataTable } from '../../components/ui/url-data-table';
-import { getColumns } from './columns';
+import { getColumns, type URL } from './columns';
 import { Progress } from '@prisma/client';
 import { Checkbox } from '~/components/ui/checkbox';
 import { useEffect, useState } from 'react';
@@ -53,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function UploadSettings() {
   const data = useAppLoaderData();
-  const urls = useLoaderData<typeof loader>();
+  const urls = useLoaderData<typeof loader>() as URL[];
   const actionData = useActionData<typeof action>();
 
   const [templates, setTemplates] = useState<string[]>([]);
@@ -155,7 +155,13 @@ export default function UploadSettings() {
           <CardContent>
             <Form method="post">
               <Input className="hidden" value={'update_urls'} name="type" readOnly />
-              <DataTable columns={getColumns(data!.user.upload_preferences?.subdomains ?? {})} data={urls} selected={selected} />
+              <DataTable
+                columns={getColumns(
+                  (data!.user.upload_preferences?.subdomains ?? {}) as Record<string, string>
+                )}
+                data={urls}
+                selected={selected}
+              />
               <Button type="submit">Save</Button>
             </Form>
           </CardContent>

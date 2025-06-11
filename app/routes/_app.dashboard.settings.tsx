@@ -41,7 +41,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Settings() {
-  const data = useAppLoaderData();
+  const data = useAppLoaderData()!;
 
   const changedAt = Date.parse(data!.user.username_changed_at);
   const sevenDaysAgo = Date.parse(new Date(data!.now - 7 * 24 * 60 * 60 * 1000).toString());

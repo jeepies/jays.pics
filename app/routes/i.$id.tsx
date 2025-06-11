@@ -14,6 +14,7 @@ import { getSession, getUserBySession } from '~/services/session.server';
 import { ReportImageDialog } from '~/components/report-image-dialog';
 import { useState } from 'react';
 import { z } from 'zod';
+import { ImageReportReason } from '@prisma/client';
 
 const nameSchema = z.object({
   display_name: z.string().min(1).max(256),
@@ -47,7 +48,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const session = await getSession(request.headers.get('Cookie'));
-  const user = session.has('userID') ? await getUserBySession(session) : { id: '', username: 'Guest', is_admin: false };
+  let user;
+  if (session.has('userID')) {
+    const u = await getUserBySession(session);
+    user = {
+      ...u!,
+      notifications:
+        u?.notifications?.map((n) => ({
+          id: n.id,
+          content: n.content,
+          created_at: new Date(n.created_at).toISOString(),
+        })) ?? [],
+    };
+  } else {
+    user = { id: '', username: 'Guest', is_admin: false, notifications: [] };
+  }
 
   return {
     data: { image: image, uploader: uploader },
@@ -102,7 +117,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       data: {
         reporter_id: user!.id,
         image_id: params.id!,
-        reason_type: reasonType,
+        reason_type: reasonType as ImageReportReason,
         detail: typeof detail === 'string' ? detail : null,
       },
     });

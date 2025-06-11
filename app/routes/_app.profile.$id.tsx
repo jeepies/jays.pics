@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { prisma } from '~/services/database.server';
 import { ReportCommentDialog } from '~/components/report-comment-dialog';
+import { CommentReportReason } from '@prisma/client';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -96,7 +97,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         data: {
           reporter_id: user!.id,
           comment_id: commentId,
-          reason_type: reasonType,
+          reason_type: reasonType as CommentReportReason,
           detail: typeof detail === 'string' ? detail : null,
         },
       });

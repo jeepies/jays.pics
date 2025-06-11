@@ -46,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function AddDomain() {
-  const data = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>() as any;
   const actionData = useActionData<typeof action>();
 
   if (data === null) {
