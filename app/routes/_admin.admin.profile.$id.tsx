@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import prettyBytes from 'pretty-bytes';
 import { prisma } from '~/services/database.server';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -20,6 +21,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
       created_at: true,
       badges: true,
       upload_preferences: true,
+      space_used: true,
+      max_space: true,
     },
   });
 
@@ -117,24 +120,6 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8 border-red-900 ">
-        <CardHeader>
-          <CardTitle>Danger Zone</CardTitle>
-          <CardDescription className="text-red-700">
-            <i>These actions can be catastrophic</i>
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form method="post">
-            <Input className="hidden" value={'danger_zone'} name="type" />
-          </Form>
-          <div className="">
-            <Button>Lock Account</Button>
-            <Button className="ml-2">Purge Images</Button>
-          </div>
-        </CardContent>
-      </Card>
-
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Account Management</CardTitle>
@@ -153,7 +138,10 @@ export default function AdminProfile() {
                 <Form method="post" key={idx} className="flex items-center gap-1">
                   <Input type="hidden" name="type" value="remove_badge" />
                   <Input type="hidden" name="index" value={idx.toString()} />
-                  <Badge style={{ backgroundColor: badge.colour ?? undefined }} className="mr-1">
+                  <Badge
+                    style={{ backgroundColor: badge.colour ?? undefined }}
+                    className="mr-1"
+                  >
                     {badge.text}
                   </Badge>
                   <Button type="submit" size="sm" variant="ghost">
@@ -162,17 +150,35 @@ export default function AdminProfile() {
                 </Form>
               ))}
             </div>
+          <Form method="post" className="mt-2 flex gap-2">
+            <Input type="hidden" name="type" value="add_badge" />
+            <Input name="text" placeholder="Text" className="flex-1" />
+            <Input name="colour" placeholder="#ffffff" className="w-24" />
+            <Button type="submit" size="sm">
+              Add
+            </Button>
+          </Form>
+          <div className="pt-4">
+            <h3 className="font-medium">Storage Limit</h3>
+            <p className="text-sm text-muted-foreground">
+              {prettyBytes(user.space_used)} used of {prettyBytes(user.max_space)}
+            </p>
             <Form method="post" className="mt-2 flex gap-2">
-              <Input type="hidden" name="type" value="add_badge" />
-              <Input name="text" placeholder="Text" className="flex-1" />
-              <Input name="colour" placeholder="#ffffff" className="w-24" />
+              <Input type="hidden" name="type" value="update_space" />
+              <Input
+                name="max_space"
+                type="number"
+                className="w-36"
+                defaultValue={user.max_space}
+              />
               <Button type="submit" size="sm">
-                Add
+                Update
               </Button>
             </Form>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
 
       <Card className="mb-8">
         <CardHeader>
@@ -208,6 +214,25 @@ export default function AdminProfile() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+
+      <Card className="mb-8 border-red-900 ">
+        <CardHeader>
+          <CardTitle>Danger Zone</CardTitle>
+          <CardDescription className="text-red-700">
+            <i>These actions can be catastrophic</i>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form method="post">
+            <Input className="hidden" value={'danger_zone'} name="type" />
+          </Form>
+          <div className="">
+            <Button>Lock Account</Button>
+            <Button className="ml-2">Purge Images</Button>
+          </div>
         </CardContent>
       </Card>
     </>
