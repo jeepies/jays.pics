@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
+import { ChartPoint, SimpleBarChart } from '~/components/ui/simple-chart';
 import { prisma } from '~/services/database.server';
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -35,6 +36,68 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { deleted_at: null },
   });
 
+  const startDate = new Date();
+  startDate.setUTCHours(0, 0, 0, 0);
+  startDate.setUTCDate(startDate.getUTCDate() - 6);
+
+  const usersDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
+    FROM "User"
+    WHERE "created_at" >= ${startDate} AND "deleted_at" IS NULL
+    GROUP BY date
+    ORDER BY date`;
+
+  const imagesDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
+    FROM "Image"
+    WHERE "created_at" >= ${startDate} AND "deleted_at" IS NULL
+    GROUP BY date
+    ORDER BY date`;
+
+  const imageReportsDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
+    FROM "ImageReport"
+    WHERE "created_at" >= ${startDate}
+    GROUP BY date
+    ORDER BY date`;
+
+  const commentReportsDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
+    FROM "CommentReport"
+    WHERE "created_at" >= ${startDate}
+    GROUP BY date
+    ORDER BY date`;
+
+  const combineReports: Record<string, number> = {};
+  for (const r of imageReportsDailyRaw) {
+    const key = r.date.toISOString().slice(0, 10);
+    combineReports[key] = (combineReports[key] || 0) + r.count;
+  }
+  for (const r of commentReportsDailyRaw) {
+    const key = r.date.toISOString().slice(0, 10);
+    combineReports[key] = (combineReports[key] || 0) + r.count;
+  }
+  const reportsDailyRaw = Object.keys(combineReports).map((k) => ({
+    date: new Date(k),
+    count: combineReports[k],
+  }));
+
+  function fillMissing(src: { date: Date; count: number }[]): ChartPoint[] {
+    const out: ChartPoint[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startDate);
+      d.setUTCDate(startDate.getUTCDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      const found = src.find((s) => s.date.toISOString().slice(0, 10) === key);
+      out.push({ date: key, count: found ? found.count : 0 });
+    }
+    return out;
+  }
+
+  const usersDaily = fillMissing(usersDailyRaw);
+  const imagesDaily = fillMissing(imagesDailyRaw);
+  const reportsDaily = fillMissing(reportsDailyRaw);
+
   const announcement = await prisma.announcement.findMany({
     select: {
       content: true,
@@ -47,7 +110,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const siteData = await prisma.site.findFirst();
 
-  return { users, images, imagesWithoutDeleted, bytesUsed, announcement, siteData };
+  return {
+    users,
+    images,
+    imagesWithoutDeleted,
+    bytesUsed,
+    announcement,
+    siteData,
+    usersDaily,
+    imagesDaily,
+    reportsDaily,
+  };
 }
 
 export default function AdminDashboard() {
@@ -55,35 +128,6 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.users}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Images</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {data.imagesWithoutDeleted} ({data.images} total)
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Storage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{prettyBytes(data.bytesUsed)}</div>
-          </CardContent>
-        </Card>
-      </div>
-
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Announcement</CardTitle>
@@ -96,6 +140,33 @@ export default function AdminDashboard() {
           </Form>
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Registrations (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SimpleBarChart data={data.usersDaily} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Uploads (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SimpleBarChart data={data.imagesDaily} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Reports (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SimpleBarChart data={data.reportsDaily} />
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="border-red-900">
         <CardHeader>
