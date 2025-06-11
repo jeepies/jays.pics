@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import prettyBytes from 'pretty-bytes';
 import { prisma } from '~/services/database.server';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -20,16 +21,28 @@ export async function loader({ params }: LoaderFunctionArgs) {
       created_at: true,
       badges: true,
       upload_preferences: true,
+      space_used: true,
+      max_space: true,
     },
   });
 
   if (user === null) return redirect('/admin/index');
 
-  return { user };
+  const images = await prisma.image.findMany({
+    where: { uploader_id: params.id },
+    select: {
+      id: true,
+      display_name: true,
+      created_at: true,
+    },
+    orderBy: { created_at: 'desc' },
+  });
+
+  return { user, images };
 }
 
 export default function AdminProfile() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, images } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [templates, setTemplates] = useState<string[]>([]);
@@ -107,7 +120,105 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      <Card className="mb border-red-900">
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Account Management</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form method="post" className="flex gap-2">
+            <Input type="hidden" name="type" value="force_username" />
+            <Input name="username" defaultValue={user.username} className="flex-1" />
+            <Button type="submit">Update Username</Button>
+          </Form>
+
+          <div>
+            <h3 className="font-medium">Tags</h3>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {JSON.parse(user.badges).map((badge: any, idx: number) => (
+                <Form method="post" key={idx} className="flex items-center gap-1">
+                  <Input type="hidden" name="type" value="remove_badge" />
+                  <Input type="hidden" name="index" value={idx.toString()} />
+                  <Badge
+                    style={{ backgroundColor: badge.colour ?? undefined }}
+                    className="mr-1"
+                  >
+                    {badge.text}
+                  </Badge>
+                  <Button type="submit" size="sm" variant="ghost">
+                    ✕
+                  </Button>
+                </Form>
+              ))}
+            </div>
+          <Form method="post" className="mt-2 flex gap-2">
+            <Input type="hidden" name="type" value="add_badge" />
+            <Input name="text" placeholder="Text" className="flex-1" />
+            <Input name="colour" placeholder="#ffffff" className="w-24" />
+            <Button type="submit" size="sm">
+              Add
+            </Button>
+          </Form>
+          <div className="pt-4">
+            <h3 className="font-medium">Storage Limit</h3>
+            <p className="text-sm text-muted-foreground">
+              {prettyBytes(user.space_used)} used of {prettyBytes(user.max_space)}
+            </p>
+            <Form method="post" className="mt-2 flex gap-2">
+              <Input type="hidden" name="type" value="update_space" />
+              <Input
+                name="max_space"
+                type="number"
+                className="w-36"
+                defaultValue={user.max_space}
+              />
+              <Button type="submit" size="sm">
+                Update
+              </Button>
+            </Form>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Images</CardTitle>
+          <CardDescription>Uploaded by this user</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {images.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No images uploaded</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {images.map((image) => (
+                <Card key={image.id}>
+                  <CardContent className="p-2 space-y-2">
+                    <img
+                      src={`/i/${image.id}/raw`}
+                      alt={image.display_name}
+                      className="aspect-square w-full rounded-md object-cover"
+                    />
+                    <p className="truncate text-sm font-medium hover:text-primary">
+                      <a href={`/i/${image.id}`}>{image.display_name}</a>
+                    </p>
+                    <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+                    <Form method="post">
+                      <Input type="hidden" name="type" value="soft_delete_image" />
+                      <Input type="hidden" name="image_id" value={image.id} />
+                      <Button type="submit" size="sm" variant="destructive" className="w-full">
+                        Delete
+                      </Button>
+                    </Form>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+
+      <Card className="mb-8 border-red-900 ">
         <CardHeader>
           <CardTitle>Danger Zone</CardTitle>
           <CardDescription className="text-red-700">
@@ -183,6 +294,68 @@ export async function action({ request, params }: ActionFunctionArgs) {
         content: 'Your embed configuration was updated by an admin',
       },
     });
+  } else if (requestType === 'force_username') {
+    const username = formData.get('username');
+    if (typeof username === 'string' && username.length > 0) {
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: {
+          username,
+          username_changed_at: new Date(),
+          username_history: JSON.stringify([username, ...JSON.parse(user!.username_history as unknown as string)]),
+        },
+      });
+      await prisma.notification.create({
+        data: {
+          receiver_id: user!.id,
+          content: 'Your username was changed by an admin',
+        },
+      });
+    }
+    return null;
+  } else if (requestType === 'add_badge') {
+    const text = formData.get('text');
+    const colour = formData.get('colour');
+    if (typeof text === 'string' && typeof colour === 'string') {
+      const badges = JSON.parse(user!.badges ?? '[]');
+      badges.push({ text, colour });
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: { badges: JSON.stringify(badges) },
+      });
+    }
+    return null;
+  } else if (requestType === 'remove_badge') {
+    const index = Number(formData.get('index'));
+    const badges = JSON.parse(user!.badges ?? '[]');
+    if (!isNaN(index)) {
+      badges.splice(index, 1);
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: { badges: JSON.stringify(badges) },
+      });
+    }
+    return null;
+  } else if (requestType === 'update_space') {
+    const maxSpace = Number(formData.get('max_space'));
+    if (!isNaN(maxSpace) && maxSpace > 0) {
+      await prisma.user.update({
+        where: { id: user!.id },
+        data: { max_space: maxSpace },
+      });
+      await prisma.notification.create({
+        data: {
+          receiver_id: user!.id,
+          content: 'Your storage limit was changed by an admin',
+        },
+      });
+    }
+    return null
+  } else if (requestType === 'soft_delete_image') {
+    const imageId = formData.get('image_id');
+    if (typeof imageId === 'string') {
+      await prisma.image.delete({ where: { id: imageId } });
+    }
+    return null;
   }
-  return null;
 }
