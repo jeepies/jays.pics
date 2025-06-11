@@ -12,6 +12,12 @@ import { templateReplacer } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
 import { ReportImageDialog } from '~/components/report-image-dialog';
+import { useState } from 'react';
+import { z } from 'zod';
+
+const nameSchema = z.object({
+  display_name: z.string().min(1).max(256),
+});
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const image = await prisma.image.findFirst({
@@ -48,6 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     user,
     comments,
     tags: image.tags.map((t) => t.tag),
+    version: process.env.VERSION ?? '0.0.0'
   };
 }
 
@@ -129,17 +136,35 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
+  if (type === 'update_display_name') {
+    const name = formData.get('display_name');
+    const result = nameSchema.safeParse({ display_name: name });
+    if (!result.success) return redirect(`/i/${params.id}`);
+    const image = await prisma.image.findUnique({
+      where: { id: params.id! },
+      select: { uploader_id: true },
+    });
+    if (image && image.uploader_id === user!.id) {
+      await prisma.image.update({
+        where: { id: params.id! },
+        data: { display_name: result.data.display_name },
+      });
+    }
+  }
+
   return redirect(`/i/${params.id}`);
 }
 
 export default function Image() {
-  const { data, user, comments, tags } = useLoaderData<typeof loader>();
+  const { data, user, comments, tags, version } = useLoaderData<typeof loader>();
+  const [editingName, setEditingName] = useState(false);
 
   return (
     <div className="flex h-screen overflow-hidden">
       {user!.id !== '' ? (
         <Sidebar
           user={{ username: user!.username, is_admin: user!.is_admin, notifications: user!.notifications }}
+          version={version}
           className="border-r"
         />
       ) : (
@@ -149,7 +174,25 @@ export default function Image() {
         <div className="flex w-full max-w-md flex-col space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{data.image.display_name}</CardTitle>
+            {editingName && user!.id === data.image.uploader_id ? (
+                <Form method="POST" className="flex gap-2" onSubmit={() => setEditingName(false)}>
+                  <Input type="hidden" name="type" value="update_display_name" />
+                  <Input name="display_name" defaultValue={data.image.display_name} className="flex-1" />
+                  <Button type="submit" size="sm">Save</Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setEditingName(false)}>
+                    Cancel
+                  </Button>
+                </Form>
+              ) : (
+                <CardTitle
+                  onClick={() => {
+                    if (user!.id === data.image.uploader_id) setEditingName(true);
+                  }}
+                  className={user!.id === data.image.uploader_id ? 'cursor-pointer' : ''}
+                >
+                  {data.image.display_name}
+                </CardTitle>
+              )}
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>Uploaded by {data.uploader?.username}</p>
