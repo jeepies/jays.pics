@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
 import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
+
 import { Sidebar } from '~/components/ui/sidebar';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
 

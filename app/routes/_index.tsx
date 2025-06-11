@@ -4,6 +4,7 @@ import { Link, redirect, useLoaderData } from '@remix-run/react';
 import { ChevronRight, Database, FileImage, Globe, Link2, MessageSquare, User, Zap } from 'lucide-react';
 import prettyBytes from 'pretty-bytes';
 import { FaGithub } from 'react-icons/fa';
+
 import uploadIllustration from '~/assets/uploadIllustration.svg';
 import { Navbar } from '~/components/navbar';
 import AnimatedGradientText from '~/components/ui/animated-gradient-text';

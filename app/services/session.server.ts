@@ -1,7 +1,8 @@
 import { createCookieSessionStorage, Session } from '@remix-run/node';
+
 import { prisma } from '~/services/database.server';
 
-export let sessionStorage = createCookieSessionStorage({
+export const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: '_session',
     sameSite: 'lax',
@@ -60,4 +61,4 @@ export async function getAllReferrals(referrer_id: string) {
   });
 }
 
-export let { getSession, commitSession, destroySession } = sessionStorage;
+export const { getSession, commitSession, destroySession } = sessionStorage;

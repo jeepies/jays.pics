@@ -1,5 +1,6 @@
 import { Link } from '@remix-run/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 import { Button } from './ui/button';
 
 interface PaginationProps {

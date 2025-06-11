@@ -1,4 +1,3 @@
-import { cn } from '~/lib/utils';
 import {
   BarChart,
   Bar,
@@ -7,6 +6,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
+
+import { cn } from '~/lib/utils';
 
 export interface ChartPoint {
   date: string;

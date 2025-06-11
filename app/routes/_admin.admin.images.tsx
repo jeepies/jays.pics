@@ -1,5 +1,8 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
+import { useState } from 'react';
+
+import { Button } from '~/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,14 +11,6 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -23,10 +18,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '~/components/ui/dialog';
-import { Button } from '~/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '~/components/ui/table';
 import { prisma } from '~/services/database.server';
+
 import { useAdminLoader } from './_admin';
-import { useState } from 'react';
+
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.imageReport.count();

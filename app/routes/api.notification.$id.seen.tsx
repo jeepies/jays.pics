@@ -1,6 +1,7 @@
 import { ActionFunctionArgs, json } from '@remix-run/node';
-import { getSession, getUserBySession } from '~/services/session.server';
+
 import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));

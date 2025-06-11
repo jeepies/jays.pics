@@ -7,10 +7,11 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-
 import React from 'react';
+
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
 
 interface DataTableProps<TData, TValue> {
