@@ -14,28 +14,40 @@ export function Pagination(props: Readonly<PaginationProps>) {
 
   const q = props.query ? `&${props.query}` : '';
 
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, props.currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = startPage + maxPagesToShow - 1;
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+  const pages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
   return (
-    <>
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
       <Link to={`${props.path}?page=${props.currentPage !== 1 ? props.currentPage - 1 : 1}${q}`}>
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           <ChevronLeft />
         </Button>
       </Link>
 
-      {new Array(10).fill(0).map((_, idx) => (
-        <Link to={`${props.path}?page=${idx + 1}${q}`}>
-          <Button variant="outline" disabled={idx > totalPages - 1} key={idx}>
-            {idx + 1}
+      {pages.map((num) => (
+        <Link key={num} to={`${props.path}?page=${num}${q}`}>
+          <Button variant={num === props.currentPage ? 'default' : 'outline'} size="sm">
+            {num}
           </Button>
         </Link>
       ))}
 
       <Link to={`${props.path}?page=${props.currentPage !== totalPages ? props.currentPage + 1 : totalPages}${q}`}>
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           <ChevronRight />
         </Button>
       </Link>
-    </>
+    </div>
   );
 }
 
