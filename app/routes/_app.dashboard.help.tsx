@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 
 export default function Help() {
@@ -25,7 +25,7 @@ export default function Help() {
               <br />
               2. Click on the 'Upload New Image' button
               <br />
-              3. Select a file to upload
+              3. Select a file or drag one onto the page
               <br />
               4. Click upload
             </CardContent>
@@ -38,15 +38,20 @@ export default function Help() {
               <CardDescription>How to set up ShareX to automatically upload to jays.pics</CardDescription>
             </CardHeader>
             <CardContent>
-              1. Download your ShareX config
+              1. Visit the Upload Settings page
+              <br />
+              2. Click "ShareX" to download your config
               <br />
               2. Double click the file to open it with ShareX
+              <br />
+              3. Double click the file to import it into ShareX
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-      {/* <p className="my-8">Reporting content</p>
-      <Tabs value={reportingActiveTab} onValueChange={setReportingActiveTab}>
+
+      <p className="my-8">Reporting content</p>
+      <Tabs value={reportingActiveTab} onValueChange={setReportingActiveTab} className="mt-2">
         <TabsList>
           <TabsTrigger value="images">Images</TabsTrigger>
           <TabsTrigger value="comments">Comments</TabsTrigger>
@@ -57,23 +62,31 @@ export default function Help() {
               <CardTitle>Images</CardTitle>
               <CardDescription>How to report uploaded images</CardDescription>
             </CardHeader>
-            <CardContent>1. click a funny button</CardContent>
+            <CardContent>
+              1. Open the image page
+              <br />
+              2. Click the "Report" link below the image
+              <br />
+              3. Provide a reason and submit
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="comments" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle>Comments</CardTitle>
-              <CardDescription>
-                How to report comments on profile or images
-              </CardDescription>
+              <CardDescription>How to report comments on profile or images</CardDescription>
             </CardHeader>
             <CardContent>
-              1. do this 2. do that 3. upload images 4. profit?
+              1. Hover over the comment
+              <br />
+              2. Click "Report"
+              <br />
+              3. Fill out the form and submit
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs> */}
+      </Tabs>
     </div>
   );
 }
