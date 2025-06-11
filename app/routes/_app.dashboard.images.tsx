@@ -8,6 +8,8 @@ import { prisma } from '~/services/database.server';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { Badge } from '~/components/ui/badge';
+import { Chip } from '~/components/ui/chip';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -27,20 +29,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const page = Number(url.searchParams.get('page')) || 1;
   const search = url.searchParams.get('search') ?? '';
   const sort = url.searchParams.get('sort') ?? 'desc';
+  let tag = url.searchParams.get('tag') ?? '';
+
+  if (tag == 'none') tag = '';
+
+  const tags = await prisma.tag.findMany({ where: { user_id: user.id } });
 
   const images = await prisma.image.findMany({
     where: {
       uploader_id: user.id,
       display_name: { contains: search, mode: 'insensitive' },
+      tags: tag ? { some: { tag_id: tag } } : undefined,
     },
     orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
+    include: { tags: { include: { tag: true } } },
   });
   const imageCount = await prisma.image.count({
     where: {
       uploader_id: user.id,
       display_name: { contains: search, mode: 'insensitive' },
+      tags: tag ? { some: { tag_id: tag } } : undefined,
     },
     orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
   });
@@ -64,11 +74,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { images, clipboard, page, imageCount, search, sort };
+  return { images, clipboard, page, imageCount, search, sort, tags, tag };
 }
 
 export default function Images() {
-  const { images, clipboard, page, imageCount, search, sort } = useLoaderData<typeof loader>();
+  const { images, clipboard, page, imageCount, search, sort, tags, tag } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -77,11 +87,15 @@ export default function Images() {
 
   if (images.length === 0) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="flex h-screen flex-col items-center justify-center gap-2">
         <h1 className="text-5xl">Nothing here :(</h1>
+        <p className="text-muted-foreground">
+          <Link to="/dashboard/help" className="underline">
+            View the help guides to learn more
+          </Link>
+        </p>
       </div>
     );
-    // TODO: Put text underneath linking to the help guides
   }
 
   return (
@@ -95,6 +109,19 @@ export default function Images() {
           <SelectContent>
             <SelectItem value="desc">Newest</SelectItem>
             <SelectItem value="asc">Oldest</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select name="tag" defaultValue={tag}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">All</SelectItem>
+            {tags.map((tagItem) => (
+              <SelectItem key={tagItem.id} value={tagItem.id}>
+                {tagItem.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button type="submit">Apply</Button>
@@ -112,15 +139,24 @@ export default function Images() {
                 <a href={`/i/${image.id}`}>{image.display_name}</a>
               </p>
               <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
-              <div className="mt-2 flex justify-between">
-                <Link to={`?generate_link=${image.id}`}>
-                  <Button size="sm">Link</Button>
-                </Link>
-                <Link to={`/i/${image.id}/delete`}>
-                  <Button variant="destructive" size="sm">
-                    Delete
-                  </Button>
-                </Link>
+              <div className="mt-1 flex flex-wrap gap-1">
+              {image.tags.length > 0 ? (
+                <div>
+                  {image.tags.map((tagLink) => (
+                    <Badge key={tagLink.tag.id} className="px-1 py-0">
+                      {tagLink.tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (<Badge>Untagged</Badge>)}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <Button asChild size="sm" className="h-8 flex-1">
+                  <Link to={`?generate_link=${image.id}`}>Link</Link>
+                </Button>
+                <Button asChild variant="destructive" size="sm" className="h-8 flex-1">
+                  <Link to={`/i/${image.id}/delete`}>Delete</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -130,7 +166,7 @@ export default function Images() {
         path="/dashboard/images"
         currentPage={page}
         totalCount={imageCount}
-        query={`search=${search}&sort=${sort}`}
+        query={`search=${search}&sort=${sort}&tag=${tag}`}
       />
     </div>
   );

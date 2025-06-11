@@ -47,6 +47,8 @@ model User {
   deleted_at    DateTime?
 
   ImageReport ImageReport[]
+
+  Tag Tag[]
 }
 
 model ReferrerProfile {
@@ -113,6 +115,8 @@ model Image {
   deleted_at DateTime?
 
   ImageReport ImageReport[]
+
+  tags ImageTag[]
 }
 
 model ImageComment {
@@ -195,7 +199,7 @@ model Notification {
 }
 
 model Site {
-  id String @unique @default(cuid()) // i hate that this is required
+  id                String  @unique @default(cuid()) // i hate that this is required
   is_upload_blocked Boolean @default(true)
 }
 
@@ -207,12 +211,33 @@ enum ImageReportReason {
 }
 
 model ImageReport {
-  id          String @unique @default(cuid())
+  id          String            @unique @default(cuid())
   image_id    String
-  image       Image @relation(fields: [image_id], references: [id])
+  image       Image             @relation(fields: [image_id], references: [id])
   reporter_id String
-  reporter    User  @relation(fields: [reporter_id], references: [id])
+  reporter    User              @relation(fields: [reporter_id], references: [id])
   reason_type ImageReportReason
   detail      String?
-  created_at  DateTime @default(now())
+  created_at  DateTime          @default(now())
+}
+
+model Tag {
+  id         String   @unique @default(cuid())
+  name       String
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  created_at DateTime @default(now())
+
+  images ImageTag[]
+
+  @@unique([user_id, name])
+}
+
+model ImageTag {
+  image    Image  @relation(fields: [image_id], references: [id])
+  image_id String
+  tag      Tag    @relation(fields: [tag_id], references: [id])
+  tag_id   String
+
+  @@id([image_id, tag_id])
 }
