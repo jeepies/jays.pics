@@ -14,7 +14,10 @@ import { getSession, getUserBySession } from '~/services/session.server';
 import { ReportImageDialog } from '~/components/report-image-dialog';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const image = await prisma.image.findFirst({ where: { id: params.id } });
+  const image = await prisma.image.findFirst({
+    where: { id: params.id },
+    include: { tags: { include: { tag: true } } },
+  });
   if (!image) return redirect('/');
   const uploader = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
@@ -40,7 +43,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   const user = session.has('userID') ? await getUserBySession(session) : { id: '', username: 'Guest', is_admin: false };
 
-  return { data: { image: image, uploader: uploader }, user, comments };
+  return {
+    data: { image: image, uploader: uploader },
+    user,
+    comments,
+    tags: image.tags.map((t) => t.tag),
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -75,8 +83,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       select: { commenter_id: true },
     });
     if (!comment) return redirect(`/i/${params.id}`);
-    if (comment.commenter_id !== user!.id && !user!.is_admin)
-      return redirect(`/i/${params.id}`);
+    if (comment.commenter_id !== user!.id && !user!.is_admin) return redirect(`/i/${params.id}`);
     await prisma.imageComment.delete({ where: { id: commentId } });
   }
 
@@ -94,12 +101,39 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
+  if (type === 'add_tag') {
+    const tagName = formData.get('tag');
+    if (typeof tagName !== 'string' || tagName.trim().length === 0) return redirect(`/i/${params.id}`);
+
+    const tag = await prisma.tag.upsert({
+      where: { user_id_name: { user_id: user!.id, name: tagName } },
+      update: {},
+      create: { name: tagName, user_id: user!.id },
+    });
+
+    await prisma.imageTag.upsert({
+      where: { image_id_tag_id: { image_id: params.id!, tag_id: tag.id } },
+      update: {},
+      create: { image_id: params.id!, tag_id: tag.id },
+    });
+  }
+
+  if (type === 'remove_tag') {
+    const tagId = formData.get('tag_id');
+    if (typeof tagId === 'string') {
+      await prisma.imageTag
+        .delete({
+          where: { image_id_tag_id: { image_id: params.id!, tag_id: tagId } },
+        })
+        .catch(() => {});
+    }
+  }
 
   return redirect(`/i/${params.id}`);
 }
 
 export default function Image() {
-  const { data, user, comments } = useLoaderData<typeof loader>();
+  const { data, user, comments, tags } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -119,12 +153,32 @@ export default function Image() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>Uploaded by {data.uploader?.username}</p>
-              <p>
-                Uploaded on {new Date(data.image.created_at).toLocaleDateString()}
-              </p>
+              <p>Uploaded on {new Date(data.image.created_at).toLocaleDateString()}</p>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {tags.map((t) => (
+                    <Form method="POST" key={t.id} className="flex">
+                      <Input type="hidden" name="type" value="remove_tag" />
+                      <Input type="hidden" name="tag_id" value={t.id} />
+                      <Button variant="outline" size="sm" className="px-1 py-0">
+                        {t.name} {user!.id === data.image.uploader_id && '✕'}
+                      </Button>
+                    </Form>
+                  ))}
+                </div>
+              )}
+              {user!.id === data.image.uploader_id && (
+                <Form method="POST" className="flex gap-2 mt-2">
+                  <Input type="hidden" name="type" value="add_tag" />
+                  <Input name="tag" placeholder="Add tag" className="flex-1" />
+                  <Button type="submit" size="sm">
+                    Add
+                  </Button>
+                </Form>
+              )}
             </CardContent>
             <CardFooter>
-            <ReportImageDialog imageId={data.image.id} />
+              <ReportImageDialog imageId={data.image.id} />
               {/* <Button variant="destructive" className="w-full" asChild>
                 <Link to="/dashboard/help">Report</Link>
               </Button> */}
@@ -147,15 +201,11 @@ export default function Image() {
                           src={`https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
                           alt={c.commenter.username}
                         />
-                        <AvatarFallback>
-                          {c.commenter.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <p className="font-medium">{c.commenter.username}</p>
-                        <p className="text-muted-foreground break-words">
-                          {c.content}
-                        </p>
+                        <p className="text-muted-foreground break-words">{c.content}</p>
                       </div>
                       {user!.id === c.commenter_id && (
                         <Form method="POST">

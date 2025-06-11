@@ -27,20 +27,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const page = Number(url.searchParams.get('page')) || 1;
   const search = url.searchParams.get('search') ?? '';
   const sort = url.searchParams.get('sort') ?? 'desc';
+  let tag = url.searchParams.get('tag') ?? '';
+
+  if(tag == "none") tag = "";
+
+  const tags = await prisma.tag.findMany({ where: { user_id: user.id } });
 
   const images = await prisma.image.findMany({
     where: {
       uploader_id: user.id,
       display_name: { contains: search, mode: 'insensitive' },
+      tags: tag ? { some: { tag_id: tag } } : undefined,
     },
     orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
+    include: { tags: { include: { tag: true } } },
   });
   const imageCount = await prisma.image.count({
     where: {
       uploader_id: user.id,
       display_name: { contains: search, mode: 'insensitive' },
+      tags: tag ? { some: { tag_id: tag } } : undefined,
     },
     orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
   });
@@ -64,11 +72,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { images, clipboard, page, imageCount, search, sort };
+  return { images, clipboard, page, imageCount, search, sort, tags, tag };
 }
 
 export default function Images() {
-  const { images, clipboard, page, imageCount, search, sort } = useLoaderData<typeof loader>();
+  const { images, clipboard, page, imageCount, search, sort, tags, tag } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -97,6 +105,19 @@ export default function Images() {
             <SelectItem value="asc">Oldest</SelectItem>
           </SelectContent>
         </Select>
+        <Select name="tag" defaultValue={tag}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+          <SelectItem value="none">All</SelectItem>
+            {tags.map((tagItem) => (
+              <SelectItem key={tagItem.id} value={tagItem.id}>
+                {tagItem.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button type="submit">Apply</Button>
       </Form>
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -111,6 +132,17 @@ export default function Images() {
               <p className="mt-2 truncate text-sm font-medium hover:text-primary">
                 <a href={`/i/${image.id}`}>{image.display_name}</a>
               </p>
+              {image.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {image.tags.map((tagLink) => {
+                    return (
+                      <span key={tagLink.tag.id} className="rounded bg-muted px-1 text-xs">
+                        {tagLink.tag.name}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
               <div className="mt-2 flex justify-between">
                 <Link to={`?generate_link=${image.id}`}>
@@ -130,7 +162,7 @@ export default function Images() {
         path="/dashboard/images"
         currentPage={page}
         totalCount={imageCount}
-        query={`search=${search}&sort=${sort}`}
+        query={`search=${search}&sort=${sort}&tag=${tag}`}
       />
     </div>
   );

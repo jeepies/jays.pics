@@ -116,7 +116,7 @@ model Image {
 
   ImageReport ImageReport[]
 
-  ImageTag ImageTag[]
+  tags ImageTag[]
 }
 
 model ImageComment {
