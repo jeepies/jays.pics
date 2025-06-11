@@ -28,6 +28,7 @@ export async function getUserBySession(session: Session) {
       max_space: true,
       space_used: true,
       pinned_images: true,
+      avatar_url: true,
       notifications: {
         where: {
           seen: false,
@@ -47,7 +48,8 @@ export async function getUserByID(id: string) {
       created_at: true,
       badges: true,
       referrer_profile: true,
-      pinned_images: true
+      pinned_images: true,
+      avatar_url: true,
     },
   });
 }
