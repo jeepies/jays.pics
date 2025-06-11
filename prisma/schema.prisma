@@ -108,8 +108,8 @@ model Image {
 
   privacy ImagePrivacy @default(PUBLIC)
 
-  tag Tag? @relation(fields: [tag_id], references: [id])
-  tag_id String?
+  tag Tag @relation(fields: [tag_id], references: [id])
+  tag_id String
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
