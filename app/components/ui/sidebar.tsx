@@ -13,12 +13,14 @@ import {
   Shield,
   User,
 } from 'lucide-react';
+import { useState } from 'react';
+
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
+
+import { NotificationTray } from './notification-tray';
 import { Separator } from './separator';
 import { ThemeToggle } from './themetoggle';
-import { useState } from 'react';
-import { NotificationTray } from './notification-tray';
 
 interface SidebarProps {
   className?: string;

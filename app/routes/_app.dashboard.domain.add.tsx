@@ -3,6 +3,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/nod
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import { CloudflareError } from 'cloudflare';
 import { z } from 'zod';
+
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
@@ -168,7 +169,7 @@ export async function action({ request }: ActionFunctionArgs) {
     // assume the domain is brand new
 
     try {
-      let zone = await createZone(result.data.domain!);
+      const zone = await createZone(result.data.domain!);
 
       if (!zone) throw new Error('failed to create zone');
 

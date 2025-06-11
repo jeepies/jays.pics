@@ -1,12 +1,14 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
+
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { DataTable } from '~/components/ui/url-data-table';
+import { Progress } from '~/lib/enums/progress';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
+
 import { columns } from './columns';
-import { Progress } from '~/lib/enums/progress';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(await getSession(request.headers.get('Cookie')));

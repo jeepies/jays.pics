@@ -1,9 +1,11 @@
 import { Progress } from "@prisma/client";
 import { Link, useLoaderData } from "@remix-run/react";
+
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DataTable } from "~/components/ui/url-data-table";
 import { prisma } from "~/services/database.server";
+
 import { columns } from "./columns";
 
 export async function loader() {

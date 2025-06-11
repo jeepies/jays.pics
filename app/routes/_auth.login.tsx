@@ -2,10 +2,12 @@ import { ActionFunctionArgs, redirect } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { commitSession, getSession } from '~/services/session.server';
+
 import { prisma } from '../services/database.server';
 
 const schema = z.object({

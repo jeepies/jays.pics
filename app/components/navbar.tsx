@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@remix-run/react";
+
 import { Button } from "./ui/button";
 
 export function Navbar() {

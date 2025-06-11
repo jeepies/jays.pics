@@ -1,11 +1,13 @@
+import { Prisma } from '@prisma/client';
 import { Link } from '@remix-run/react';
 import { ArrowLeft, Bell, BellDotIcon, Globe2, Home, Images, Logs, Users } from 'lucide-react';
+import { useState } from 'react';
+
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
+
 import { Separator } from './separator';
 import { ThemeToggle } from './themetoggle';
-import { Prisma } from '@prisma/client';
-import { useState } from 'react';
 
 interface SidebarProps {
   className?: string;

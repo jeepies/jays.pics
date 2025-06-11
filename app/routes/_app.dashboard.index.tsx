@@ -3,13 +3,14 @@ import { Link, useLoaderData } from '@remix-run/react';
 import { Ban, Link as LinkIcon, Plus, Upload } from 'lucide-react';
 import prettyBytes from 'pretty-bytes';
 import { useEffect, useState } from 'react';
+import Markdown from 'react-markdown';
+
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Progress } from '~/components/ui/progress';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { destroySession, getAllReferrals, getSession, getUserBySession } from '~/services/session.server';
-import Markdown from 'react-markdown';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));

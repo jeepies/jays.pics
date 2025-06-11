@@ -1,6 +1,7 @@
-import { cn } from '~/lib/utils';
 import { useFetcher } from '@remix-run/react';
 import { X } from 'lucide-react';
+
+import { cn } from '~/lib/utils';
 
 interface Notification {
   id: string;

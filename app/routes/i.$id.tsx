@@ -1,20 +1,22 @@
+import { ImageReportReason } from '@prisma/client';
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { Form, MetaFunction, useLoaderData } from '@remix-run/react';
 import prettyBytes from 'pretty-bytes';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { useState } from 'react';
+import { z } from 'zod';
+
+import { ReportImageDialog } from '~/components/report-image-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
 import { Sidebar } from '~/components/ui/sidebar';
 import { SidebarGuest } from '~/components/ui/sidebar-guest';
+import { Textarea } from '~/components/ui/textarea';
 import { templateReplacer } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
-import { ReportImageDialog } from '~/components/report-image-dialog';
-import { useState } from 'react';
-import { z } from 'zod';
-import { ImageReportReason } from '@prisma/client';
+
 
 const nameSchema = z.object({
   display_name: z.string().min(1).max(256),

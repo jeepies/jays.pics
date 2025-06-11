@@ -2,6 +2,7 @@ import { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { Outlet, redirect } from '@remix-run/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+
 import { getSession } from '~/services/session.server';
 
 export const meta: MetaFunction = () => {

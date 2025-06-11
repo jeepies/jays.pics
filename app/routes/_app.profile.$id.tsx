@@ -1,16 +1,17 @@
+import { CommentReportReason } from '@prisma/client';
 import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
-import { getAllReferrals, getSession, getUserByID, getUserBySession } from '~/services/session.server';
-import { Textarea } from '~/components/ui/textarea';
 import { CalendarIcon, ImageIcon } from 'lucide-react';
+
+import { ReportCommentDialog } from '~/components/report-comment-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
 import { prisma } from '~/services/database.server';
-import { ReportCommentDialog } from '~/components/report-comment-dialog';
-import { CommentReportReason } from '@prisma/client';
+import { getAllReferrals, getSession, getUserByID, getUserBySession } from '~/services/session.server';
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));

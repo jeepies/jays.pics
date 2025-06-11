@@ -1,6 +1,7 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { LogType } from '@prisma/client';
+
 import { prisma } from './database.server';
 
 const { STORAGE_ACCESS_KEY, STORAGE_SECRET, STORAGE_REGION, STORAGE_BUCKET } = process.env;
