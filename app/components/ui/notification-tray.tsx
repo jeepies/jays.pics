@@ -12,11 +12,11 @@ export function NotificationTray({
   notifications,
   onRemove,
   className,
-}: {
+}: Readonly<{
   notifications: Notification[];
   onRemove?: (id: string) => void;
   className?: string;
-}) {
+}>) {
   const fetcher = useFetcher();
 
   const markSeen = (id: string) => {
@@ -28,12 +28,7 @@ export function NotificationTray({
   };
 
   return (
-    <div
-      className={cn(
-        'absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow',
-        className,
-      )}
-    >
+    <div className={cn('absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow', className)}>
       {notifications.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center">No notifications</p>
       ) : (

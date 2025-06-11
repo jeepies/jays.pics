@@ -19,7 +19,7 @@ interface Props {
   commentId: string;
 }
 
-export function ReportCommentDialog({ commentId }: Props) {
+export function ReportCommentDialog({ commentId }: Readonly<Props>) {
   const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
