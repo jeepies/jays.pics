@@ -25,8 +25,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (siteData?.is_upload_blocked) return json({ success: false, message: 'Uploading is currently blocked' });
 
   const formData = await request.formData();
-  const payload = Object.fromEntries(formData);
-  const result = schema.safeParse(payload);
+  const formImage = formData.get('image');
+  const result = schema.safeParse({ formImage });
 
   if (!result.success) {
     return json({ success: false, errors: result.error });
