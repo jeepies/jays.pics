@@ -13,7 +13,12 @@ export function Navbar() {
             <span className="font-bold text-white">jays.pics</span>
           </Link>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+        <Link to="/login">
+            <Button variant="outline" className="text-white" size="sm">
+              Log in
+            </Button>
+          </Link>
           <Link to="/register">
             <Button variant="secondary" size="sm">
               Get Started
