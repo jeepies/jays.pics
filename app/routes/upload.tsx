@@ -26,7 +26,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const formImage = formData.get('image');
-  const result = schema.safeParse({ formImage });
+  const result = schema.safeParse({ image: formImage });
 
   if (!result.success) {
     return json({ success: false, errors: result.error });
