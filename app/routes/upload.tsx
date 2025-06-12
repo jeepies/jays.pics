@@ -5,8 +5,15 @@ import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { uploadToS3 } from '~/services/s3.server';
 
+function isFile(value: unknown): value is File {
+  return (
+    value instanceof File ||
+    (typeof value === 'object' && value !== null && 'stream' in value)
+  );
+}
+
 const schema = z.object({
-  image: z.instanceof(File),
+  image: z.custom<File>(isFile, 'Input not instance of File'),
 });
 
 export const meta: MetaFunction = () => {
@@ -25,8 +32,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (siteData?.is_upload_blocked) return json({ success: false, message: 'Uploading is currently blocked' });
 
   const formData = await request.formData();
-  const formImage = formData.get('image');
-  const result = schema.safeParse({ image: formImage });
+  const payload = Object.fromEntries(formData);
+  const result = schema.safeParse(payload);
 
   if (!result.success) {
     return json({ success: false, errors: result.error });
@@ -36,14 +43,19 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
   const paramEntries = Object.fromEntries(url.searchParams.entries());
 
-  if (!paramEntries.upload_key)
+  let uploadKey = paramEntries.upload_key;
+  if (!uploadKey && typeof payload.upload_key === 'string') {
+    uploadKey = payload.upload_key;
+  }
+
+  if (!uploadKey)
     return json({
       success: false,
       message: 'Upload key is not set',
     });
 
   const user = await prisma.user.findFirst({
-    where: { upload_key: paramEntries.upload_key },
+    where: { upload_key: uploadKey },
     select: {
       id: true,
       space_used: true,
@@ -93,7 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-    
+
     const subdomains = user.upload_preferences?.subdomains as
       | Record<string, string>
       | undefined;
