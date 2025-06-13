@@ -65,9 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
 
-    const subdomains = user.upload_preferences?.subdomains as
-      | Record<string, string>
-      | undefined;
+    const subdomains = user.upload_preferences?.subdomains as Record<string, string> | undefined;
     const sub = subdomains?.[url];
     const domain = sub ? `${sub}.${url}` : url;
     const formedURL = `https://${domain}/i/${query}/`;
@@ -136,25 +134,29 @@ export default function Images() {
         {images.map((image) => (
           <Card key={image.id}>
             <CardContent className="p-2">
-              <img
-                src={`/i/${image.id}/raw`}
-                alt={image.display_name}
-                className="aspect-square w-full rounded-md object-cover"
-              />
+              <div className="aspect-square w-full rounded-md bg-muted overflow-hidden flex items-center justify-center">
+                <img
+                  src={`/i/${image.id}/thumbnail`}
+                  alt={image.display_name}
+                  className="h-full w-full object-contain"
+                />
+              </div>
               <p className="mt-2 truncate text-sm font-medium hover:text-primary">
                 <a href={`/i/${image.id}`}>{image.display_name}</a>
               </p>
               <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
               <div className="mt-1 flex flex-wrap gap-1">
-              {image.tags.length > 0 ? (
-                <div>
-                  {image.tags.map((tagLink) => (
-                    <Badge key={tagLink.tag.id} className="px-1 py-0">
-                      {tagLink.tag.name}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (<Badge>Untagged</Badge>)}
+                {image.tags.length > 0 ? (
+                  <div>
+                    {image.tags.map((tagLink) => (
+                      <Badge key={tagLink.tag.id} className="px-1 py-0">
+                        {tagLink.tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <Badge>Untagged</Badge>
+                )}
               </div>
               <div className="mt-2 flex gap-2">
                 <Button asChild size="sm" className="h-8 flex-1">
