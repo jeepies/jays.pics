@@ -169,7 +169,7 @@ export default function Profile() {
               </p>
               <div className="mt-2">
                 {JSON.parse(user.badges).map((badge: { text: string; colour: string }) => {
-                  const colour = badge.colour ?  `bg-[${badge.colour.toUpperCase()}]` : '';
+                  const colour = badge.colour ? `bg-[${badge.colour.toUpperCase()}]` : '';
                   return <Badge className={`mr-2 ${colour}`}>{badge.text}</Badge>;
                 })}
               </div>
@@ -185,7 +185,13 @@ export default function Profile() {
             <Card key={idx} className="relative overflow-hidden p-0">
               {img ? (
                 <a href={`/i/${img.id}`} className="block aspect-square overflow-hidden bg-muted">
-                  <img alt={img.display_name} src={`/i/${img.id}/raw`} className="object-cover w-full h-full" />
+                  <div className="aspect-square w-full rounded-md bg-muted overflow-hidden flex items-center justify-center">
+                    <img
+                      src={`/i/${img.id}/thumbnail`}
+                      alt={img.display_name}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
                 </a>
               ) : (
                 <div className="flex aspect-square items-center justify-center border-2 border-dashed border-muted p-2">
