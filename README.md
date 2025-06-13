@@ -8,6 +8,7 @@
 - [Deployment](#deployment)
 - [Styling](#styling)
 - [Contributing](#contributing)
+- [Contributors](#contributors)
 - [License](#license)
 
 ## Introduction
@@ -89,6 +90,11 @@ We welcome contributions from the community. Here are the steps to get started:
 3. Make your changes and commit them with a descriptive message.
 4. Push your changes to your fork.
 5. Create a pull request describing your changes.
+
+## Contributors
+
+- [jeepies](https://github.com/jeepies) - Main contributor
+- [occorune](https://github.com/occorune)
 
 ## License
 
