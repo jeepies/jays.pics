@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Development](#development)
 - [Deployment](#deployment)
 - [Styling](#styling)
@@ -12,6 +13,13 @@
 ## Introduction
 
 jays.pics is an invite-only image hosting service built using Remix and AWS. The main goal of this project is to provide a secure and reliable platform for hosting images with restricted access.
+
+## Prerequisites
+
+- [Required] Docker installed.
+- [Required] Node.JS or another package manager.
+- [Windows] Install Git or WSL.
+- [Optional] Netcat, this is if you want ./start-database.sh to detect for the database port.
 
 ## Development
 
@@ -30,13 +38,19 @@ To set up the development environment, follow these steps:
    npm install
    ```
 
-3. Setup your ENV files
+3. Start the database:
+
+   ```sh
+   ./start-database.sh
+   ```
+
+4. Setup your ENV files:
 
    ```sh
    cp .env.example .env
    ```
 
-4. Run the development server:
+5. Run the development server:
 
    ```sh
    npm run dev
