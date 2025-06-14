@@ -31,6 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       upload_preferences: true,
       space_used: true,
       max_space: true,
+      avatar_url: true,
     },
   });
 
@@ -83,7 +84,7 @@ export default function AdminProfile() {
           <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <Avatar className="h-24 w-24">
               <AvatarImage
-                src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
+                src={user.avatar_url ? `/avatar/${id}` : `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
                 alt={user?.username}
               />
               <AvatarFallback>{user?.username.slice(0, 2).toUpperCase()}</AvatarFallback>

@@ -47,7 +47,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       id: true,
       content: true,
       commenter_id: true,
-      commenter: { select: { username: true } },
+      commenter: { select: { username: true, avatar_url: true } },
     },
   });
 
@@ -65,7 +65,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         })) ?? [],
     };
   } else {
-    user = { id: '', username: 'Guest', is_admin: false, notifications: [] };
+    user = { id: '', username: 'Guest', is_admin: false, notifications: [], images: [] };
   }
 
   return {
@@ -249,9 +249,6 @@ export default function Image() {
             </CardContent>
             <CardFooter>
               <ReportImageDialog imageId={data.image.id} />
-              {/* <Button variant="destructive" className="w-full" asChild>
-                <Link to="/dashboard/help">Report</Link>
-              </Button> */}
             </CardFooter>
           </Card>
 
@@ -268,7 +265,7 @@ export default function Image() {
                     <div key={c.id} className="flex items-start space-x-2 text-sm">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={`https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
+                          src={c.commenter.avatar_url ? `/avatar/${c.commenter_id}` : `https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
                           alt={c.commenter.username}
                         />
                         <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>

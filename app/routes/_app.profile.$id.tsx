@@ -49,7 +49,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       id: true,
       content: true,
       commenter_id: true,
-      commenter: { select: { username: true } },
+      commenter: { select: { username: true, avatar_url: true } },
     },
   });
 
@@ -167,7 +167,11 @@ export default function Profile() {
           <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             <Avatar className="h-24 w-24">
               <AvatarImage
-                src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
+                src={
+                  user.avatar_url
+                    ? `/avatar/${user.id}`
+                    : `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`
+                }
                 alt={user.username}
               />
               <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -257,7 +261,11 @@ export default function Profile() {
                 <div key={c.id} className="flex items-start space-x-2 text-sm">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={`https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
+                      src={
+                        user.avatar_url
+                          ? `/avatar/${user.id}`
+                          : `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`
+                      }
                       alt={c.commenter.username}
                     />
                     <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
