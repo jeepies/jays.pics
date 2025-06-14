@@ -1,16 +1,18 @@
 import { LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Form, Link, useLoaderData, useFetcher } from '@remix-run/react';
+import { useState, useEffect } from 'react';
 
 import { PAGE_SIZE, Pagination } from '~/components/pagination';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
-import { Chip } from '~/components/ui/chip';
 import { Input } from '~/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
+import { ConfirmDialog } from '~/components/confirm-dialog';
+import { useToast } from '~/components/toast';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -83,11 +85,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Images() {
   const { images, clipboard, page, imageCount, search, sort, tags, tag } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
+  const { showToast } = useToast();
+  const [imageList, setImageList] = useState(images);
 
-  if (clipboard) {
-    navigator.clipboard.writeText(clipboard);
-    window.location.href = '/dashboard/images';
-  }
+  useEffect(() => {
+    if (clipboard) {
+      navigator.clipboard.writeText(clipboard);
+      showToast('Link copied', 'success');
+    }
+  }, [clipboard, showToast]);
 
   if (images.length === 0) {
     return (
@@ -131,7 +138,7 @@ export default function Images() {
         <Button type="submit">Apply</Button>
       </Form>
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {images.map((image) => (
+        {imageList.map((image) => (
           <Card key={image.id}>
             <CardContent className="p-2">
               <div className="aspect-square w-full rounded-md bg-muted overflow-hidden flex items-center justify-center">
@@ -162,9 +169,20 @@ export default function Images() {
                 <Button asChild size="sm" className="h-8 flex-1">
                   <Link to={`?generate_link=${image.id}`}>Link</Link>
                 </Button>
-                <Button asChild variant="destructive" size="sm" className="h-8 flex-1">
-                  <Link to={`/i/${image.id}/delete`}>Delete</Link>
-                </Button>
+                <ConfirmDialog
+                title={`Delete '${image.display_name}'`}
+                description={`Are you sure you want to delete '${image.display_name}'? This action is irreversible.`}
+                  onConfirm={() => {
+                    fetcher.submit(null, { method: 'post', action: `/i/${image.id}/delete` });
+                    setImageList((prev) => prev.filter((img) => img.id !== image.id));
+                    showToast('Image deleted', 'success');
+                  }}
+                  trigger={
+                    <Button variant="destructive" size="sm" className="h-8 flex-1">
+                      Delete
+                    </Button>
+                  }
+                />
               </div>
             </CardContent>
           </Card>
