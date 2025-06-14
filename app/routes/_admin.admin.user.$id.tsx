@@ -198,7 +198,7 @@ export default function AdminProfile() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
+      <Card className="mb-8 pb-4">
         <CardHeader>
           <CardTitle>Images</CardTitle>
           <CardDescription>Uploaded by this user</CardDescription>
@@ -227,7 +227,8 @@ export default function AdminProfile() {
                     <img
                       src={`/i/${image.id}/raw`}
                       alt={image.display_name}
-                      className="aspect-square w-full rounded-md object-cover"
+                      className="aspect-square w-full rounded-md object-cover blur-xl cursor-pointer"
+                      onClick={(e) => e.currentTarget.classList.toggle('blur-xl')}
                     />
                     <p className="truncate text-sm font-medium hover:text-primary">
                       <a href={`/i/${image.id}`}>{image.display_name}</a>

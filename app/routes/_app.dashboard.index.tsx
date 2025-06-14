@@ -171,8 +171,7 @@ export default function Dashboard() {
               <div className="text-2xl font-bold">{prettyBytes(totalStorage)}</div>
               <Progress value={(totalStorage / storageLimit) * 100} className="mt-2" />
               <p className="text-xs text-muted-foreground mt-2">
-                {((totalStorage / storageLimit) * 100).toFixed(2)}% of {" "}
-                {prettyBytes(storageLimit)} limit
+                {((totalStorage / storageLimit) * 100).toFixed(2)}% of {prettyBytes(storageLimit)} limit
               </p>
             </CardContent>
           </Card>
@@ -196,21 +195,22 @@ export default function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-            <div className="text-2xl font-bold">{referrals.length}</div>
-            <p className="text-xs text-muted-foreground">Total referrals</p>
+              <div className="text-2xl font-bold">{referrals.length}</div>
+              <p className="text-xs text-muted-foreground">Total referrals</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Storage Usage (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SimpleLineChart data={storageDaily} />
           </CardContent>
         </Card>
-      </div>
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Storage Usage (7d)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SimpleLineChart data={storageDaily} />
-        </CardContent>
-      </Card>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Recent Uploads</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Recent Uploads</h2>
           {siteData?.is_upload_blocked ? (
             <Button className="bg-destructive hover:bg-destructive text-destructive-foreground">
               <Ban className="mr-2 h-4 w-4" />

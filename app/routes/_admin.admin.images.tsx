@@ -1,160 +1,76 @@
-import { LoaderFunctionArgs, SerializeFrom } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { useState } from 'react';
-
+import { LoaderFunctionArgs } from '@remix-run/node';
+import { Form, Link, useLoaderData } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table';
+
+import { PAGE_SIZE, Pagination } from '~/components/pagination';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { prisma } from '~/services/database.server';
-
-import { useAdminLoader } from './_admin';
-
+import { Input } from '~/components/ui/input';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const count = await prisma.imageReport.count();
+  const count = await prisma.image.count();
+
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+  const search = url.searchParams.get('search') ?? '';
 
   const images = await prisma.image.findMany({
     where: {
-      ImageReport: {
-        some: {},
-      },
+      display_name: { contains: search, mode: 'insensitive'}
     },
     select: {
       id: true,
       display_name: true,
-      created_at: true,
-      uploader: {
-        select: {
-          id: true,
-          username: true,
-        },
-      },
-      ImageReport: {
-        select: {
-          id: true,
-          reason_type: true,
-          detail: true,
-          created_at: true,
-          reporter: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-        },
-      },
     },
+    orderBy: { created_at: 'asc' },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
   });
 
-  return { count, images };
+  return { count, images, page, search };
 }
 
-export default function Images() {
-  useAdminLoader();
-  const { count, images } = useLoaderData<typeof loader>();
+export default function AdminImages() {
+  const { count, images, page, search } = useLoaderData<typeof loader>();
 
-  type LoaderData = SerializeFrom<typeof loader>;
-
-  function ReportDialog({ image }: { image: LoaderData['images'][number] }) {
-    const [open, setOpen] = useState(false);
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="px-2 py-1 text-xs">
-            {image.ImageReport.length} {image.ImageReport.length === 1 ? 'report' : 'reports'}
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Reports for {image.display_name}</DialogTitle>
-            <DialogDescription>
-              Uploaded by{' '}
-              <a href={`/admin/profile/${image.uploader.id}`}>{image.uploader.username}</a>
-            </DialogDescription>
-          </DialogHeader>
+  return (
+    <>
+      <Form method="get" className="mb-4 flex items-end gap-2">
+        <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+        <Button type="submit">Apply</Button>
+      </Form>
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Images</CardTitle>
+          <CardDescription>There are {count} images</CardDescription>
+        </CardHeader>
+        <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Reporter</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead className="text-right">Date</TableHead>
+                <TableHead className="w-[100px]">User</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {image.ImageReport.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell>
-                    <a href={`/admin/profile/${report.reporter.id}`}>{report.reporter.username}</a>
-                  </TableCell>
-                  <TableCell>
-                    {report.reason_type}
-                    {report.detail ? ` - ${report.detail}` : ''}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {new Date(report.created_at).toLocaleDateString()} @ {new Date(report.created_at).toLocaleTimeString()}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {images.map((image) => {
+                return (
+                  <TableRow>
+                    <TableCell className="font-medium">{image.display_name}</TableCell>
+                    <TableCell className="text-right">
+                      <Link to={`/admin/image/${image.id}`}>
+                        <Button variant={'outline'}>Review</Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle>Image Reports</CardTitle>
-        <CardDescription>There are {count} reports</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="max-w-72">Image</TableHead>
-              <TableHead>Uploader</TableHead>
-              <TableHead className="text-right">Reports</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {images.map((image) => (
-              <TableRow key={image.id}>
-                <TableCell className="font-medium">
-                  <a href={`/i/${image.id}`}>{image.display_name}</a>
-                </TableCell>
-                <TableCell>
-                  <a href={`/admin/profile/${image.uploader.id}`}>{image.uploader.username}</a>
-                </TableCell>
-                <TableCell className="text-right">
-                  <ReportDialog image={image} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      <Pagination path="/admin/images" currentPage={page} totalCount={count} query={`search=${search}`} />
+    </>
   );
 }

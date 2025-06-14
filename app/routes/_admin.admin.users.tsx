@@ -22,11 +22,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     select: {
       id: true,
       username: true,
-      images: true,
-      space_used: true,
-      is_admin: true,
-      created_at: true,
-      donated_urls: true,
     },
     orderBy: { created_at: 'asc' },
     take: PAGE_SIZE,
@@ -36,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { count, users, page, search };
 }
 
-export default function Users() {
+export default function AdminUsers() {
   const { count, users, page, search } = useLoaderData<typeof loader>();
 
   return (
@@ -75,7 +70,7 @@ export default function Users() {
           </Table>
         </CardContent>
       </Card>
-      <Pagination path="/dashboard/images" currentPage={page} totalCount={count} query={`search=${search}`} />
+      <Pagination path="/admin/users" currentPage={page} totalCount={count} query={`search=${search}`} />
     </>
   );
 }
