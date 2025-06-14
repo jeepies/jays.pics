@@ -1,43 +1,28 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { Form, Link, useLoaderData, useNavigate } from '@remix-run/react';
-import { z } from 'zod';
+import { LoaderFunctionArgs } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+} from 'recharts';
 
-import { Button } from '~/components/ui/button';
-import { ConfirmDialog } from '~/components/confirm-dialog';
-import { useToast } from '~/components/toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { ChartPoint, SimpleBarChart } from '~/components/ui/simple-chart';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { prisma } from '~/services/database.server';
+import { useAdminLoader } from './_admin';
+import { ChartPoint } from '~/components/ui/simple-chart';
+import { Clock, FileChartColumn, FileImage, Users } from 'lucide-react';
+import prettyBytes from 'pretty-bytes';
+import prettyMs from 'pretty-ms';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const query = url.searchParams.get('action');
-  const value = url.searchParams.get('value');
-
-  if (query !== null) {
-    switch (query) {
-      case 'site_block_toggle':
-        await prisma.site.update({
-          where: {
-            id: '',
-          },
-          data: {
-            is_upload_blocked: value === 'true',
-          },
-        });
-        break;
-    }
-  }
-
-  const users = await prisma.user.count();
-  const images = await prisma.image.count();
-  const bytesUsed = (await prisma.image.findMany({ select: { size: true } })).reduce((acc, val) => acc + val.size, 0);
-
-  const imagesWithoutDeleted = await prisma.image.count({
-    where: { deleted_at: null },
-  });
-
   const startDate = new Date();
   startDate.setUTCHours(0, 0, 0, 0);
   startDate.setUTCDate(startDate.getUTCDate() - 6);
@@ -56,33 +41,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     GROUP BY date
     ORDER BY date`;
 
-  const imageReportsDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
-    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
-    FROM "ImageReport"
-    WHERE "created_at" >= ${startDate}
-    GROUP BY date
-    ORDER BY date`;
+  const typeCounts = await prisma.$queryRaw<{ type: string; count: number }[]>`
+    SELECT "type", COUNT(*)::int as count
+    FROM "Image"
+    WHERE "deleted_at" IS NULL
+    GROUP BY "type"
+    ORDER BY count DESC
+    LIMIT 5`;
 
-  const commentReportsDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
-    SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
-    FROM "CommentReport"
-    WHERE "created_at" >= ${startDate}
-    GROUP BY date
-    ORDER BY date`;
-
-  const combineReports: Record<string, number> = {};
-  for (const r of imageReportsDailyRaw) {
-    const key = r.date.toISOString().slice(0, 10);
-    combineReports[key] = (combineReports[key] || 0) + r.count;
-  }
-  for (const r of commentReportsDailyRaw) {
-    const key = r.date.toISOString().slice(0, 10);
-    combineReports[key] = (combineReports[key] || 0) + r.count;
-  }
-  const reportsDailyRaw = Object.keys(combineReports).map((k) => ({
-    date: new Date(k),
-    count: combineReports[k],
-  }));
+  const topUploaders = await prisma.$queryRaw<{ username: string; count: number }[]>`
+    SELECT "User"."username", COUNT(*)::int as count
+    FROM "Image"
+    JOIN "User" ON "User"."id" = "Image"."uploader_id"
+    WHERE "Image"."deleted_at" IS NULL
+    GROUP BY "User"."username"
+    ORDER BY count DESC
+    LIMIT 5`;
 
   function fillMissing(src: { date: Date; count: number }[]): ChartPoint[] {
     const out: ChartPoint[] = [];
@@ -96,145 +70,152 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return out;
   }
 
-  const usersDaily = fillMissing(usersDailyRaw);
-  const imagesDaily = fillMissing(imagesDailyRaw);
-  const reportsDaily = fillMissing(reportsDailyRaw);
+  const storageDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+  SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
+  FROM "Image"
+  WHERE "created_at" >= ${startDate} AND "deleted_at" IS NULL
+  GROUP BY date
+  ORDER BY date`;
 
-  const announcement = await prisma.announcement.findMany({
-    select: {
-      content: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 1,
-  });
+  const uptime = prettyMs(process.uptime() * 1000, { compact: true });
 
-  const siteData = await prisma.site.findFirst();
+  const users = await prisma.user.count();
+  const images = await prisma.image.count();
+  const bytesUsed = prettyBytes((await prisma.image.findMany({ select: { size: true } })).reduce((acc, val) => acc + val.size, 0));
 
   return {
+    usersDaily: fillMissing(usersDailyRaw),
+    imagesDaily: fillMissing(imagesDailyRaw),
+    storageDaily: fillMissing(storageDailyRaw),
+    typeCounts,
+    topUploaders,
+    uptime,
     users,
     images,
-    imagesWithoutDeleted,
-    bytesUsed,
-    announcement,
-    siteData,
-    usersDaily,
-    imagesDaily,
-    reportsDaily,
+    bytesUsed
   };
 }
 
-export default function AdminDashboard() {
-  const data = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
-  const { showToast } = useToast();
+const COLORS = ['#e05cd9', '#8b5cf6', '#22d3ee', '#16a34a', '#f97316'];
+
+export default function AdminIndex() {
+  const { usersDaily, imagesDaily, typeCounts, topUploaders, storageDaily, uptime, users, images, bytesUsed } = useLoaderData<typeof loader>();
+  useAdminLoader();
 
   return (
-    <>
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Announcement</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form method="post">
-            <Input className="hidden" value={'update_annoucement'} name="type" />
-            <Input className="mb-2" name="content" defaultValue={data.announcement[0].content} />
-            <Button type="submit">Post</Button>
-          </Form>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Uptime</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>{uptime}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>{users}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Images</CardTitle>
+            <FileImage className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>{images}</CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Space used</CardTitle>
+            <FileChartColumn className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>{bytesUsed}</CardContent>
+        </Card>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
             <CardTitle>Registrations (7d)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <SimpleBarChart data={data.usersDaily} />
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+              <BarChart data={usersDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+                <Tooltip labelFormatter={(v) => new Date(v).toLocaleDateString()} />
+                <Bar dataKey="count" fill="currentColor" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Uploads (7d)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <SimpleBarChart data={data.imagesDaily} />
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+              <BarChart data={imagesDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+                <Tooltip labelFormatter={(v) => new Date(v).toLocaleDateString()} />
+                <Bar dataKey="count" fill="currentColor" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Reports (7d)</CardTitle>
+            <CardTitle>File Types</CardTitle>
           </CardHeader>
-          <CardContent>
-            <SimpleBarChart data={data.reportsDaily} />
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+              <PieChart>
+                <Pie dataKey="count" data={typeCounts} cx="50%" cy="50%" outerRadius={80} label={(entry) => entry.type}>
+                  {typeCounts.map((_, index) => (
+                    <Cell key={`tc-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Uploaders</CardTitle>
+          </CardHeader>
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+              <BarChart data={topUploaders} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="username" />
+                <Tooltip />
+                <Bar dataKey="count" fill="currentColor" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
-
-      <Card className="border-red-900">
+      <Card>
         <CardHeader>
-          <CardTitle>Danger Zone</CardTitle>
-          <CardDescription className="text-red-700">
-            <i>These actions can be catastrophic</i>
-          </CardDescription>
+          <CardTitle>Storage Usage (7d)</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Form method="post">
-            <Input className="hidden" value={'danger_zone'} name="type" />
-          </Form>
-          <div>
-          <ConfirmDialog
-              title={data.siteData?.is_upload_blocked ? 'Unblock uploads?' : 'Block uploads?'}
-              description="This will toggle the ability for users to upload images."
-              onConfirm={() => {
-                navigate(`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`);
-                showToast(
-                  data.siteData?.is_upload_blocked ? 'Uploads unblocked' : 'Uploads blocked',
-                  'success'
-                );
-              }}
-              trigger={
-                <Button>{data.siteData?.is_upload_blocked ? 'Unblock Uploads' : 'Block Uploads'}</Button>
-              }
-            />
-          </div>
+        <CardContent className="h-60">
+          <ResponsiveContainer width="100%" height="100%" className="text-primary">
+            <LineChart data={storageDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+              <Tooltip
+                labelFormatter={(v) => new Date(v).toLocaleDateString()}
+                formatter={(value: number) => prettyBytes(value)}
+              />
+              <Line type="monotone" dataKey="count" stroke="currentColor" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
-}
-
-const announcementSchema = z.object({
-  content: z
-    .string({ required_error: 'Content is required' })
-    .min(1, { message: 'Should be atleast one character' })
-    .max(256, { message: 'Should be 256 or less characters' }),
-});
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const payload = Object.fromEntries(formData);
-  let result;
-
-  const requestType = formData.get('type');
-  formData.delete('type');
-
-  if (requestType === 'update_annoucement') {
-    result = announcementSchema.safeParse(payload);
-    if (!result.success) {
-      const error = result.error.flatten();
-      return {
-        payload,
-        formErrors: error.formErrors,
-        fieldErrors: error.fieldErrors,
-      };
-    }
-    await prisma.announcement.create({
-      data: {
-        content: result.data.content,
-      },
-    });
-  }
-  return null;
 }
