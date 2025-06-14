@@ -142,69 +142,70 @@ export default function Upload() {
 
   return (
     <div className="flex h-full items-center justify-center p-4">
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Upload New Image</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form
-          method="POST"
-          action={uploads_blocked ? `` : `?upload_key=${user.upload_key}`}
-          encType="multipart/form-data"
-          className="space-y-4"
-        >
-          <div
-            className="flex flex-col items-center justify-center border-2 border-dashed rounded-md cursor-pointer p-4"
-            role="button"
-            tabIndex={0}
-            onClick={() => fileInputRef.current?.click()}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Upload New Image</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form
+            method="POST"
+            action={uploads_blocked ? `` : `?upload_key=${user.upload_key}`}
+            encType="multipart/form-data"
+            className="space-y-4"
           >
-            {preview ? (
-              <img src={preview} alt="Preview" className="max-h-48 object-contain mb-2" />
-            ) : (
-              <p className="text-sm text-muted-foreground">Click or drop image here</p>
-            )}
-          </div>
-          <input
-            id="img-field"
-            ref={fileInputRef}
-            type="file"
-            name="image"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFiles(e.target.files)}
-          />
-          <div>
-            <Label htmlFor="display-name">Display Name</Label>
-            <Input
-              id="display-name"
-              name="display_name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="mt-1"
+            <div
+              className="flex flex-col items-center justify-center border-2 border-dashed rounded-md cursor-pointer p-4"
+              role="button"
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+            >
+              {preview ? (
+                <img src={preview} alt="Preview" className="max-h-48 object-contain mb-2" />
+              ) : (
+                <p className="text-sm text-muted-foreground">Click or drop image here</p>
+              )}
+            </div>
+            <input
+              title="image"
+              id="img-field"
+              ref={fileInputRef}
+              type="file"
+              name="image"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFiles(e.target.files)}
             />
-          </div>
-          {uploads_blocked ? (
-            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground">
-              <Ban className="mr-2 h-4 w-4" />
-              Uploading Disabled
-            </Button>
-          ) : (
-            <Button type="submit" className="w-full">
-            Upload
-          </Button>
-          )}
-        </Form>
-      </CardContent>
-    </Card>
-  </div>
+            <div>
+              <Label htmlFor="display-name">Display Name</Label>
+              <Input
+                id="display-name"
+                name="display_name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            {uploads_blocked ? (
+              <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground">
+                <Ban className="mr-2 h-4 w-4" />
+                Uploading Disabled
+              </Button>
+            ) : (
+              <Button type="submit" className="w-full">
+                Upload
+              </Button>
+            )}
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
