@@ -16,7 +16,7 @@ import {
 import { useState } from 'react';
 
 import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
+import { cn, formatNumber } from '~/lib/utils';
 
 import { NotificationTray } from './notification-tray';
 import { Separator } from './separator';
@@ -28,6 +28,7 @@ interface SidebarProps {
     username: string;
     is_admin: boolean;
     notifications: any[];
+    images: any[];
   };
   version: string;
   onLinkClick?: () => void;
@@ -78,7 +79,7 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                 <Image className="h-4 w-4" />
                 Images
                 <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
-                  1.1K
+                 {formatNumber(user.images.length)}
                 </span>
               </Link>
             </Button>
