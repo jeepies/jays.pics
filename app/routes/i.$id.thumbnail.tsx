@@ -21,7 +21,17 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const arrayBuffer = await data.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const resized = await sharp(buffer).resize({ width: intSize, height: intSize, fit: 'inside' }).toBuffer();
+  let resized: Buffer;
+  if (image.type === 'image/gif') {
+    resized = await sharp(buffer, { animated: true })
+      .resize({ width: intSize, height: intSize, fit: 'inside' })
+      .gif()
+      .toBuffer();
+  } else {
+    resized = await sharp(buffer)
+      .resize({ width: intSize, height: intSize, fit: 'inside' })
+      .toBuffer();
+  }
 
   return new Response(resized, {
     headers: {
