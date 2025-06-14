@@ -1,8 +1,9 @@
 import type { LinksFunction } from '@remix-run/node';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useRouteError } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useNavigation, useRouteError } from '@remix-run/react';
 import ErrorPage from './components/error-page';
 import { useEffect, useState } from 'react';
 import './tailwind.css';
+import { LoadingOverlay } from './components/loading';
 import { ToastProvider } from './components/toast';
 
 export const links: LinksFunction = () => [
@@ -26,6 +27,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
     return 'light';
   });
+  const navigation = useNavigation();
 
   useEffect(() => {
     ThemeToggle ? 'light' : 'dark';
@@ -45,7 +47,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          {navigation.state !== 'idle' && <LoadingOverlay/>}
+          </ToastProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
