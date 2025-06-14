@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { prisma } from '~/services/database.server';
-import { commitSession, getSession } from '~/services/session.server';
+import { commitSession, getSession, getClientIP } from '~/services/session.server';
 
 const schema = z.object({
   username: z
@@ -139,6 +139,7 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       },
       last_login_at: new Date(),
+      last_login_ip: getClientIP(request) ?? null,
       badges: badges,
     },
   });
