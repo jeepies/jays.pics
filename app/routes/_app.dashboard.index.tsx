@@ -7,6 +7,7 @@ import Markdown from 'react-markdown';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { SimpleLineChart } from '~/components/ui/line-chart';
 import { Progress } from '~/components/ui/progress';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
@@ -31,6 +32,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const images = await prisma.image.findMany({
     where: { uploader_id: user.id },
   });
+
+  const startDate = new Date();
+  startDate.setUTCHours(0, 0, 0, 0);
+  startDate.setUTCDate(startDate.getUTCDate() - 6);
+
+  const storageDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+    SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
+    FROM "Image"
+    WHERE "created_at" >= ${startDate} AND "uploader_id" = ${user.id}
+    GROUP BY date
+    ORDER BY date`;
+
+  function fillMissing(src: { date: Date; count: number }[]) {
+    const out: { date: string; count: number }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startDate);
+      d.setUTCDate(startDate.getUTCDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      const found = src.find((s) => s.date.toISOString().slice(0, 10) === key);
+      out.push({ date: key, count: found ? found.count : 0 });
+    }
+    return out;
+  }
+
+  const storageDaily = fillMissing(storageDailyRaw);
 
   const announcement = await prisma.announcement.findMany({
     select: {
@@ -66,11 +92,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { user, referrals, images, announcement, siteData, clipboard };
+  return { user, referrals, images, announcement, siteData, clipboard, storageDaily };
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement, siteData, clipboard } = useLoaderData<typeof loader>();
+  const { user, referrals, images, announcement, siteData, clipboard, storageDaily } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -170,13 +196,21 @@ export default function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{referrals.length}</div>
-              <p className="text-xs text-muted-foreground">Total referrals</p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Recent Uploads</h2>
+            <div className="text-2xl font-bold">{referrals.length}</div>
+            <p className="text-xs text-muted-foreground">Total referrals</p>
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Storage Usage (7d)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SimpleLineChart data={storageDaily} />
+        </CardContent>
+      </Card>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Recent Uploads</h2>
           {siteData?.is_upload_blocked ? (
             <Button className="bg-destructive hover:bg-destructive text-destructive-foreground">
               <Ban className="mr-2 h-4 w-4" />
