@@ -29,10 +29,11 @@ interface SidebarProps {
     is_admin: boolean;
     notifications: any[];
   };
-  version: string
+  version: string;
+  onLinkClick?: () => void;
 }
 
-export function Sidebar({ className, user, version }: Readonly<SidebarProps>) {
+export function Sidebar({ className, user, version, onLinkClick }: Readonly<SidebarProps>) {
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(
     user.notifications ?? []
@@ -61,13 +62,13 @@ export function Sidebar({ className, user, version }: Readonly<SidebarProps>) {
           </h2>
           <Separator className="my-4" />
           <div className="space-y-1">
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/index">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/images">
                 <Image className="mr-2 h-4 w-4" />
                 Images
@@ -76,25 +77,25 @@ export function Sidebar({ className, user, version }: Readonly<SidebarProps>) {
                 </span> */}
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/referrals">
                 <Link2 className="mr-2 h-4 w-4" />
                 Referrals
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/upload-settings">
                 <ImageIcon className="mr-2 h-4 w-4" />
                 Upload Config
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/domains">
                 <Globe2 className="mr-2 h-4 w-4" />
                 Domains
               </Link>
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/dashboard/help">
                 <FileQuestion className="mr-2 h-4 w-4" />
                 Help
@@ -105,23 +106,23 @@ export function Sidebar({ className, user, version }: Readonly<SidebarProps>) {
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <Link to="/dashboard/settings">
               <Cog className="mr-2 h-4 w-4" />
               Settings
             </Link>
           </Button>
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <Link to="/profile/me">
               <User className="mr-2 h-4 w-4" />
               {user.username}
             </Link>
           </Button>
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <ThemeToggle />
           </Button>
           {user.is_admin ? (
-            <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+            <Button onClick={onLinkClick} variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
               <Link to="/admin/index">
                 <Shield className="mr-2 h-4 w-4" />
                 Admin Dashboard

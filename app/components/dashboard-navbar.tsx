@@ -52,7 +52,12 @@ export function DashboardNavbar({ user, version }: Readonly<DashboardNavbarProps
               transition={{ type: 'tween', duration: 0.2 }}
               className="relative z-50 h-full"
             >
-              <Sidebar user={user} version={version} className={cn('w-64 border-r bg-background h-full')} />
+              <Sidebar
+                onLinkClick={() => setOpen(false)}
+                user={user}
+                version={version}
+                className={cn('w-64 border-r bg-background h-full')}
+              />
             </motion.div>
           </motion.div>
         )}
