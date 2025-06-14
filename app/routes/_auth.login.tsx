@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import { commitSession, getSession } from '~/services/session.server';
+import { commitSession, getSession, getClientIP } from '~/services/session.server';
 
 import { prisma } from '../services/database.server';
 
@@ -102,6 +102,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const session = await getSession(request.headers.get('Cookie'));
   session.set('userID', user.id);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { last_login_at: new Date(), last_login_ip: getClientIP(request) ?? null },
+  });
 
   return redirect('/dashboard/index', {
     headers: {

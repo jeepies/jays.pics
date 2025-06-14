@@ -10,7 +10,7 @@ import { Label } from '~/components/ui/label';
 
 import { prisma } from '~/services/database.server';
 import { uploadToS3 } from '~/services/s3.server';
-import { destroySession, getSession, getUserBySession } from '~/services/session.server';
+import { destroySession, getSession, getUserBySession, getClientIP } from '~/services/session.server';
 import { Ban } from 'lucide-react';
 
 const schema = z.object({
@@ -72,6 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
       uploader_id: user!.id,
       size: image.size,
       type: image.type,
+      uploader_ip: getClientIP(request) ?? null,
     },
   });
 
