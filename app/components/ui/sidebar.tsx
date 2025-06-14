@@ -27,7 +27,7 @@ interface SidebarProps {
   user: {
     username: string;
     is_admin: boolean;
-    notifications: { id: string; content: string; created_at: string }[];
+    notifications: any[];
   };
   version: string
 }

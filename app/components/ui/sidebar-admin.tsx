@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Link } from '@remix-run/react';
 import { ArrowLeft, Bell, BellDotIcon, Globe2, Home, Images, Logs, Users } from 'lucide-react';
 import { useState } from 'react';
@@ -15,7 +14,7 @@ interface SidebarProps {
     username: string;
     images: any[];
     is_admin: boolean;
-    notifications: Prisma.User$notificationsArgs[];
+    notifications: { id: string; content: string; created_at: string }[];
   };
 }
 
