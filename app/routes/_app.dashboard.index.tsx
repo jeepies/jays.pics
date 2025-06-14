@@ -53,9 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-    const subdomains = user.upload_preferences?.subdomains as
-      | Record<string, string>
-      | undefined;
+    const subdomains = user.upload_preferences?.subdomains as Record<string, string> | undefined;
     const sub = subdomains?.[url];
     const domain = sub ? `${sub}.${url}` : url;
     const formedURL = `https://${domain}/i/${query}/`;
@@ -147,7 +145,7 @@ export default function Dashboard() {
               <div className="text-2xl font-bold">{prettyBytes(totalStorage)}</div>
               <Progress value={(totalStorage / storageLimit) * 100} className="mt-2" />
               <p className="text-xs text-muted-foreground mt-2">
-                {((totalStorage / storageLimit) * 100).toFixed(2)}% of
+                {((totalStorage / storageLimit) * 100).toFixed(2)}% of {" "}
                 {prettyBytes(storageLimit)} limit
               </p>
             </CardContent>
