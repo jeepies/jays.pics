@@ -1,9 +1,10 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { Form, Link, useLoaderData } from '@remix-run/react';
-import prettyBytes from 'pretty-bytes';
+import { Form, Link, useLoaderData, useNavigate } from '@remix-run/react';
 import { z } from 'zod';
 
 import { Button } from '~/components/ui/button';
+import { ConfirmDialog } from '~/components/confirm-dialog';
+import { useToast } from '~/components/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { ChartPoint, SimpleBarChart } from '~/components/ui/simple-chart';
@@ -126,6 +127,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AdminDashboard() {
   const data = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
   return (
     <>
@@ -181,9 +184,20 @@ export default function AdminDashboard() {
             <Input className="hidden" value={'danger_zone'} name="type" />
           </Form>
           <div>
-            <Link to={`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`}>
-              <Button>{data.siteData?.is_upload_blocked ? 'Unblock Uploads' : 'Block Uploads'}</Button>
-            </Link>
+          <ConfirmDialog
+              title={data.siteData?.is_upload_blocked ? 'Unblock uploads?' : 'Block uploads?'}
+              description="This will toggle the ability for users to upload images."
+              onConfirm={() => {
+                navigate(`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`);
+                showToast(
+                  data.siteData?.is_upload_blocked ? 'Uploads unblocked' : 'Uploads blocked',
+                  'success'
+                );
+              }}
+              trigger={
+                <Button>{data.siteData?.is_upload_blocked ? 'Unblock Uploads' : 'Block Uploads'}</Button>
+              }
+            />
           </div>
         </CardContent>
       </Card>
