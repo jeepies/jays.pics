@@ -255,16 +255,13 @@ export async function action({ request }: ActionFunctionArgs) {
     });
     const urls = [...public_domains, ...private_domains];
 
-    const selectedIndices = Object.keys(JSON.parse(result.data.selected));
-    let selected = selectedIndices.map((val) => {
-      return urls[+val].url;
-    });
+    const selectedDomains = Object.keys(JSON.parse(result.data.selected));
+    let selected = selectedDomains;
 
     if (selected.length === 0) selected = ['jays.pics'];
 
     const subdomains: Record<string, string> = {};
-    for (const idx of selectedIndices) {
-      const domain = urls[+idx].url;
+    for (const domain of selectedDomains) {
       const sub = formData.get(`subdomain_${domain}`)?.toString().trim();
       if (sub) subdomains[domain] = sub;
     }
