@@ -234,11 +234,26 @@ export async function action({ request }: ActionFunctionArgs) {
       };
     }
 
-    const urls = await prisma.uRL.findMany({
+    const public_domains = await prisma.uRL.findMany({
+      where: {
+        public: true,
+        progress: Progress.DONE,
+      },
       select: {
         url: true,
       },
     });
+    const private_domains = await prisma.uRL.findMany({
+      where: {
+        donator_id: user!.id,
+        progress: Progress.DONE,
+        public: false,
+      },
+      select: {
+        url: true,
+      },
+    });
+    const urls = [...public_domains, ...private_domains];
 
     const selectedIndices = Object.keys(JSON.parse(result.data.selected));
     let selected = selectedIndices.map((val) => {
