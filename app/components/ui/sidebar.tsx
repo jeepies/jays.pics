@@ -14,6 +14,7 @@ import {
   User,
 } from 'lucide-react';
 import { useState } from 'react';
+import { FaDiscord } from 'react-icons/fa';
 
 import { Button } from '~/components/ui/button';
 import { cn, formatNumber } from '~/lib/utils';
@@ -79,7 +80,7 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                 <Image className="h-4 w-4" />
                 Images
                 <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
-                 {formatNumber(user.images.length)}
+                  {formatNumber(user.images.length)}
                 </span>
               </Link>
             </Button>
@@ -184,11 +185,21 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
             </Link>
           </Button>
         </div>
-        <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400 px-3">
+        <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-3">
           <span>v{version}</span>
-          <Link to="/tos" className="underline">
-            TOS
+          <Link
+            to="https://discord.gg/screenshot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground"
+          >
+            <FaDiscord className="h-4 w-4" />
           </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/tos" className="underline">
+              TOS
+            </Link>
+          </div>
         </div>
       </div>
     </div>
