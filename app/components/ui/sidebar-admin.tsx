@@ -16,6 +16,7 @@ interface SidebarProps {
     is_admin: boolean;
     notifications: { id: string; content: string; created_at: string }[];
   };
+  onLinkClick?: () => void;
 }
 
 export function SidebarAdmin({ className, user }: SidebarProps) {
