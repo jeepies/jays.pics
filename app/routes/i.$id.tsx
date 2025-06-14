@@ -190,7 +190,7 @@ export default function Image() {
     <div className="flex h-screen overflow-hidden">
       {user!.id !== '' ? (
         <Sidebar
-          user={{ username: user!.username, is_admin: user!.is_admin, notifications: user!.notifications }}
+          user={{ username: user!.username, is_admin: user!.is_admin, notifications: user!.notifications, images: user!.images }}
           version={version}
           className="border-r"
         />
