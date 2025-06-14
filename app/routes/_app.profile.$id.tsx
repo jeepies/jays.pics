@@ -263,8 +263,8 @@ export default function Profile() {
                     <AvatarImage
                       src={
                         user.avatar_url
-                          ? `/avatar/${user.id}`
-                          : `https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`
+                          ? `/avatar/${c.commenter_id}`
+                          : `https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`
                       }
                       alt={c.commenter.username}
                     />
