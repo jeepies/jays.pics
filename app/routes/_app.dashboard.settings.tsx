@@ -137,6 +137,15 @@ export default function Settings() {
               <Input id="avatar" name="avatar" type="file" accept="image/*" className="my-1" />
               <Button type="submit">Update Avatar</Button>
             </fetcher.Form>
+            <Button
+              variant="outline"
+              asChild
+              onClick={() => showToast('Preparing download', 'info')}
+            >
+              <a href="/api/data-archive" download>
+                Download My Data
+              </a>
+            </Button>
           </CardContent>
         </Card>
       </div>
