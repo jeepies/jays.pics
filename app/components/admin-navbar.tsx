@@ -28,7 +28,7 @@ export function AdminNavbar({ user }: Readonly<DashboardNavbarProps>) {
             <Menu className="h-4 w-4" />
           </Button>
           <Link to="/dashboard/index" className="font-bold">
-            jays.pics
+            jays.pics - Admin
           </Link>
         </div>
       </header>
