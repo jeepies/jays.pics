@@ -75,7 +75,7 @@ export default function Users() {
           </Table>
         </CardContent>
       </Card>
-      <Pagination path="/dashboard/images" currentPage={page} totalCount={count} query={`search=${search}`} />
+      <Pagination path="/admin/users" currentPage={page} totalCount={count} query={`search=${search}`} />
     </>
   );
 }
