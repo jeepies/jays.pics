@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react';
-import { ArrowLeft, Bell, BellDotIcon, Globe2, Hammer, Home, Images, Logs, Users } from 'lucide-react';
+import { ArrowLeft, Bell, BellDotIcon, Globe2, Hammer, Home, Images, Logs, PanelsTopLeft, Sticker, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '~/components/ui/button';
@@ -14,14 +14,11 @@ interface SidebarProps {
     username: string;
     images: any[];
     is_admin: boolean;
-    notifications: { id: string; content: string; created_at: string }[];
   };
   onLinkClick?: () => void;
 }
 
 export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
-  const [showTray, setShowTray] = useState(false);
-
   return (
     <div className={cn('pb-12 w-64 relative', className)}>
       <div className="space-y-4 py-4">
@@ -86,11 +83,33 @@ export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
                 Logs
               </Link>
             </Button>
+            <Button
+              onClick={onLinkClick}
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/admin/site">
+                <PanelsTopLeft className="mr-2 h-4 w-4" />
+                Site
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
+          <Button
+            onClick={onLinkClick}
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <Link to="#" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              {user.username}
+            </Link>
+          </Button>
           <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
             <ThemeToggle />
           </Button>
