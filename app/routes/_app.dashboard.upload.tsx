@@ -11,6 +11,7 @@ import { Label } from '~/components/ui/label';
 import { prisma } from '~/services/database.server';
 import { uploadToS3 } from '~/services/s3.server';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
+import { Ban } from 'lucide-react';
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -18,6 +19,8 @@ const schema = z.object({
 });
 
 export async function action({ request }: ActionFunctionArgs) {
+  const siteData = await prisma.site.findFirst();
+  if (siteData?.is_upload_blocked) return json({ success: false, message: 'Uploading is currently blocked' });
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   const result = schema.safeParse(payload);
@@ -101,11 +104,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
-  return { user };
+  const site = await prisma.site.findFirst();
+
+  return { user, uploads_blocked: site!.is_upload_blocked };
 }
 
 export default function Upload() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, uploads_blocked } = useLoaderData<typeof loader>();
   const [preview, setPreview] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -144,7 +149,7 @@ export default function Upload() {
       <CardContent>
         <Form
           method="POST"
-          action={`?upload_key=${user.upload_key}`}
+          action={uploads_blocked ? `` : `?upload_key=${user.upload_key}`}
           encType="multipart/form-data"
           className="space-y-4"
         >
@@ -187,9 +192,16 @@ export default function Upload() {
               className="mt-1"
             />
           </div>
-          <Button type="submit" className="w-full">
+          {uploads_blocked ? (
+            <Button className="w-full bg-destructive hover:bg-destructive text-destructive-foreground">
+              <Ban className="mr-2 h-4 w-4" />
+              Uploading Disabled
+            </Button>
+          ) : (
+            <Button type="submit" className="w-full">
             Upload
           </Button>
+          )}
         </Form>
       </CardContent>
     </Card>
