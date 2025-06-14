@@ -61,4 +61,16 @@ export async function getAllReferrals(referrer_id: string) {
   });
 }
 
+export function getClientIP(request: Request): string | null {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  const cf = request.headers.get('cf-connecting-ip');
+  if (cf) return cf;
+  const real = request.headers.get('x-real-ip');
+  if (real) return real;
+  return null;
+}
+
 export const { getSession, commitSession, destroySession } = sessionStorage;
