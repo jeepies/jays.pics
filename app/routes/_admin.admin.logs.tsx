@@ -25,7 +25,7 @@ export default function Users() {
   return (
     <Card className="mt-4">
       <CardHeader>
-        <CardTitle>Logs - {page}</CardTitle>
+        <CardTitle>Logs</CardTitle>
         <CardDescription>There are {count} logs</CardDescription>
       </CardHeader>
       <CardContent>
