@@ -1,4 +1,5 @@
 import { cn, templateReplacer, generateInvisibleURL } from './utils';
+import { describe, it, expect } from '@jest/globals';
 
 describe('cn', () => {
   it('joins class names', () => {

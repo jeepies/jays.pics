@@ -234,22 +234,34 @@ export async function action({ request }: ActionFunctionArgs) {
       };
     }
 
-    const urls = await prisma.uRL.findMany({
+    const public_domains = await prisma.uRL.findMany({
+      where: {
+        public: true,
+        progress: Progress.DONE,
+      },
       select: {
         url: true,
       },
     });
-
-    const selectedIndices = Object.keys(JSON.parse(result.data.selected));
-    let selected = selectedIndices.map((val) => {
-      return urls[+val].url;
+    const private_domains = await prisma.uRL.findMany({
+      where: {
+        donator_id: user!.id,
+        progress: Progress.DONE,
+        public: false,
+      },
+      select: {
+        url: true,
+      },
     });
+    const urls = [...public_domains, ...private_domains];
+
+    const selectedDomains = Object.keys(JSON.parse(result.data.selected));
+    let selected = selectedDomains;
 
     if (selected.length === 0) selected = ['jays.pics'];
 
     const subdomains: Record<string, string> = {};
-    for (const idx of selectedIndices) {
-      const domain = urls[+idx].url;
+    for (const domain of selectedDomains) {
       const sub = formData.get(`subdomain_${domain}`)?.toString().trim();
       if (sub) subdomains[domain] = sub;
     }

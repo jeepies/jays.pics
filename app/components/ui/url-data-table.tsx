@@ -24,9 +24,9 @@ export function DataTable<TData, TValue>({ columns, data, selected }: Readonly<D
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    data.forEach((row: any, index) => {
+    data.forEach((row: any) => {
       if (selected.includes(row.url)) {
-        initial[index] = true;
+        initial[row.url] = true;
       }
     });
     return initial;
@@ -35,6 +35,7 @@ export function DataTable<TData, TValue>({ columns, data, selected }: Readonly<D
   const table = useReactTable({
     data,
     columns,
+    getRowId: (row: any) => row.url,
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),

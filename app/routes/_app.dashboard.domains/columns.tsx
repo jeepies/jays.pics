@@ -10,7 +10,7 @@ export type URL = {
   public: boolean;
 };
 
-export const columns: ColumnDef<URL>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "url",
     header: "Domain",
