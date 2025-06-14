@@ -96,6 +96,10 @@ export default function Images() {
     }
   }, [clipboard, showToast]);
 
+  useEffect(() => {
+    setImageList(images);
+  }, [images]);
+
   if (images.length === 0) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-2">
