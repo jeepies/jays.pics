@@ -1,16 +1,24 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import prettyBytes from 'pretty-bytes';
+import { Form, Link, useLoaderData } from '@remix-run/react';
+import { Button } from '~/components/ui/button';
 
+import { PAGE_SIZE, Pagination } from '~/components/pagination';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { prisma } from '~/services/database.server';
-
-import { useAdminLoader } from './_admin';
+import { Input } from '~/components/ui/input';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.user.count();
+
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get('page')) || 1;
+  const search = url.searchParams.get('search') ?? '';
+
   const users = await prisma.user.findMany({
+    where: {
+      username: { contains: search, mode: 'insensitive'}
+    },
     select: {
       id: true,
       username: true,
@@ -20,17 +28,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
       created_at: true,
       donated_urls: true,
     },
+    orderBy: { created_at: 'asc' },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
   });
 
-  return { count, users };
+  return { count, users, page, search };
 }
 
 export default function Users() {
-  const me = useAdminLoader();
-  const { count, users } = useLoaderData<typeof loader>();
+  const { count, users, page, search } = useLoaderData<typeof loader>();
 
   return (
     <>
+      <Form method="get" className="mb-4 flex items-end gap-2">
+        <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+        <Button type="submit">Apply</Button>
+      </Form>
       <Card className="mt-4">
         <CardHeader>
           <CardTitle>Users</CardTitle>
@@ -41,27 +55,19 @@ export default function Users() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">User</TableHead>
-                <TableHead>Images Uploaded</TableHead>
-                <TableHead>Donated Domains</TableHead>
-                <TableHead>Admin</TableHead>
-                <TableHead className="text-right">Date of Creation</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => {
                 return (
                   <TableRow>
-                    <TableCell className="font-medium">
-                      <a href={`/admin/profile/${user.id}`}>{user.username}</a>
+                    <TableCell className="font-medium">{user.username}</TableCell>
+                    <TableCell className="text-right">
+                      <Link to={`/admin/user/${user.id}`}>
+                        <Button variant={'outline'}>Profile</Button>
+                      </Link>
                     </TableCell>
-                    <TableCell>
-                      {user.images.filter((image) => image.deleted_at === null).length}({prettyBytes(user.space_used)},
-                      w/ deleted:
-                      {user.images.length})
-                    </TableCell>
-                    <TableCell>{user.donated_urls.length}</TableCell>
-                    <TableCell>{user.is_admin ? 'Yes' : 'No'}</TableCell>
-                    <TableCell className="text-right">{new Date(user.created_at).toLocaleDateString()}</TableCell>
                   </TableRow>
                 );
               })}
@@ -69,6 +75,7 @@ export default function Users() {
           </Table>
         </CardContent>
       </Card>
+      <Pagination path="/dashboard/images" currentPage={page} totalCount={count} query={`search=${search}`} />
     </>
   );
 }

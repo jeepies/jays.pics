@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
 import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
+import { AdminNavbar } from '~/components/admin-navbar';
 
 import { SidebarAdmin } from '~/components/ui/sidebar-admin';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
@@ -38,8 +39,9 @@ export default function AdminDashboard() {
   const user = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <SidebarAdmin user={user} className="border-r" />
+    <div className="flex h-screen overflow-hidden flex-col md:flex-row">
+      <AdminNavbar user={user}/>
+      <SidebarAdmin user={user} className="border-r hidden md:block" />
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <div className="container mx-auto px-4 py-8">
           <Outlet />
