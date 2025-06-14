@@ -1,11 +1,13 @@
 import { ImageReportReason } from '@prisma/client';
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, MetaFunction, useLoaderData } from '@remix-run/react';
+import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { Form, MetaFunction, useFetcher, useLoaderData } from '@remix-run/react';
 import prettyBytes from 'pretty-bytes';
 import { useState } from 'react';
 import { z } from 'zod';
+import { ConfirmDialog } from '~/components/confirm-dialog';
 
 import { ReportImageDialog } from '~/components/report-image-dialog';
+import { useToast } from '~/components/toast';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
@@ -169,12 +171,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
+
+  const accept = request.headers.get('Accept') || '';
+  if (accept.includes('application/json')) {
+    return json({ ok: true });
+  }
   return redirect(`/i/${params.id}`);
 }
 
 export default function Image() {
   const { data, user, comments, tags, version } = useLoaderData<typeof loader>();
   const [editingName, setEditingName] = useState(false);
+  const fetcher = useFetcher();
+  const { showToast } = useToast();
+  const [commentList, setCommentList] = useState(comments);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -247,14 +257,14 @@ export default function Image() {
 
           <Card className="flex-1 flex flex-col">
             <CardHeader>
-              <CardTitle>Comments ({comments.length})</CardTitle>
+              <CardTitle>Comments ({commentList.length})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 flex-1 overflow-auto">
-              {comments.length === 0 ? (
+              {commentList.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No comments yet</p>
               ) : (
                 <div className="space-y-4">
-                  {comments.map((c) => (
+                  {commentList.map((c) => (
                     <div key={c.id} className="flex items-start space-x-2 text-sm">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
@@ -268,13 +278,17 @@ export default function Image() {
                         <p className="text-muted-foreground break-words">{c.content}</p>
                       </div>
                       {user!.id === c.commenter_id && (
-                        <Form method="POST">
-                          <Input type="hidden" name="type" value="delete_comment" />
-                          <Input type="hidden" name="comment_id" value={c.id} />
-                          <Button variant="ghost" size="icon">
-                            ✕
-                          </Button>
-                        </Form>
+                        <ConfirmDialog
+                        onConfirm={() => {
+                          const fd = new FormData();
+                          fd.append('type', 'delete_comment');
+                          fd.append('comment_id', c.id);
+                          fetcher.submit(fd, { method: 'post' });
+                          setCommentList((prev) => prev.filter((cm) => cm.id !== c.id));
+                          showToast('Comment deleted', 'success');
+                        }}
+                        trigger={<Button variant="ghost" size="icon">✕</Button>}
+                      />
                       )}
                     </div>
                   ))}
@@ -283,13 +297,36 @@ export default function Image() {
             </CardContent>
             {user!.id !== '' && (
               <CardFooter>
-                <Form method="POST" className="w-full space-y-2">
+                <fetcher.Form
+                  method="POST"
+                  className="w-full space-y-2"
+                  onSubmit={(e: { currentTarget: any; preventDefault: () => void; }) => {
+                    const form = e.currentTarget;
+                    const fd = new FormData(form);
+                    fetcher.submit(fd, { method: 'post' });
+                    const content = fd.get('content');
+                    if (typeof content === 'string' && content.length > 0) {
+                      setCommentList((prev) => [
+                        {
+                          id: 'temp-' + Date.now(),
+                          content,
+                          commenter_id: user!.id,
+                          commenter: { username: user!.username },
+                        } as any,
+                        ...prev,
+                      ]);
+                      showToast('Comment posted', 'success');
+                      form.reset();
+                    }
+                    e.preventDefault();
+                  }}
+                >
                   <Input type="hidden" name="type" value="create_comment" />
                   <Textarea name="content" placeholder="Add a comment" required />
                   <Button type="submit" className="w-full">
                     Post
                   </Button>
-                </Form>
+                </fetcher.Form>
               </CardFooter>
             )}
           </Card>
