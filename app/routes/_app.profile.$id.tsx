@@ -1,32 +1,48 @@
-import { CommentReportReason } from '@prisma/client';
-import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
-import { CalendarIcon, ImageIcon } from 'lucide-react';
+import { CommentReportReason } from "@prisma/client";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
+import { CalendarIcon, ImageIcon, Link } from "lucide-react";
 
-import { ReportCommentDialog } from '~/components/report-comment-dialog';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
-import { prisma } from '~/services/database.server';
-import { getAllReferrals, getSession, getUserByID, getUserBySession } from '~/services/session.server';
+import { ReportCommentDialog } from "~/components/report-comment-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { prisma } from "~/services/database.server";
+import {
+  getAllReferrals,
+  getSession,
+  getUserByID,
+  getUserBySession,
+} from "~/services/session.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (params.id === 'me') return redirect(`/profile/${session.get('userID')}`);
-  const id = params.id ?? session.get('userID');
+  if (params.id === "me") return redirect(`/profile/${session.get("userID")}`);
+  const id = params.id ?? session.get("userID");
 
   const user = await getUserByID(id);
-  if (!user) return redirect(`/profile/${session.get('userID')}`);
+  if (!user) return redirect(`/profile/${session.get("userID")}`);
 
-  const viewer = session.has('userID')
+  const viewer = session.has("userID")
     ? await getUserBySession(session)
-    : { id: '', username: 'Guest', is_admin: false };
+    : { id: "", username: "Guest", is_admin: false };
 
-  if (!viewer) return redirect('/');
+  if (!viewer) return redirect("/");
 
   const referrals = await getAllReferrals(user.referrer_profile!.id);
 
@@ -36,12 +52,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ? await prisma.image.findMany({ where: { id: { in: user.pinned_images } } })
     : [];
   const pinnedMap = new Map(pinnedImagesRaw.map((i) => [i.id, i]));
-  const pinnedImages = user.pinned_images.slice(0, 4).map((id) => pinnedMap.get(id) ?? null);
+  const pinnedImages = user.pinned_images
+    .slice(0, 4)
+    .map((id) => pinnedMap.get(id) ?? null);
   while (pinnedImages.length < 4) pinnedImages.push(null);
 
   const comments = await prisma.comment.findMany({
     where: { receiver_id: id },
-    orderBy: { created_at: 'desc' },
+    orderBy: { created_at: "desc" },
     select: {
       id: true,
       content: true,
@@ -54,16 +72,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  if (!session.has('userID')) return redirect('/login');
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userID")) return redirect("/login");
   const user = await getUserBySession(session);
 
   const formData = await request.formData();
-  const type = formData.get('type');
+  const type = formData.get("type");
 
-  if (type === 'create_comment') {
-    const content = formData.get('content');
-    if (typeof content === 'string' && content.length > 0) {
+  if (type === "create_comment") {
+    const content = formData.get("content");
+    if (typeof content === "string" && content.length > 0) {
       await prisma.comment.create({
         data: {
           commenter_id: user!.id,
@@ -76,39 +94,48 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  if (type === 'delete_comment') {
-    const commentId = formData.get('comment_id');
-    if (typeof commentId === 'string') {
+  if (type === "delete_comment") {
+    const commentId = formData.get("comment_id");
+    if (typeof commentId === "string") {
       const comment = await prisma.comment.findFirst({
         where: { id: commentId },
         select: { commenter_id: true },
       });
-      if (comment && (comment.commenter_id === user!.id || user!.id === params.id || user!.is_admin)) {
+      if (
+        comment &&
+        (comment.commenter_id === user!.id ||
+          user!.id === params.id ||
+          user!.is_admin)
+      ) {
         await prisma.comment.delete({ where: { id: commentId } });
       }
     }
   }
 
-  if (type === 'report_comment') {
-    const commentId = formData.get('comment_id');
-    const reasonType = formData.get('reason_type');
-    const detail = formData.get('detail');
-    if (typeof commentId === 'string' && typeof reasonType === 'string') {
+  if (type === "report_comment") {
+    const commentId = formData.get("comment_id");
+    const reasonType = formData.get("reason_type");
+    const detail = formData.get("detail");
+    if (typeof commentId === "string" && typeof reasonType === "string") {
       await prisma.commentReport.create({
         data: {
           reporter_id: user!.id,
           comment_id: commentId,
           reason_type: reasonType as CommentReportReason,
-          detail: typeof detail === 'string' ? detail : null,
+          detail: typeof detail === "string" ? detail : null,
         },
       });
     }
   }
 
-  if (type === 'set_pin') {
-    const imageId = formData.get('image_id');
-    const indexStr = formData.get('index');
-    if (typeof imageId === 'string' && typeof indexStr === 'string' && user!.id === params.id) {
+  if (type === "set_pin") {
+    const imageId = formData.get("image_id");
+    const indexStr = formData.get("index");
+    if (
+      typeof imageId === "string" &&
+      typeof indexStr === "string" &&
+      user!.id === params.id
+    ) {
       const index = parseInt(indexStr, 10);
       if (index >= 0 && index < 4) {
         const current = await prisma.user.findUnique({
@@ -127,9 +154,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  if (type === 'remove_pin') {
-    const imageId = formData.get('image_id');
-    if (typeof imageId === 'string' && user!.id === params.id) {
+  if (type === "remove_pin") {
+    const imageId = formData.get("image_id");
+    if (typeof imageId === "string" && user!.id === params.id) {
       const current = await prisma.user.findUnique({
         where: { id: user!.id },
         select: { pinned_images: true },
@@ -137,7 +164,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if (current) {
         await prisma.user.update({
           where: { id: user!.id },
-          data: { pinned_images: { set: current.pinned_images.filter((i) => i !== imageId) } },
+          data: {
+            pinned_images: {
+              set: current.pinned_images.filter((i) => i !== imageId),
+            },
+          },
         });
       }
     }
@@ -147,7 +178,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function Profile() {
-  const { user, viewer, referrals, images, comments, pinnedImages } = useLoaderData<typeof loader>();
+  const { user, viewer, referrals, images, comments, pinnedImages } =
+    useLoaderData<typeof loader>();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -159,7 +191,9 @@ export default function Profile() {
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
                 alt={user.username}
               />
-              <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarFallback>
+                {user.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold">{user.username}</h1>
@@ -168,10 +202,16 @@ export default function Profile() {
                 Joined {new Date(user.created_at).toLocaleDateString()}
               </p>
               <div className="mt-2">
-                {JSON.parse(user.badges).map((badge: { text: string; colour: string }) => {
-                  const colour = badge.colour ? `bg-[${badge.colour.toUpperCase()}]` : '';
-                  return <Badge className={`mr-2 ${colour}`}>{badge.text}</Badge>;
-                })}
+                {JSON.parse(user.badges).map(
+                  (badge: { text: string; colour: string }) => {
+                    const colour = badge.colour
+                      ? `bg-[${badge.colour.toUpperCase()}]`
+                      : "";
+                    return (
+                      <Badge className={`mr-2 ${colour}`}>{badge.text}</Badge>
+                    );
+                  }
+                )}
               </div>
             </div>
           </div>
@@ -184,7 +224,10 @@ export default function Profile() {
           return (
             <Card key={idx} className="relative overflow-hidden p-0">
               {img ? (
-                <a href={`/i/${img.id}`} className="block aspect-square overflow-hidden bg-muted">
+                <Link
+                  to={`/i/${img.id}`}
+                  className="block aspect-square overflow-hidden bg-muted"
+                >
                   <div className="aspect-square w-full rounded-md bg-muted overflow-hidden flex items-center justify-center">
                     <img
                       src={`/i/${img.id}/thumbnail`}
@@ -192,7 +235,7 @@ export default function Profile() {
                       className="h-full w-full object-contain"
                     />
                   </div>
-                </a>
+                </Link>
               ) : (
                 <div className="flex aspect-square items-center justify-center border-2 border-dashed border-muted p-2">
                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
@@ -249,16 +292,26 @@ export default function Profile() {
                       src={`https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
                       alt={c.commenter.username}
                     />
-                    <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {c.commenter.username.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <p className="font-medium">{c.commenter.username}</p>
-                    <p className="text-muted-foreground break-words">{c.content}</p>
+                    <p className="text-muted-foreground break-words">
+                      {c.content}
+                    </p>
                   </div>
                   <div className="flex items-center space-x-1">
-                    {(viewer.id === c.commenter_id || viewer.id === user.id || viewer.is_admin) && (
+                    {(viewer.id === c.commenter_id ||
+                      viewer.id === user.id ||
+                      viewer.is_admin) && (
                       <Form method="POST">
-                        <Input type="hidden" name="type" value="delete_comment" />
+                        <Input
+                          type="hidden"
+                          name="type"
+                          value="delete_comment"
+                        />
                         <Input type="hidden" name="comment_id" value={c.id} />
                         <Button variant="ghost" size="icon">
                           ✕
@@ -272,7 +325,7 @@ export default function Profile() {
             </div>
           )}
         </CardContent>
-        {viewer.id !== '' && (
+        {viewer.id !== "" && (
           <CardFooter>
             <Form method="POST" className="w-full space-y-2">
               <Input type="hidden" name="type" value="create_comment" />

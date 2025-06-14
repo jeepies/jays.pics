@@ -55,6 +55,8 @@ model User {
   Tag Tag[]
 
   CommentReport CommentReport[]
+
+  Account Account[]
 }
 
 model ReferrerProfile {
@@ -266,4 +268,33 @@ model CommentReport {
   reason_type CommentReportReason
   detail      String?
   created_at  DateTime            @default(now())
+}
+
+model Account {
+  id String @unique @default(cuid())
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  provider_id String
+
+  scope String
+
+  access_token String
+  refresh_token String
+  id_token String
+  access_token_expires_at DateTime
+  refresh_token_expires_at DateTime
+
+  provider String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Verification {
+  id String @unique @default(cuid())
+  code String
+  expires_at DateTime @default(dbgenerated("NOW() + INTERVAL '10 seconds'"))
+  created_at DateTime @default(now())
 }

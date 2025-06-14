@@ -18,6 +18,10 @@ body {
     --popover: 224 100% 95%;
     --popover-foreground: 224 100% 3%;
 
+    /* brand */
+    --discord: 235 86% 65%;
+    --popover-foreground: 224 100% 3%;
+
     --primary: 303 68% 62%;
     --primary-foreground: 303 6.800000000000001% 6.2%;
 
@@ -41,6 +45,10 @@ body {
     --card-foreground: 224 5% 90%;
     --popover: 224 50% 5%;
     --popover-foreground: 224 5% 90%;
+
+    /* brand */
+    --discord: 235 86% 65%;
+    --discord-foreground: 234 100% 94%;
 
     --primary: 303 68% 62%;
     --primary-foreground: 303 6.800000000000001% 6.2%;

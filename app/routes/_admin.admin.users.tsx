@@ -1,12 +1,25 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import prettyBytes from 'pretty-bytes';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import prettyBytes from "pretty-bytes";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { prisma } from '~/services/database.server';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { prisma } from "~/services/database.server";
 
-import { useAdminLoader } from './_admin';
+import { useAdminLoader } from "./_admin";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.user.count();
@@ -52,16 +65,23 @@ export default function Users() {
                 return (
                   <TableRow>
                     <TableCell className="font-medium">
-                      <a href={`/admin/profile/${user.id}`}>{user.username}</a>
+                      <Link to={`/admin/profile/${user.id}`}>
+                        {user.username}
+                      </Link>
                     </TableCell>
                     <TableCell>
-                      {user.images.filter((image) => image.deleted_at === null).length}({prettyBytes(user.space_used)},
-                      w/ deleted:
+                      {
+                        user.images.filter((image) => image.deleted_at === null)
+                          .length
+                      }
+                      ({prettyBytes(user.space_used)}, w/ deleted:
                       {user.images.length})
                     </TableCell>
                     <TableCell>{user.donated_urls.length}</TableCell>
-                    <TableCell>{user.is_admin ? 'Yes' : 'No'}</TableCell>
-                    <TableCell className="text-right">{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{user.is_admin ? "Yes" : "No"}</TableCell>
+                    <TableCell className="text-right">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </TableCell>
                   </TableRow>
                 );
               })}

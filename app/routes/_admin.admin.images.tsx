@@ -1,15 +1,15 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { useState } from 'react';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 
-import { Button } from '~/components/ui/button';
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
+} from "~/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '~/components/ui/dialog';
+} from "~/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -25,11 +25,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table';
-import { prisma } from '~/services/database.server';
+} from "~/components/ui/table";
+import { prisma } from "~/services/database.server";
 
-import { useAdminLoader } from './_admin';
-
+import { useAdminLoader } from "./_admin";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.imageReport.count();
@@ -76,21 +75,24 @@ export default function Images() {
 
   type LoaderData = Awaited<ReturnType<typeof loader>>;
 
-  function ReportDialog({ image }: { image: LoaderData['images'][number] }) {
+  function ReportDialog({ image }: { image: LoaderData["images"][number] }) {
     const [open, setOpen] = useState(false);
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" className="px-2 py-1 text-xs">
-            {image.ImageReport.length} {image.ImageReport.length === 1 ? 'report' : 'reports'}
+            {image.ImageReport.length}{" "}
+            {image.ImageReport.length === 1 ? "report" : "reports"}
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Reports for {image.display_name}</DialogTitle>
             <DialogDescription>
-              Uploaded by{' '}
-              <a href={`/admin/profile/${image.uploader.id}`}>{image.uploader.username}</a>
+              Uploaded by{" "}
+              <Link to={`/admin/profile/${image.uploader.id}`}>
+                {image.uploader.username}
+              </Link>
             </DialogDescription>
           </DialogHeader>
           <Table>
@@ -105,14 +107,17 @@ export default function Images() {
               {image.ImageReport.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell>
-                    <a href={`/admin/profile/${report.reporter.id}`}>{report.reporter.username}</a>
+                    <Link to={`/admin/profile/${report.reporter.id}`}>
+                      {report.reporter.username}
+                    </Link>
                   </TableCell>
                   <TableCell>
                     {report.reason_type}
-                    {report.detail ? ` - ${report.detail}` : ''}
+                    {report.detail ? ` - ${report.detail}` : ""}
                   </TableCell>
                   <TableCell className="text-right">
-                    {new Date(report.created_at).toLocaleDateString()} @ {new Date(report.created_at).toLocaleTimeString()}
+                    {new Date(report.created_at).toLocaleDateString()} @{" "}
+                    {new Date(report.created_at).toLocaleTimeString()}
                   </TableCell>
                 </TableRow>
               ))}
@@ -142,10 +147,12 @@ export default function Images() {
             {images.map((image) => (
               <TableRow key={image.id}>
                 <TableCell className="font-medium">
-                  <a href={`/i/${image.id}`}>{image.display_name}</a>
+                  <Link to={`/i/${image.id}`}>{image.display_name}</Link>
                 </TableCell>
                 <TableCell>
-                  <a href={`/admin/profile/${image.uploader.id}`}>{image.uploader.username}</a>
+                  <Link to={`/admin/profile/${image.uploader.id}`}>
+                    {image.uploader.username}
+                  </Link>
                 </TableCell>
                 <TableCell className="text-right">
                   <ReportDialog image={image} />

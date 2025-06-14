@@ -1,28 +1,33 @@
-import { LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
-import { Ban, Link as LinkIcon, Plus, Upload } from 'lucide-react';
-import prettyBytes from 'pretty-bytes';
-import { useEffect, useState } from 'react';
-import Markdown from 'react-markdown';
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { Ban, Link as LinkIcon, Plus, Upload } from "lucide-react";
+import prettyBytes from "pretty-bytes";
+import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
 
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Progress } from '~/components/ui/progress';
-import { generateInvisibleURL } from '~/lib/utils';
-import { prisma } from '~/services/database.server';
-import { destroySession, getAllReferrals, getSession, getUserBySession } from '~/services/session.server';
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Progress } from "~/components/ui/progress";
+import { generateInvisibleURL } from "~/lib/utils";
+import { prisma } from "~/services/database.server";
+import {
+  destroySession,
+  getAllReferrals,
+  getSession,
+  getUserBySession,
+} from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has('userID')) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect('/', {
+    return redirect("/", {
       headers: {
-        'Set-Cookie': await destroySession(session),
+        "Set-Cookie": await destroySession(session),
       },
     });
 
@@ -37,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       content: true,
     },
     orderBy: {
-      created_at: 'desc',
+      created_at: "desc",
     },
     take: 1,
   });
@@ -45,7 +50,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const siteData = await prisma.site.findFirst();
 
   const url = new URL(request.url);
-  const query = url.searchParams.get('generate_link');
+  const query = url.searchParams.get("generate_link");
 
   let clipboard;
   if (query !== null) {
@@ -72,18 +77,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement, siteData, clipboard } = useLoaderData<typeof loader>();
+  const { user, referrals, images, announcement, siteData, clipboard } =
+    useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
-    window.location.href = '/dashboard/index';
+    window.location.href = "/dashboard/index";
   }
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(user.max_space);
 
   useEffect(() => {
-    const calculatedStorage = images.reduce((acc, image) => acc + image.size, 0);
+    const calculatedStorage = images.reduce(
+      (acc, image) => acc + image.size,
+      0
+    );
     setTotalStorage(calculatedStorage);
   }, [user.images]);
 
@@ -106,7 +115,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Images</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Images
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -129,7 +140,9 @@ export default function Dashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Storage Used
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -144,8 +157,13 @@ export default function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{prettyBytes(totalStorage)}</div>
-              <Progress value={(totalStorage / storageLimit) * 100} className="mt-2" />
+              <div className="text-2xl font-bold">
+                {prettyBytes(totalStorage)}
+              </div>
+              <Progress
+                value={(totalStorage / storageLimit) * 100}
+                className="mt-2"
+              />
               <p className="text-xs text-muted-foreground mt-2">
                 {((totalStorage / storageLimit) * 100).toFixed(2)}% of
                 {prettyBytes(storageLimit)} limit
@@ -154,7 +172,9 @@ export default function Dashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Referrals</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Referrals
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -200,11 +220,17 @@ export default function Dashboard() {
               return (
                 <Card key={image.id}>
                   <CardContent className="p-2">
-                    <img src={`/i/${image.id}/raw`} alt="Image" className="w-full h-24 object-cover rounded-md" />
+                    <img
+                      src={`/i/${image.id}/raw`}
+                      alt="Image"
+                      className="w-full h-24 object-cover rounded-md"
+                    />
                     <p className="mt-2 text-sm font-medium truncate">
-                      <a href={`/i/${image.id}`}>{image.display_name}</a>
+                      <Link to={`/i/${image.id}`}>{image.display_name}</Link>
                     </p>
-                    <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(image.created_at).toLocaleDateString()}
+                    </p>
                     <Link to={`?generate_link=${image.id}`}>
                       <LinkIcon className="text-sm"></LinkIcon>
                     </Link>

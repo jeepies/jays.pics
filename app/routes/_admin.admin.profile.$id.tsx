@@ -1,26 +1,42 @@
-import { AvatarImage } from '@radix-ui/react-avatar';
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, useActionData, useLoaderData } from '@remix-run/react';
-import { CalendarIcon } from 'lucide-react';
-import prettyBytes from 'pretty-bytes';
-import { useState, useEffect } from 'react';
-import { z } from 'zod';
+import { AvatarImage } from "@radix-ui/react-avatar";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { CalendarIcon } from "lucide-react";
+import prettyBytes from "pretty-bytes";
+import { useState, useEffect } from "react";
+import { z } from "zod";
 
-import { PAGE_SIZE, Pagination } from '~/components/pagination';
-import { Avatar, AvatarFallback } from '~/components/ui/avatar';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
-import { prisma } from '~/services/database.server';
+import { PAGE_SIZE, Pagination } from "~/components/pagination";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { prisma } from "~/services/database.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const page = Number(url.searchParams.get('page')) || 1;
-  const search = url.searchParams.get('search') ?? '';
-  const sort = url.searchParams.get('sort') ?? 'desc';
+  const page = Number(url.searchParams.get("page")) || 1;
+  const search = url.searchParams.get("search") ?? "";
+  const sort = url.searchParams.get("sort") ?? "desc";
 
   const user = await prisma.user.findFirst({
     where: { id: params.id },
@@ -34,11 +50,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  if (user === null) return redirect('/admin/index');
+  if (user === null) return redirect("/admin/index");
 
   const where = {
     uploader_id: params.id as string,
-    display_name: { contains: search, mode: 'insensitive' as const },
+    display_name: { contains: search, mode: "insensitive" as const },
   };
 
   const images = await prisma.image.findMany({
@@ -50,7 +66,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       _count: { select: { ImageReport: true } },
     },
     orderBy: {
-      ImageReport: { _count: sort === 'asc' ? 'asc' : 'desc' },
+      ImageReport: { _count: sort === "asc" ? "asc" : "desc" },
     },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
@@ -62,13 +78,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function AdminProfile() {
-  const { user, images, page, imageCount, search, sort, id } = useLoaderData<typeof loader>();
+  const { user, images, page, imageCount, search, sort, id } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const [templates, setTemplates] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('/api/get-templates')
+    fetch("/api/get-templates")
       .then((res) => res.json())
       .then((d) => {
         if (d.success) setTemplates(Object.keys(d.data));
@@ -86,7 +103,9 @@ export default function AdminProfile() {
                 src={`https://api.dicebear.com/6.x/initials/svg?seed=${user.username}`}
                 alt={user?.username}
               />
-              <AvatarFallback>{user?.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarFallback>
+                {user?.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
               <h1 className="text-2xl font-bold">{user?.username}</h1>
@@ -110,7 +129,7 @@ export default function AdminProfile() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={'update_embed'} name="type" />
+            <Input className="hidden" value={"update_embed"} name="type" />
             <Label htmlFor="embed_title">Title</Label>
             <Input
               className="my-2"
@@ -118,7 +137,9 @@ export default function AdminProfile() {
               defaultValue={user.upload_preferences?.embed_title}
               list="embed-templates"
             />
-            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_title}</div>
+            <div className="text-red-500 text-sm">
+              {actionData?.fieldErrors.embed_title}
+            </div>
             <Label htmlFor="embed_author">Author</Label>
             <Input
               className="my-2"
@@ -126,15 +147,23 @@ export default function AdminProfile() {
               defaultValue={user.upload_preferences?.embed_author}
               list="embed-templates"
             />
-            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_author}</div>
+            <div className="text-red-500 text-sm">
+              {actionData?.fieldErrors.embed_author}
+            </div>
             <Label htmlFor="embed_colour">Colour</Label>
-            <Input className="my-2" name="embed_colour" defaultValue={user.upload_preferences?.embed_colour} />
+            <Input
+              className="my-2"
+              name="embed_colour"
+              defaultValue={user.upload_preferences?.embed_colour}
+            />
             <datalist id="embed-templates">
               {templates.map((t) => (
                 <option key={t} value={`{{${t}}}`} />
               ))}
             </datalist>
-            <div className="text-red-500 text-sm">{actionData?.fieldErrors.embed_colour}</div>
+            <div className="text-red-500 text-sm">
+              {actionData?.fieldErrors.embed_colour}
+            </div>
             <Button type="submit">Save</Button>
           </Form>
         </CardContent>
@@ -147,7 +176,11 @@ export default function AdminProfile() {
         <CardContent className="space-y-4">
           <Form method="post" className="flex gap-2">
             <Input type="hidden" name="type" value="force_username" />
-            <Input name="username" defaultValue={user.username} className="flex-1" />
+            <Input
+              name="username"
+              defaultValue={user.username}
+              className="flex-1"
+            />
             <Button type="submit">Update Username</Button>
           </Form>
 
@@ -155,10 +188,17 @@ export default function AdminProfile() {
             <h3 className="font-medium">Tags</h3>
             <div className="mt-2 flex flex-wrap gap-2">
               {JSON.parse(user.badges).map((badge: any, idx: number) => (
-                <Form method="post" key={idx} className="flex items-center gap-1">
+                <Form
+                  method="post"
+                  key={idx}
+                  className="flex items-center gap-1"
+                >
                   <Input type="hidden" name="type" value="remove_badge" />
                   <Input type="hidden" name="index" value={idx.toString()} />
-                  <Badge style={{ backgroundColor: badge.colour ?? undefined }} className="mr-1">
+                  <Badge
+                    style={{ backgroundColor: badge.colour ?? undefined }}
+                    className="mr-1"
+                  >
                     {badge.text}
                   </Badge>
                   <Button type="submit" size="sm" variant="ghost">
@@ -178,11 +218,17 @@ export default function AdminProfile() {
             <div className="pt-4">
               <h3 className="font-medium">Storage Limit</h3>
               <p className="text-sm text-muted-foreground">
-                {prettyBytes(user.space_used)} used of {prettyBytes(user.max_space)}
+                {prettyBytes(user.space_used)} used of{" "}
+                {prettyBytes(user.max_space)}
               </p>
               <Form method="post" className="mt-2 flex gap-2">
                 <Input type="hidden" name="type" value="update_space" />
-                <Input name="max_space" type="number" className="w-36" defaultValue={user.max_space} />
+                <Input
+                  name="max_space"
+                  type="number"
+                  className="w-36"
+                  defaultValue={user.max_space}
+                />
                 <Button type="submit" size="sm">
                   Update
                 </Button>
@@ -199,7 +245,12 @@ export default function AdminProfile() {
         </CardHeader>
         <CardContent>
           <Form method="get" className="mb-4 flex items-end gap-2">
-            <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+            <Input
+              type="text"
+              name="search"
+              placeholder="Search by name"
+              defaultValue={search}
+            />
             <Select name="sort" defaultValue={sort}>
               <SelectTrigger className="w-36">
                 <SelectValue />
@@ -224,13 +275,24 @@ export default function AdminProfile() {
                       className="aspect-square w-full rounded-md object-cover"
                     />
                     <p className="truncate text-sm font-medium hover:text-primary">
-                      <a href={`/i/${image.id}`}>{image.display_name}</a>
+                      <Link to={`/i/${image.id}`}>{image.display_name}</Link>
                     </p>
-                    <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(image.created_at).toLocaleDateString()}
+                    </p>
                     <Form method="post">
-                      <Input type="hidden" name="type" value="soft_delete_image" />
+                      <Input
+                        type="hidden"
+                        name="type"
+                        value="soft_delete_image"
+                      />
                       <Input type="hidden" name="image_id" value={image.id} />
-                      <Button type="submit" size="sm" variant="destructive" className="w-full">
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="destructive"
+                        className="w-full"
+                      >
                         Delete
                       </Button>
                     </Form>
@@ -257,7 +319,7 @@ export default function AdminProfile() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={'danger_zone'} name="type" />
+            <Input className="hidden" value={"danger_zone"} name="type" />
           </Form>
           <div className="">
             <Button>Lock Account</Button>
@@ -274,8 +336,8 @@ const embedUpdateSchema = z.object({
   embed_author: z.string(),
   embed_colour: z
     .string()
-    .length(7, { message: 'Must be 7 characters long' })
-    .regex(/^#/, { message: 'Must be a valid hex colour' }),
+    .length(7, { message: "Must be 7 characters long" })
+    .regex(/^#/, { message: "Must be a valid hex colour" }),
 });
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -285,9 +347,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       undefined,
       formErrors: [],
       fieldErrors: {
-        embed_title: '',
-        embed_author: '',
-        embed_colour: '',
+        embed_title: "",
+        embed_author: "",
+        embed_colour: "",
       },
     };
 
@@ -295,10 +357,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get('type');
-  formData.delete('type');
+  const requestType = formData.get("type");
+  formData.delete("type");
 
-  if (requestType === 'update_embed') {
+  if (requestType === "update_embed") {
     result = embedUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -321,33 +383,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await prisma.notification.create({
       data: {
         receiver_id: user!.id,
-        content: 'Your embed configuration was updated by an admin',
+        content: "Your embed configuration was updated by an admin",
       },
     });
-  } else if (requestType === 'force_username') {
-    const username = formData.get('username');
-    if (typeof username === 'string' && username.length > 0) {
+  } else if (requestType === "force_username") {
+    const username = formData.get("username");
+    if (typeof username === "string" && username.length > 0) {
       await prisma.user.update({
         where: { id: user!.id },
         data: {
           username,
           username_changed_at: new Date(),
-          username_history: JSON.stringify([username, ...JSON.parse(user!.username_history as unknown as string)]),
+          username_history: JSON.stringify([
+            username,
+            ...JSON.parse(user!.username_history as unknown as string),
+          ]),
         },
       });
       await prisma.notification.create({
         data: {
           receiver_id: user!.id,
-          content: 'Your username was changed by an admin',
+          content: "Your username was changed by an admin",
         },
       });
     }
     return null;
-  } else if (requestType === 'add_badge') {
-    const text = formData.get('text');
-    const colour = formData.get('colour');
-    if (typeof text === 'string' && typeof colour === 'string') {
-      const badges = JSON.parse(user!.badges ?? '[]');
+  } else if (requestType === "add_badge") {
+    const text = formData.get("text");
+    const colour = formData.get("colour");
+    if (typeof text === "string" && typeof colour === "string") {
+      const badges = JSON.parse(user!.badges ?? "[]");
       badges.push({ text, colour });
       await prisma.user.update({
         where: { id: user!.id },
@@ -355,9 +420,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
     }
     return null;
-  } else if (requestType === 'remove_badge') {
-    const index = Number(formData.get('index'));
-    const badges = JSON.parse(user!.badges ?? '[]');
+  } else if (requestType === "remove_badge") {
+    const index = Number(formData.get("index"));
+    const badges = JSON.parse(user!.badges ?? "[]");
     if (!isNaN(index)) {
       badges.splice(index, 1);
       await prisma.user.update({
@@ -366,8 +431,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
     }
     return null;
-  } else if (requestType === 'update_space') {
-    const maxSpace = Number(formData.get('max_space'));
+  } else if (requestType === "update_space") {
+    const maxSpace = Number(formData.get("max_space"));
     if (!isNaN(maxSpace) && maxSpace > 0) {
       await prisma.user.update({
         where: { id: user!.id },
@@ -376,14 +441,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await prisma.notification.create({
         data: {
           receiver_id: user!.id,
-          content: 'Your storage limit was changed by an admin',
+          content: "Your storage limit was changed by an admin",
         },
       });
     }
     return null;
-  } else if (requestType === 'soft_delete_image') {
-    const imageId = formData.get('image_id');
-    if (typeof imageId === 'string') {
+  } else if (requestType === "soft_delete_image") {
+    const imageId = formData.get("image_id");
+    if (typeof imageId === "string") {
       await prisma.image.delete({ where: { id: imageId } });
     }
     return null;

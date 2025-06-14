@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const extendedClient = new PrismaClient().$extends({
   model: {
@@ -52,9 +52,17 @@ const extendedClient = new PrismaClient().$extends({
     },
   },
   query: {
+    account: {
+      async $allOperations({ operation, args, query }: any) {
+        if (operation === "findUnique" || operation === "findMany") {
+          args.where = { ...args.where, deleted_at: null };
+        }
+        return query(args);
+      },
+    },
     user: {
       async $allOperations({ operation, args, query }: any) {
-        if (operation === 'findUnique' || operation === 'findMany') {
+        if (operation === "findUnique" || operation === "findMany") {
           args.where = { ...args.where, deleted_at: null };
         }
         return query(args);
@@ -62,7 +70,7 @@ const extendedClient = new PrismaClient().$extends({
     },
     comment: {
       async $allOperations({ operation, args, query }: any) {
-        if (operation === 'findUnique' || operation === 'findMany') {
+        if (operation === "findUnique" || operation === "findMany") {
           args.where = { ...args.where, deleted_at: null };
         }
         return query(args);
@@ -70,7 +78,7 @@ const extendedClient = new PrismaClient().$extends({
     },
     image: {
       async $allOperations({ operation, args, query }: any) {
-        if (operation === 'findUnique' || operation === 'findMany') {
+        if (operation === "findUnique" || operation === "findMany") {
           args.where = { ...args.where, deleted_at: null };
         }
         return query(args);
@@ -78,7 +86,7 @@ const extendedClient = new PrismaClient().$extends({
     },
     imageComment: {
       async $allOperations({ operation, args, query }: any) {
-        if (operation === 'findUnique' || operation === 'findMany') {
+        if (operation === "findUnique" || operation === "findMany") {
           args.where = { ...args.where, deleted_at: null };
         }
         return query(args);

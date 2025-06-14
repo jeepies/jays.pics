@@ -1,11 +1,24 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { prisma } from '~/services/database.server';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { prisma } from "~/services/database.server";
 
-import { useAdminLoader } from './_admin';
+import { useAdminLoader } from "./_admin";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const count = await prisma.uRL.count();
@@ -55,14 +68,17 @@ export default function Users() {
               return (
                 <TableRow>
                   <TableCell className="font-medium">{url.url}</TableCell>
-                  <TableCell>{url.public ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{url.public ? "Yes" : "No"}</TableCell>
                   <TableCell>{url.progress}</TableCell>
                   <TableCell>{url.zone_id}</TableCell>
                   <TableCell>
-                    <a href={`/admin/profile/${url.donator!.id}`}>{url.donator!.username}</a>
+                    <Link to={`/admin/profile/${url.donator!.id}`}>
+                      {url.donator!.username}
+                    </Link>
                   </TableCell>
                   <TableCell className="text-right">
-                    {new Date(url.created_at).toLocaleDateString()} @{new Date(url.created_at).toLocaleTimeString()}
+                    {new Date(url.created_at).toLocaleDateString()} @
+                    {new Date(url.created_at).toLocaleTimeString()}
                   </TableCell>
                 </TableRow>
               );

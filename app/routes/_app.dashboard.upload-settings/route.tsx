@@ -1,27 +1,28 @@
-import { Progress } from '@prisma/client';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { Form, useActionData, useLoaderData } from '@remix-run/react';
-import { useEffect, useState } from 'react';
-import { z } from 'zod';
+import { Progress } from "@prisma/client";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { z } from "zod";
 
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 
+import { prisma } from "~/services/database.server";
+import { getSession, getUserBySession } from "~/services/session.server";
 
-import { prisma } from '~/services/database.server';
-import { getSession, getUserBySession } from '~/services/session.server';
+import { DataTable } from "../../components/ui/url-data-table";
+import { useAppLoaderData } from "../_app";
 
-import { DataTable } from '../../components/ui/url-data-table';
-import { useAppLoaderData } from '../_app';
-
-import { getColumns, type URL } from './columns';
-import { TemplateInput } from '~/components/template-input';
+import { getColumns, type URL } from "./columns";
+import { TemplateInput } from "~/components/template-input";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie"))
+  );
 
   const public_domains = await prisma.uRL.findMany({
     where: {
@@ -64,7 +65,7 @@ export default function UploadSettings() {
 
   const [templates, setTemplates] = useState<string[]>([]);
   useEffect(() => {
-    fetch('/api/get-templates')
+    fetch("/api/get-templates")
       .then((res) => res.json())
       .then((d) => {
         if (d.success) {
@@ -89,10 +90,10 @@ export default function UploadSettings() {
             <label>Download Configs for:</label>
             <br />
             <Button className="mr-2">
-              <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
+              <Link to={`/api/sharex/${data?.user.id}`}>ShareX</Link>
             </Button>
             <Button>
-              <a href={`/api/sharenix/${data?.user.id}`}>ShareNix</a>
+              <Link to={`/api/sharenix/${data?.user.id}`}>ShareNix</Link>
             </Button>
           </CardContent>
         </Card>
@@ -102,7 +103,12 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input className="hidden" value={'update_embed'} name="type" readOnly />
+              <Input
+                className="hidden"
+                value={"update_embed"}
+                name="type"
+                readOnly
+              />
               <Label htmlFor="embed_title">Title</Label>
               <TemplateInput
                 className="my-2"
@@ -126,14 +132,21 @@ export default function UploadSettings() {
                 {actionData?.fieldErrors.embed_author}
               </div>
               <Label htmlFor="embed_colour">Colour</Label>
-              <Input className="my-2" name="embed_colour" defaultValue={data?.user.upload_preferences?.embed_colour} />
+              <Input
+                className="my-2"
+                name="embed_colour"
+                defaultValue={data?.user.upload_preferences?.embed_colour}
+              />
               <datalist id="embed-templates">
                 {templates.map((t) => (
                   <option key={t} value={`{{${t}}}`} />
                 ))}
               </datalist>
               <div className="items-top flex space-x-2 my-2">
-                <Checkbox name="domain_hack" defaultChecked={data?.user.upload_preferences?.domain_hack}>
+                <Checkbox
+                  name="domain_hack"
+                  defaultChecked={data?.user.upload_preferences?.domain_hack}
+                >
                   Invisible Extension
                 </Checkbox>
                 <div className="grid gap-1.5 leading-none">
@@ -160,10 +173,18 @@ export default function UploadSettings() {
           </CardHeader>
           <CardContent>
             <Form method="post">
-              <Input className="hidden" value={'update_urls'} name="type" readOnly />
+              <Input
+                className="hidden"
+                value={"update_urls"}
+                name="type"
+                readOnly
+              />
               <DataTable
                 columns={getColumns(
-                  (data!.user.upload_preferences?.subdomains ?? {}) as Record<string, string>
+                  (data!.user.upload_preferences?.subdomains ?? {}) as Record<
+                    string,
+                    string
+                  >
                 )}
                 data={urls}
                 selected={selected}
@@ -182,8 +203,8 @@ const embedUpdateSchema = z.object({
   embed_author: z.string(),
   embed_colour: z
     .string()
-    .length(7, { message: 'Must be 7 characters long' })
-    .regex(/^#/, { message: 'Must be a valid hex colour' }),
+    .length(7, { message: "Must be 7 characters long" })
+    .regex(/^#/, { message: "Must be a valid hex colour" }),
   domain_hack: z.string().optional(),
 });
 
@@ -196,11 +217,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get('type');
+  const requestType = formData.get("type");
 
-  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie"))
+  );
 
-  if (requestType === 'update_embed') {
+  if (requestType === "update_embed") {
     result = embedUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -218,12 +241,12 @@ export async function action({ request }: ActionFunctionArgs) {
         embed_author: result.data.embed_author,
         embed_title: result.data.embed_title,
         embed_colour: result.data.embed_colour,
-        domain_hack: result.data.domain_hack === 'on',
+        domain_hack: result.data.domain_hack === "on",
       },
     });
   }
 
-  if (requestType === 'update_urls') {
+  if (requestType === "update_urls") {
     result = urlUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -245,7 +268,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return urls[+val].url;
     });
 
-    if (selected.length === 0) selected = ['jays.pics'];
+    if (selected.length === 0) selected = ["jays.pics"];
 
     const subdomains: Record<string, string> = {};
     for (const idx of selectedIndices) {
@@ -260,7 +283,7 @@ export async function action({ request }: ActionFunctionArgs) {
       },
       data: {
         urls: selected,
-        subdomains
+        subdomains,
       },
     });
   }

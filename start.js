@@ -9,7 +9,11 @@ concurrently(
     },
     {
       command: "npx graphile-worker",
-      name: "worker"
+      name: "worker",
+    },
+    {
+      command: "npm run cron:run",
+      name: "cron",
     },
   ],
   {

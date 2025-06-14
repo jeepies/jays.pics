@@ -15,7 +15,12 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "npx prisma db seed"
+    "db:seed": "npx prisma db seed",
+    "cron:check-nameservers": "bun tasks/checkNameserver.ts",
+    "cron:clean-domains": "bun tasks/cleanDomain.ts",
+    "cron:clean-verifications": "bun tasks/cleanVerification.ts",
+    "cron:daily-stats": "bun tasks/dailyStats.ts",
+    "cron:run": "concurrently \"bun cron:check-nameservers\" \"bun cron:clean-domains\" \"bun cron:clean-verifications\" \"bun cron:daily-stats\""
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
@@ -50,6 +55,7 @@
     "cloudflare": "^3.5.0",
     "clsx": "^2.1.1",
     "concurrently": "^9.0.1",
+    "cron": "^4.3.1",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.5.6",
