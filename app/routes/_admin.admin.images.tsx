@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
+import { LoaderFunctionArgs, SerializeFrom } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { useState } from 'react';
 
@@ -74,7 +74,7 @@ export default function Images() {
   useAdminLoader();
   const { count, images } = useLoaderData<typeof loader>();
 
-  type LoaderData = Awaited<ReturnType<typeof loader>>;
+  type LoaderData = SerializeFrom<typeof loader>;
 
   function ReportDialog({ image }: { image: LoaderData['images'][number] }) {
     const [open, setOpen] = useState(false);
