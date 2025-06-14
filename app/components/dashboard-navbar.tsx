@@ -12,6 +12,7 @@ interface DashboardNavbarProps {
     username: string;
     is_admin: boolean;
     notifications: { id: string; content: string; created_at: string }[];
+    images: any[];
   };
   version: string;
 }
