@@ -1,6 +1,7 @@
 import { spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { test, expect } from '@jest/globals';
 
 test('dotenv variables pass through to worker process', () => {
   const dir = fs.mkdtempSync(path.join(process.cwd(), 'envtest-'));
