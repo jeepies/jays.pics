@@ -5,9 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
 import { prisma } from '~/services/database.server';
 
-import { useAdminLoader } from './_admin';
-
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({  }: LoaderFunctionArgs) {
   const count = await prisma.uRL.count();
   const urls = await prisma.uRL.findMany({
     select: {
@@ -29,7 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Users() {
-  const me = useAdminLoader();
   const { count, urls } = useLoaderData<typeof loader>();
 
   return (
