@@ -1,5 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
 import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
+import { DashboardNavbar } from '~/components/dashboard-navbar';
 
 import { Sidebar } from '~/components/ui/sidebar';
 import { destroySession, getSession, getUserBySession } from '~/services/session.server';
@@ -38,8 +39,9 @@ export default function Application() {
   const { user, version } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar user={user} version={version} className="border-r" />
+    <div className="flex h-screen overflow-hidden flex-col md:flex-row">
+      <DashboardNavbar user={user} version={version} />
+      <Sidebar user={user} version={version} className="border-r hidden md:block" />
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <Outlet />
       </div>
