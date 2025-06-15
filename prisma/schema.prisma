@@ -57,6 +57,8 @@ model User {
   Tag Tag[]
 
   CommentReport CommentReport[]
+
+  Trigger Trigger[]
 }
 
 model ReferrerProfile {
@@ -83,7 +85,7 @@ model UploaderPreferences {
 
   domain_hack Boolean @default(false)
 
-  urls String[] @default(["jays.pics"])
+  urls       String[] @default(["jays.pics"])
   subdomains Json     @default("{}")
 
   effect         String  @default("none")
@@ -273,4 +275,25 @@ model CommentReport {
   reason_type CommentReportReason
   detail      String?
   created_at  DateTime            @default(now())
+}
+
+model Trigger {
+  id         String   @unique @default(cuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  name       String
+  type       String
+  created_at DateTime @default(now())
+
+  actions TriggerAction[]
+
+  @@index([user_id])
+}
+
+model TriggerAction {
+  id         String  @unique @default(cuid())
+  trigger    Trigger @relation(fields: [trigger_id], references: [id])
+  trigger_id String
+  type       String
+  data       Json
 }
