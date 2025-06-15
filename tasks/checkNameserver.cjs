@@ -22,15 +22,15 @@ module.exports = async (payload, helpers) => {
     },
   });
 
-  input.forEach(async (domain) => {
+  for (const domain of input) {
     checked += 1;
     await prisma.uRL.delete({
       where: {
         id: domain.id,
       },
     });
-    cf.zones.delete({ zone_id: domain.zone_id });
-  });
+    await cf.zones.delete({ zone_id: domain.zone_id }).catch(() => {});
+  }
 
   const waiting = await prisma.uRL.findMany({
     where: {
