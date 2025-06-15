@@ -12,6 +12,10 @@ import {
   LogOut,
   Shield,
   User,
+  Code,
+  WandSparkles,
+  ChevronDown,
+  GitBranch,
 } from 'lucide-react';
 import { useState } from 'react';
 import { FaDiscord } from 'react-icons/fa';
@@ -38,6 +42,7 @@ interface SidebarProps {
 export function Sidebar({ className, user, version, onLinkClick }: Readonly<SidebarProps>) {
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(user.notifications ?? []);
+  const [showUploadMenu, setShowUploadMenu] = useState(false);
 
   const removeNotification = (id: string) => setNotifications((prev) => prev.filter((n) => n.id !== id));
 
@@ -96,16 +101,53 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
               </Link>
             </Button>
             <Button
-              onClick={onLinkClick}
-              asChild
+              onClick={() => setShowUploadMenu(!showUploadMenu)}
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/dashboard/upload-settings" className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full">
                 <ImageIcon className="h-4 w-4" />
                 Upload Config
-              </Link>
+                <ChevronDown className={cn('h-4 w-4 ml-auto transition-transform', showUploadMenu && 'rotate-180')} />
+              </div>
             </Button>
+            {showUploadMenu && (
+              <div className="pl-4 space-y-1">
+                <Button
+                  onClick={onLinkClick}
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start text-gray-900 dark:text-gray-100"
+                >
+                  <Link to="/dashboard/embed" className="flex items-center gap-2">
+                    <Code className="h-4 w-4" />
+                    Embed
+                  </Link>
+                </Button>
+                <Button
+                  onClick={onLinkClick}
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start text-gray-900 dark:text-gray-100"
+                >
+                  <Link to="/dashboard/effects" className="flex items-center gap-2">
+                    <WandSparkles className="h-4 w-4" />
+                    Effects
+                  </Link>
+                </Button>
+                <Button
+                  onClick={onLinkClick}
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start text-gray-900 dark:text-gray-100"
+                >
+                  <Link to="/dashboard/triggers" className="flex items-center gap-2">
+                    <GitBranch className="h-4 w-4" />
+                    Triggers
+                  </Link>
+                </Button>
+              </div>
+            )}
             <Button
               onClick={onLinkClick}
               asChild
