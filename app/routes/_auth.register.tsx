@@ -1,40 +1,10 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { prisma } from "~/services/database.server";
-import {
-  commitSession,
-  getSession,
-  getClientIP,
-} from "~/services/session.server";
-
-const schema = z.object({
-  username: z
-    .string({ required_error: "Username is required" })
-    .regex(/^[a-z0-9_]+$/gim, "Invalid username")
-    .min(3, { message: "Must be 3 or more characters" })
-    .max(20, { message: "Must be 20 or less characters" }),
-  password: z
-    .string({ required_error: "Password is required" })
-    .min(8, { message: "Must be 8 or more characters" })
-    .max(256, { message: "Must be 256 or less characters" })
-    .regex(
-      /([!?&-_]+)/g,
-      "Insecure password - Please add one (or more) of (!, ?, &, - or _)",
-    )
-    .regex(
-      /([0-9]+)/g,
-      "Insecure password - Please add one (or more) digit (0-9)",
-    ),
-  referralCode: z
-    .string({ required_error: "Referral Code is required" })
-    .uuid("Must be a valid referral code"),
-});
+import { authenticator, FormError } from "~/services/auth.server";
 
 export default function Register() {
   const actionData = useActionData<typeof action>();
@@ -90,123 +60,13 @@ export default function Register() {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const payload = Object.fromEntries(formData);
-  const result = schema.safeParse(payload);
-
-  if (!result.success) {
-    const error = result.error.flatten();
-    return {
-      payload,
-      formErrors: error.formErrors,
-      fieldErrors: error.fieldErrors,
-    };
-  }
-
-  prisma.user
-    .findFirst({ where: { username: result.data.username } })
-    .then((user) => {
-      if (user !== null)
-        return {
-          payload,
-          formErrors: [],
-          fieldErrors: {
-            username: "This username already exists",
-            password: "",
-            referralCode: "",
-          },
-        };
+  try {
+    return await authenticator.authenticate("register", request, {
+      successRedirect: "/dashboard/index",
     });
-
-  const referrer = await prisma.referrerProfile.findFirst({
-    where: { referral_code: result.data.referralCode },
-  });
-
-  if (referrer === null) {
-    return {
-      payload,
-      formErrors: [],
-      fieldErrors: {
-        username: "",
-        password: "",
-        referralCode: "This referral code is invalid",
-      },
-    };
+  } catch (error) {
+    if (error instanceof Response) throw error;
+    if (error instanceof FormError) return error.data;
+    throw error;
   }
-
-  const referralsAlreadyUsed = (
-    await prisma.referral.findMany({ where: { referrer_id: referrer.id } })
-  ).length;
-
-  if (referralsAlreadyUsed === referrer.referral_limit) {
-    return {
-      payload,
-      formErrors: [],
-      fieldErrors: {
-        username: "",
-        password: "",
-        referralCode: "This referral code has been used too many times",
-      },
-    };
-  }
-
-  const hashedPassword = bcrypt.hashSync(result.data.password, 10);
-
-  const count = await prisma.user.count();
-
-  let badges;
-  if (count < 100) {
-    badges = JSON.stringify([
-      { name: "user", text: "User" },
-      { name: "early", text: "Early" },
-    ]);
-  }
-
-  const user = await prisma.user.create({
-    data: {
-      username: result.data.username,
-      password: hashedPassword,
-      referrer_profile: {
-        create: {},
-      },
-      upload_preferences: {
-        create: {
-          subdomains: {},
-        },
-      },
-      last_login_at: new Date(),
-      last_login_ip: getClientIP(request) ?? null,
-      badges: badges,
-    },
-  });
-
-  if (process.env.DISCORD_WEBHOOK_URL) {
-    fetch(process.env.DISCORD_WEBHOOK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        embeds: [
-          {
-            title: "New user joined",
-            description: `🎉 ${user.username} just signed up`,
-          },
-        ],
-      }),
-    }).catch(() => {});
-  }
-
-  await prisma.referral.create({
-    data: {
-      referred_id: user.id,
-      referrer_id: referrer.id,
-    },
-  });
-
-  const session = await getSession(request.headers.get("Cookie"));
-  session.set("userID", user.id);
-  return redirect("/dashboard/index", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
-  });
 }
