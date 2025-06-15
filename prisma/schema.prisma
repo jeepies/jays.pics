@@ -297,3 +297,21 @@ model TriggerAction {
   type       String
   data       Json
 }
+
+enum ErrorStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  NOT_RELEVANT
+}
+
+model SiteError {
+  id        String   @unique @default(cuid())
+  code      String   @unique
+  message   String
+  stack     String?
+  user_ids  String[] @default([])
+  status    ErrorStatus @default(OPEN)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
