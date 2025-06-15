@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { prisma } from '~/services/database.server';
 import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { getSession, getUserBySession } from '~/services/session.server';
-import { Form, useActionData, useFetcher } from '@remix-run/react';
+import { useFetcher } from '@remix-run/react';
 import { useToast } from '~/components/toast';
 
 const embedUpdateSchema = z.object({
@@ -33,16 +33,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   const result = embedUpdateSchema.safeParse(payload);
 
-  console.log(`writing updates 1: `);
-
   if (!result.success) {
     const error = result.error.flatten();
     console.log(error);
     return json({ ok: false, fieldErrors: error.fieldErrors }, { status: 400 });
   }
-
-  console.log(`writing updates: `);
-  console.log(result.data);
 
   await prisma.uploaderPreferences.update({
     where: { userId: user!.id },
