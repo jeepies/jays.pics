@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const data = await prisma.user.findUnique({
+  const rawData = await prisma.user.findUnique({
     where: { id: user.id },
     select: {
       id: true,
@@ -46,6 +46,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
       upload_preferences: true,
     },
   });
+
+  const data = rawData
+  ? {
+      ...rawData,
+      space_used: Number(rawData.space_used),
+      max_space: Number(rawData.max_space),
+    }
+  : null;
 
   const json = JSON.stringify(data, null, 2);
   const gz = await gzipAsync(json);
