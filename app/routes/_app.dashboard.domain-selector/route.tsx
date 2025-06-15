@@ -1,18 +1,23 @@
 import { Progress } from "@prisma/client";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { z } from "zod";
+
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
 import { DataTable } from "~/components/ui/url-data-table";
 import { prisma } from "~/services/database.server";
 import { getUserBySession, getSession } from "~/services/session.server";
-import { getColumns } from "./columns";
-import { Input } from "~/components/ui/input";
+
 import { useAppLoaderData } from "../_app";
-import { z } from "zod";
+
+import { getColumns } from "./columns";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie")),
+  );
 
   const public_domains = await prisma.uRL.findMany({
     where: {
@@ -61,9 +66,19 @@ export default function DomainSelector() {
       </CardHeader>
       <CardContent>
         <Form method="post">
-          <Input className="hidden" value={'update_urls'} name="type" readOnly />
+          <Input
+            className="hidden"
+            value={"update_urls"}
+            name="type"
+            readOnly
+          />
           <DataTable
-            columns={getColumns((data!.user.upload_preferences?.subdomains ?? {}) as Record<string, string>)}
+            columns={getColumns(
+              (data!.user.upload_preferences?.subdomains ?? {}) as Record<
+                string,
+                string
+              >,
+            )}
             data={urls}
             selected={selected}
           />
@@ -83,11 +98,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get('type');
+  const requestType = formData.get("type");
 
-  const user = await getUserBySession(await getSession(request.headers.get('Cookie')));
+  const user = await getUserBySession(
+    await getSession(request.headers.get("Cookie")),
+  );
 
-  if (requestType === 'update_urls') {
+  if (requestType === "update_urls") {
     result = urlUpdateSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();
@@ -122,7 +139,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const selectedDomains = Object.keys(JSON.parse(result.data.selected));
     let selected = selectedDomains;
 
-    if (selected.length === 0) selected = ['jays.pics'];
+    if (selected.length === 0) selected = ["jays.pics"];
 
     const subdomains: Record<string, string> = {};
     for (const domain of selectedDomains) {
@@ -136,7 +153,7 @@ export async function action({ request }: ActionFunctionArgs) {
       },
       data: {
         urls: selected,
-        subdomains
+        subdomains,
       },
     });
   }

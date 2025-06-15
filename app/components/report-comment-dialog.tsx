@@ -1,8 +1,8 @@
-import { Form } from '@remix-run/react';
-import { Flag } from 'lucide-react';
-import * as React from 'react';
+import { Form } from "@remix-run/react";
+import { Flag } from "lucide-react";
+import * as React from "react";
 
-import { Button } from '~/components/ui/button';
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogTrigger,
@@ -11,10 +11,16 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '~/components/ui/dialog';
-import { Input } from '~/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
-import { Textarea } from '~/components/ui/textarea';
+} from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 
 interface Props {
   commentId: string;
@@ -36,7 +42,11 @@ export function ReportCommentDialog({ commentId }: Readonly<Props>) {
             Provide a reason for reporting this comment.
           </DialogDescription>
         </DialogHeader>
-        <Form method="POST" className="space-y-4" onSubmit={() => setOpen(false)}>
+        <Form
+          method="POST"
+          className="space-y-4"
+          onSubmit={() => setOpen(false)}
+        >
           <Input type="hidden" name="type" value="report_comment" />
           <Input type="hidden" name="comment_id" value={commentId} />
           <div className="space-y-2">

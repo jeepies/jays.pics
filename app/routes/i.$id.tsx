@@ -1,24 +1,40 @@
-import { ImageReportReason } from '@prisma/client';
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, MetaFunction, useFetcher, useLoaderData } from '@remix-run/react';
-import prettyBytes from 'pretty-bytes';
-import { useState } from 'react';
-import { z } from 'zod';
-import { ConfirmDialog } from '~/components/confirm-dialog';
+import { ImageReportReason } from "@prisma/client";
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import {
+  Form,
+  MetaFunction,
+  useFetcher,
+  useLoaderData,
+} from "@remix-run/react";
+import prettyBytes from "pretty-bytes";
+import { useState } from "react";
+import { z } from "zod";
 
-import { ReportImageDialog } from '~/components/report-image-dialog';
-import { useToast } from '~/components/toast';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Badge } from '~/components/ui/badge';
-import { Sidebar } from '~/components/ui/sidebar';
-import { SidebarGuest } from '~/components/ui/sidebar-guest';
-import { Textarea } from '~/components/ui/textarea';
-import { templateReplacer } from '~/lib/utils';
-import { prisma } from '~/services/database.server';
-import { getSession, getUserBySession } from '~/services/session.server';
+import { ConfirmDialog } from "~/components/confirm-dialog";
+import { ReportImageDialog } from "~/components/report-image-dialog";
+import { useToast } from "~/components/toast";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Sidebar } from "~/components/ui/sidebar";
+import { SidebarGuest } from "~/components/ui/sidebar-guest";
+import { Textarea } from "~/components/ui/textarea";
+import { templateReplacer } from "~/lib/utils";
+import { prisma } from "~/services/database.server";
+import { getSession, getUserBySession } from "~/services/session.server";
 
 const nameSchema = z.object({
   display_name: z.string().min(1).max(256),
@@ -29,7 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     where: { id: params.id },
     include: { tags: { include: { tag: true } } },
   });
-  if (!image) return redirect('/');
+  if (!image) return redirect("/");
   const uploader = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
     select: {
@@ -42,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const comments = await prisma.imageComment.findMany({
     where: { image_id: params.id },
-    orderBy: { created_at: 'desc' },
+    orderBy: { created_at: "desc" },
     select: {
       id: true,
       content: true,
@@ -51,9 +67,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
   let user;
-  if (session.has('userID')) {
+  if (session.has("userID")) {
     const u = await getUserBySession(session);
     user = {
       ...u!,
@@ -65,7 +81,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         })) ?? [],
     };
   } else {
-    user = { id: '', username: 'Guest', is_admin: false, notifications: [], images: [] };
+    user = {
+      id: "",
+      username: "Guest",
+      is_admin: false,
+      notifications: [],
+      images: [],
+    };
   }
 
   return {
@@ -73,21 +95,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     user,
     comments,
     tags: image.tags.map((t) => t.tag),
-    version: process.env.VERSION ?? '0.0.0',
+    version: process.env.VERSION ?? "0.0.0",
   };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  if (!session.has('userID')) return redirect(`/login`);
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userID")) return redirect(`/login`);
   const user = await getUserBySession(session);
 
   const formData = await request.formData();
-  const type = formData.get('type');
+  const type = formData.get("type");
 
-  if (type === 'create_comment') {
-    const content = formData.get('content');
-    if (typeof content !== 'string' || content.length === 0) {
+  if (type === "create_comment") {
+    const content = formData.get("content");
+    if (typeof content !== "string" || content.length === 0) {
       return redirect(`/i/${params.id}`);
     }
     await prisma.imageComment.create({
@@ -101,36 +123,41 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  if (type === 'delete_comment') {
-    const commentId = formData.get('comment_id');
-    if (typeof commentId !== 'string') return redirect(`/i/${params.id}`);
+  if (type === "delete_comment") {
+    const commentId = formData.get("comment_id");
+    if (typeof commentId !== "string") return redirect(`/i/${params.id}`);
     const comment = await prisma.imageComment.findFirst({
       where: { id: commentId },
       select: { commenter_id: true, image: { select: { uploader_id: true } } },
     });
     if (!comment) return redirect(`/i/${params.id}`);
-    if (comment.commenter_id !== user!.id && comment.image.uploader_id !== user!.id && !user!.is_admin)
+    if (
+      comment.commenter_id !== user!.id &&
+      comment.image.uploader_id !== user!.id &&
+      !user!.is_admin
+    )
       return redirect(`/i/${params.id}`);
     await prisma.imageComment.delete({ where: { id: commentId } });
   }
 
-  if (type === 'report_image') {
-    const reasonType = formData.get('reason_type');
-    const detail = formData.get('detail');
-    if (typeof reasonType !== 'string') return redirect(`/i/${params.id}`);
+  if (type === "report_image") {
+    const reasonType = formData.get("reason_type");
+    const detail = formData.get("detail");
+    if (typeof reasonType !== "string") return redirect(`/i/${params.id}`);
     await prisma.imageReport.create({
       data: {
         reporter_id: user!.id,
         image_id: params.id!,
         reason_type: reasonType as ImageReportReason,
-        detail: typeof detail === 'string' ? detail : null,
+        detail: typeof detail === "string" ? detail : null,
       },
     });
   }
 
-  if (type === 'add_tag') {
-    const tagName = formData.get('tag');
-    if (typeof tagName !== 'string' || tagName.trim().length === 0) return redirect(`/i/${params.id}`);
+  if (type === "add_tag") {
+    const tagName = formData.get("tag");
+    if (typeof tagName !== "string" || tagName.trim().length === 0)
+      return redirect(`/i/${params.id}`);
 
     const tag = await prisma.tag.upsert({
       where: { user_id_name: { user_id: user!.id, name: tagName } },
@@ -145,9 +172,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  if (type === 'remove_tag') {
-    const tagId = formData.get('tag_id');
-    if (typeof tagId === 'string') {
+  if (type === "remove_tag") {
+    const tagId = formData.get("tag_id");
+    if (typeof tagId === "string") {
       const image = await prisma.image.findUnique({
         where: { id: params.id! },
         select: { uploader_id: true },
@@ -162,8 +189,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  if (type === 'update_display_name') {
-    const name = formData.get('display_name');
+  if (type === "update_display_name") {
+    const name = formData.get("display_name");
     const result = nameSchema.safeParse({ display_name: name });
     if (!result.success) return redirect(`/i/${params.id}`);
     const image = await prisma.image.findUnique({
@@ -178,15 +205,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  const accept = request.headers.get('Accept') || '';
-  if (accept.includes('application/json')) {
+  const accept = request.headers.get("Accept") || "";
+  if (accept.includes("application/json")) {
     return json({ ok: true });
   }
   return redirect(`/i/${params.id}`);
 }
 
 export default function Image() {
-  const { data, user, comments, tags, version } = useLoaderData<typeof loader>();
+  const { data, user, comments, tags, version } =
+    useLoaderData<typeof loader>();
   const [editingName, setEditingName] = useState(false);
   const fetcher = useFetcher();
   const { showToast } = useToast();
@@ -194,7 +222,7 @@ export default function Image() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {user!.id !== '' ? (
+      {user!.id !== "" ? (
         <Sidebar
           user={{
             username: user!.username,
@@ -213,22 +241,42 @@ export default function Image() {
           <Card>
             <CardHeader>
               {editingName && user!.id === data.image.uploader_id ? (
-                <Form method="POST" className="flex gap-2" onSubmit={() => setEditingName(false)}>
-                  <Input type="hidden" name="type" value="update_display_name" />
-                  <Input name="display_name" defaultValue={data.image.display_name} className="flex-1" />
+                <Form
+                  method="POST"
+                  className="flex gap-2"
+                  onSubmit={() => setEditingName(false)}
+                >
+                  <Input
+                    type="hidden"
+                    name="type"
+                    value="update_display_name"
+                  />
+                  <Input
+                    name="display_name"
+                    defaultValue={data.image.display_name}
+                    className="flex-1"
+                  />
                   <Button type="submit" size="sm">
                     Save
                   </Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setEditingName(false)}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditingName(false)}
+                  >
                     Cancel
                   </Button>
                 </Form>
               ) : (
                 <CardTitle
                   onClick={() => {
-                    if (user!.id === data.image.uploader_id) setEditingName(true);
+                    if (user!.id === data.image.uploader_id)
+                      setEditingName(true);
                   }}
-                  className={user!.id === data.image.uploader_id ? 'cursor-pointer' : ''}
+                  className={
+                    user!.id === data.image.uploader_id ? "cursor-pointer" : ""
+                  }
                 >
                   {data.image.display_name}
                 </CardTitle>
@@ -236,7 +284,10 @@ export default function Image() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>Uploaded by {data.uploader?.username}</p>
-              <p>Uploaded on {new Date(data.image.created_at).toLocaleDateString()}</p>
+              <p>
+                Uploaded on{" "}
+                {new Date(data.image.created_at).toLocaleDateString()}
+              </p>
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {tags.map((t) =>
@@ -244,7 +295,11 @@ export default function Image() {
                       <Form method="POST" key={t.id} className="flex">
                         <Input type="hidden" name="type" value="remove_tag" />
                         <Input type="hidden" name="tag_id" value={t.id} />
-                        <Button variant="outline" size="sm" className="px-1 py-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="px-1 py-0"
+                        >
                           {t.name} ✕
                         </Button>
                       </Form>
@@ -252,7 +307,7 @@ export default function Image() {
                       <Badge key={t.id} className="px-1 py-0">
                         {t.name}
                       </Badge>
-                    )
+                    ),
                   )}
                 </div>
               )}
@@ -281,7 +336,10 @@ export default function Image() {
               ) : (
                 <div className="space-y-4">
                   {commentList.map((c) => (
-                    <div key={c.id} className="flex items-start space-x-2 text-sm">
+                    <div
+                      key={c.id}
+                      className="flex items-start space-x-2 text-sm"
+                    >
                       <Avatar className="h-8 w-8">
                         <AvatarImage
                           src={
@@ -291,21 +349,29 @@ export default function Image() {
                           }
                           alt={c.commenter.username}
                         />
-                        <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>
+                          {c.commenter.username.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <p className="font-medium">{c.commenter.username}</p>
-                        <p className="text-muted-foreground break-words">{c.content}</p>
+                        <p className="text-muted-foreground break-words">
+                          {c.content}
+                        </p>
                       </div>
-                      {(user!.id === c.commenter_id || user!.id === data.image.uploader_id || user!.is_admin) && (
+                      {(user!.id === c.commenter_id ||
+                        user!.id === data.image.uploader_id ||
+                        user!.is_admin) && (
                         <ConfirmDialog
                           onConfirm={() => {
                             const fd = new FormData();
-                            fd.append('type', 'delete_comment');
-                            fd.append('comment_id', c.id);
-                            fetcher.submit(fd, { method: 'post' });
-                            setCommentList((prev) => prev.filter((cm) => cm.id !== c.id));
-                            showToast('Comment deleted', 'success');
+                            fd.append("type", "delete_comment");
+                            fd.append("comment_id", c.id);
+                            fetcher.submit(fd, { method: "post" });
+                            setCommentList((prev) =>
+                              prev.filter((cm) => cm.id !== c.id),
+                            );
+                            showToast("Comment deleted", "success");
                           }}
                           trigger={
                             <Button variant="ghost" size="icon">
@@ -319,34 +385,41 @@ export default function Image() {
                 </div>
               )}
             </CardContent>
-            {user!.id !== '' && (
+            {user!.id !== "" && (
               <CardFooter>
                 <fetcher.Form
                   method="POST"
                   className="w-full space-y-2"
-                  onSubmit={(e: { currentTarget: any; preventDefault: () => void }) => {
+                  onSubmit={(e: {
+                    currentTarget: any;
+                    preventDefault: () => void;
+                  }) => {
                     const form = e.currentTarget;
                     const fd = new FormData(form);
-                    fetcher.submit(fd, { method: 'post' });
-                    const content = fd.get('content');
-                    if (typeof content === 'string' && content.length > 0) {
+                    fetcher.submit(fd, { method: "post" });
+                    const content = fd.get("content");
+                    if (typeof content === "string" && content.length > 0) {
                       setCommentList((prev) => [
                         {
-                          id: 'temp-' + Date.now(),
+                          id: "temp-" + Date.now(),
                           content,
                           commenter_id: user!.id,
                           commenter: { username: user!.username },
                         } as any,
                         ...prev,
                       ]);
-                      showToast('Comment posted', 'success');
+                      showToast("Comment posted", "success");
                       form.reset();
                     }
                     e.preventDefault();
                   }}
                 >
                   <Input type="hidden" name="type" value="create_comment" />
-                  <Textarea name="content" placeholder="Add a comment" required />
+                  <Textarea
+                    name="content"
+                    placeholder="Add a comment"
+                    required
+                  />
                   <Button type="submit" className="w-full">
                     Post
                   </Button>
@@ -373,42 +446,45 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) return [{ title: `Image | jays.pics ` }];
 
   const dictionary = {
-    'image.name': data.data.image?.display_name,
-    'image.size_bytes': data.data.image?.size,
-    'image.size': prettyBytes(data.data.image!.size),
-    'image.created_at': data.data.image?.created_at,
+    "image.name": data.data.image?.display_name,
+    "image.size_bytes": data.data.image?.size,
+    "image.size": prettyBytes(data.data.image!.size),
+    "image.created_at": data.data.image?.created_at,
 
-    'uploader.name': data.data.uploader?.username,
-    'uploader.storage_used_bytes': data.data.uploader?.space_used,
-    'uploader.storage_used': prettyBytes(data.data.uploader!.space_used),
-    'uploader.total_storage_bytes': data.data.uploader?.max_space,
-    'uploader.total_storage': prettyBytes(data.data.uploader!.max_space),
+    "uploader.name": data.data.uploader?.username,
+    "uploader.storage_used_bytes": data.data.uploader?.space_used,
+    "uploader.storage_used": prettyBytes(data.data.uploader!.space_used),
+    "uploader.total_storage_bytes": data.data.uploader?.max_space,
+    "uploader.total_storage": prettyBytes(data.data.uploader!.max_space),
   };
 
-  const title = templateReplacer(data.data.uploader?.upload_preferences?.embed_title ?? '', dictionary);
+  const title = templateReplacer(
+    data.data.uploader?.upload_preferences?.embed_title ?? "",
+    dictionary,
+  );
 
   return [
     { title: data.data.image?.display_name },
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: '' },
-    { property: 'og:type', content: 'website' },
+    { property: "og:title", content: title },
+    { property: "og:description", content: "" },
+    { property: "og:type", content: "website" },
     {
-      property: 'og:url',
+      property: "og:url",
       content: `https://jays.pics/i/${data.data.image?.id}`,
     },
     {
-      property: 'og:image',
-      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === 'image/gif' ? '.gif' : ''}`,
+      property: "og:image",
+      content: `https://jays.pics/i/${data.data.image?.id}/raw${data.data.image.type === "image/gif" ? ".gif" : ""}`,
     },
     {
-      name: 'theme-color',
+      name: "theme-color",
       content: data.data.uploader?.upload_preferences?.embed_colour,
     },
     {
-      tagName: 'link',
-      type: 'application/json+oembed',
+      tagName: "link",
+      type: "application/json+oembed",
       href: `https://jays.pics/i/${data.data.image!.id}/oembed.json`,
     },
-    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: "twitter:card", content: "summary_large_image" },
   ];
 };

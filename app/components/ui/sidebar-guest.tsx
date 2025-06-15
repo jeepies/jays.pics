@@ -1,8 +1,5 @@
 import { Link } from "@remix-run/react";
-import {
-  Home,
-  LogIn
-} from "lucide-react";
+import { Home, LogIn } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";

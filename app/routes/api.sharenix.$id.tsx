@@ -1,6 +1,6 @@
-import { json, LoaderFunctionArgs } from '@remix-run/node';
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 
-import { prisma } from '~/services/database.server';
+import { prisma } from "~/services/database.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const user = await prisma.user.findFirst({ where: { id: params.id } });
@@ -8,31 +8,31 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!user) {
     return json({
       success: false,
-      message: 'Invalid user',
+      message: "Invalid user",
     });
   }
 
   const config = {
-    DefaultImageUploader: 'jays.pics',
-    DefaultUrlShortener: 'jays.pics',
-    DefaultFileUploader: 'jays.pics',
+    DefaultImageUploader: "jays.pics",
+    DefaultUrlShortener: "jays.pics",
+    DefaultFileUploader: "jays.pics",
     ClipboardTime: 5,
     Services: [
       {
-        Name: 'jays.pics',
-        RequestType: 'POST',
+        Name: "jays.pics",
+        RequestType: "POST",
         RequestURL: `https://jays.pics/upload?upload_key=${user.upload_key}`,
-        FileFormName: 'image',
-        ResponseType: 'Text',
-        URL: '$json.url$',
+        FileFormName: "image",
+        ResponseType: "Text",
+        URL: "$json.url$",
       },
     ],
   };
 
   return new Response(JSON.stringify(config), {
     headers: {
-      'Content-Disposition': `attachment; filename="sharenix.json"`,
-      'Content-Type': 'application/json',
+      "Content-Disposition": `attachment; filename="sharenix.json"`,
+      "Content-Type": "application/json",
     },
   });
 }

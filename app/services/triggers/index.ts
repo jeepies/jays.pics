@@ -1,5 +1,5 @@
-import rename from './images/rename';
-import addTag from './images/add_tag';
+import addTag from "./images/add_tag";
+import rename from "./images/rename";
 
 export interface ActionContext {
   userId: string;

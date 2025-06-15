@@ -1,50 +1,60 @@
-import { LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, Link, useLoaderData, useFetcher } from '@remix-run/react';
-import { useState, useEffect } from 'react';
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Form, Link, useLoaderData, useFetcher } from "@remix-run/react";
+import { useState, useEffect } from "react";
 
-import { PAGE_SIZE, Pagination } from '~/components/pagination';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
-import { generateInvisibleURL } from '~/lib/utils';
-import { prisma } from '~/services/database.server';
-import { destroySession, getSession, getUserBySession } from '~/services/session.server';
-import { ConfirmDialog } from '~/components/confirm-dialog';
-import { useToast } from '~/components/toast';
+import { ConfirmDialog } from "~/components/confirm-dialog";
+import { PAGE_SIZE, Pagination } from "~/components/pagination";
+import { useToast } from "~/components/toast";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { generateInvisibleURL } from "~/lib/utils";
+import { prisma } from "~/services/database.server";
+import {
+  destroySession,
+  getSession,
+  getUserBySession,
+} from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has('userID')) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect('/', {
+    return redirect("/", {
       headers: {
-        'Set-Cookie': await destroySession(session),
+        "Set-Cookie": await destroySession(session),
       },
     });
 
   const url = new URL(request.url);
-  const page = Number(url.searchParams.get('page')) || 1;
-  const search = url.searchParams.get('search') ?? '';
-  const sort = url.searchParams.get('sort') ?? 'desc';
-  let tag = url.searchParams.get('tag') ?? '';
+  const page = Number(url.searchParams.get("page")) || 1;
+  const search = url.searchParams.get("search") ?? "";
+  const sort = url.searchParams.get("sort") ?? "desc";
+  let tag = url.searchParams.get("tag") ?? "";
 
-  if (tag == 'none') tag = '';
+  if (tag == "none") tag = "";
 
   const tags = await prisma.tag.findMany({ where: { user_id: user.id } });
 
   const images = await prisma.image.findMany({
     where: {
       uploader_id: user.id,
-      display_name: { contains: search, mode: 'insensitive' },
+      display_name: { contains: search, mode: "insensitive" },
       tags: tag ? { some: { tag_id: tag } } : undefined,
     },
-    orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
+    orderBy: { created_at: sort === "asc" ? "asc" : "desc" },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
     include: { tags: { include: { tag: true } } },
@@ -52,13 +62,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const imageCount = await prisma.image.count({
     where: {
       uploader_id: user.id,
-      display_name: { contains: search, mode: 'insensitive' },
+      display_name: { contains: search, mode: "insensitive" },
       tags: tag ? { some: { tag_id: tag } } : undefined,
     },
-    orderBy: { created_at: sort === 'asc' ? 'asc' : 'desc' },
+    orderBy: { created_at: sort === "asc" ? "asc" : "desc" },
   });
 
-  const query = url.searchParams.get('generate_link');
+  const query = url.searchParams.get("generate_link");
 
   let clipboard;
   if (query !== null) {
@@ -67,7 +77,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
 
-    const subdomains = user.upload_preferences?.subdomains as Record<string, string> | undefined;
+    const subdomains = user.upload_preferences?.subdomains as
+      | Record<string, string>
+      | undefined;
     const sub = subdomains?.[url];
     const domain = sub ? `${sub}.${url}` : url;
     const formedURL = `https://${domain}/i/${query}/`;
@@ -84,7 +96,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Images() {
-  const { images, clipboard, page, imageCount, search, sort, tags, tag } = useLoaderData<typeof loader>();
+  const { images, clipboard, page, imageCount, search, sort, tags, tag } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const { showToast } = useToast();
   const [imageList, setImageList] = useState(images);
@@ -92,7 +105,7 @@ export default function Images() {
   useEffect(() => {
     if (clipboard) {
       navigator.clipboard.writeText(clipboard);
-      showToast('Link copied', 'success');
+      showToast("Link copied", "success");
     }
   }, [clipboard, showToast]);
 
@@ -116,7 +129,12 @@ export default function Images() {
   return (
     <div className="p-4">
       <Form method="get" className="mb-4 flex items-end gap-2">
-        <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+        <Input
+          type="text"
+          name="search"
+          placeholder="Search by name"
+          defaultValue={search}
+        />
         <Select name="sort" defaultValue={sort}>
           <SelectTrigger className="w-36">
             <SelectValue />
@@ -155,7 +173,9 @@ export default function Images() {
               <p className="mt-2 truncate text-sm font-medium hover:text-primary">
                 <a href={`/i/${image.id}`}>{image.display_name}</a>
               </p>
-              <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(image.created_at).toLocaleDateString()}
+              </p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {image.tags.length > 0 ? (
                   <div>
@@ -174,15 +194,24 @@ export default function Images() {
                   <Link to={`?generate_link=${image.id}`}>Link</Link>
                 </Button>
                 <ConfirmDialog
-                title={`Delete '${image.display_name}'`}
-                description={`Are you sure you want to delete '${image.display_name}'? This action is irreversible.`}
+                  title={`Delete '${image.display_name}'`}
+                  description={`Are you sure you want to delete '${image.display_name}'? This action is irreversible.`}
                   onConfirm={() => {
-                    fetcher.submit(null, { method: 'post', action: `/i/${image.id}/delete` });
-                    setImageList((prev) => prev.filter((img) => img.id !== image.id));
-                    showToast('Image deleted', 'success');
+                    fetcher.submit(null, {
+                      method: "post",
+                      action: `/i/${image.id}/delete`,
+                    });
+                    setImageList((prev) =>
+                      prev.filter((img) => img.id !== image.id),
+                    );
+                    showToast("Image deleted", "success");
                   }}
                   trigger={
-                    <Button variant="destructive" size="sm" className="h-8 flex-1">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-8 flex-1"
+                    >
                       Delete
                     </Button>
                   }

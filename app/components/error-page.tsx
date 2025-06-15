@@ -1,9 +1,9 @@
-import { Link } from '@remix-run/react';
+import { Link } from "@remix-run/react";
 
-import { Button } from './ui/button';
+import { Button } from "./ui/button";
 
 export default function ErrorPage({
-  title = 'Something went wrong',
+  title = "Something went wrong",
   message,
 }: {
   title?: string;

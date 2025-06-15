@@ -1,12 +1,26 @@
-import { Link } from '@remix-run/react';
-import { ArrowLeft, Bell, BellDotIcon, CircleX, Globe2, Hammer, Home, Images, Logs, PanelsTopLeft, Sticker, User, Users } from 'lucide-react';
-import { useState } from 'react';
+import { Link } from "@remix-run/react";
+import {
+  ArrowLeft,
+  Bell,
+  BellDotIcon,
+  CircleX,
+  Globe2,
+  Hammer,
+  Home,
+  Images,
+  Logs,
+  PanelsTopLeft,
+  Sticker,
+  User,
+  Users,
+} from "lucide-react";
+import { useState } from "react";
 
-import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 
-import { Separator } from './separator';
-import { ThemeToggle } from './themetoggle';
+import { Separator } from "./separator";
+import { ThemeToggle } from "./themetoggle";
 
 interface SidebarProps {
   className?: string;
@@ -20,7 +34,7 @@ interface SidebarProps {
 
 export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
   return (
-    <div className={cn('pb-12 w-64 relative', className)}>
+    <div className={cn("pb-12 w-64 relative", className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -121,10 +135,18 @@ export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
               {user.username}
             </Link>
           </Button>
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
             <ThemeToggle />
           </Button>
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
             <Link to="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Normal Dashboard

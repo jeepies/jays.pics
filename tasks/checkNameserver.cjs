@@ -1,5 +1,5 @@
-const { PrismaClient, Progress, LogType } = require('@prisma/client');
-const { Cloudflare } = require('cloudflare');
+const { PrismaClient, Progress, LogType } = require("@prisma/client");
+const { Cloudflare } = require("cloudflare");
 
 const prisma = new PrismaClient();
 const cf = new Cloudflare({
@@ -60,16 +60,16 @@ module.exports = async (payload, helpers) => {
         cf.dns.records.create({
           zone_id: domain.zone_id,
           content: process.env.BASE_IP,
-          name: '@',
-          type: 'A',
+          name: "@",
+          type: "A",
           proxied: true,
         });
 
         await cf.dns.records.create({
           zone_id: domain.zone_id,
           content: process.env.BASE_IP,
-          name: '*',
-          type: 'A',
+          name: "*",
+          type: "A",
           proxied: true,
         });
         await prisma.uRL.update({
@@ -84,12 +84,12 @@ module.exports = async (payload, helpers) => {
         });
         if (process.env.DISCORD_WEBHOOK_URL) {
           fetch(process.env.DISCORD_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               embeds: [
                 {
-                  title: 'Domain added',
+                  title: "Domain added",
                   description: `✅ ${domain.url} was added by ${donator.username}`,
                 },
               ],

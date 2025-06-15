@@ -1,34 +1,38 @@
-import { LoaderFunctionArgs, MetaFunction, redirect } from '@remix-run/node';
-import { Outlet, useLoaderData, useRouteLoaderData } from '@remix-run/react';
-import { AdminNavbar } from '~/components/admin-navbar';
+import { LoaderFunctionArgs, MetaFunction, redirect } from "@remix-run/node";
+import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
 
-import { SidebarAdmin } from '~/components/ui/sidebar-admin';
-import { destroySession, getSession, getUserBySession } from '~/services/session.server';
+import { AdminNavbar } from "~/components/admin-navbar";
+import { SidebarAdmin } from "~/components/ui/sidebar-admin";
+import {
+  destroySession,
+  getSession,
+  getUserBySession,
+} from "~/services/session.server";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Admin Dashboard | jays.pics' },
-    { name: 'description', content: 'Administration Dashboard' },
+    { title: "Admin Dashboard | jays.pics" },
+    { name: "description", content: "Administration Dashboard" },
     {
-      name: 'theme-color',
-      content: '#e05cd9',
+      name: "theme-color",
+      content: "#e05cd9",
     },
   ];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has('userID')) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
 
   const user = await getUserBySession(session);
 
-  if (!user?.is_admin) return redirect('/');
+  if (!user?.is_admin) return redirect("/");
 
   if (user === null)
-    return redirect('/', {
+    return redirect("/", {
       headers: {
-        'Set-Cookie': await destroySession(session),
+        "Set-Cookie": await destroySession(session),
       },
     });
 
@@ -40,7 +44,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden flex-col md:flex-row">
-      <AdminNavbar user={user}/>
+      <AdminNavbar user={user} />
       <SidebarAdmin user={user} className="border-r hidden md:block" />
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <div className="container mx-auto px-4 py-8">
@@ -52,5 +56,5 @@ export default function AdminDashboard() {
 }
 
 export function useAdminLoader() {
-  return useRouteLoaderData<typeof loader>('routes/_admin');
+  return useRouteLoaderData<typeof loader>("routes/_admin");
 }

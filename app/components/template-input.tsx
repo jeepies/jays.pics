@@ -6,7 +6,11 @@ interface TemplateInputProps extends InputProps {
   templates: string[];
 }
 
-export function TemplateInput({ templates, onChange, ...props }: Readonly<TemplateInputProps>) {
+export function TemplateInput({
+  templates,
+  onChange,
+  ...props
+}: Readonly<TemplateInputProps>) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLInputElement>(null);
 

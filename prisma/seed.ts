@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.site.create({
     data: {
-      id: ""
-    }
-  })
+      id: "",
+    },
+  });
   const system = await prisma.user.create({
     data: {
       username: "System",

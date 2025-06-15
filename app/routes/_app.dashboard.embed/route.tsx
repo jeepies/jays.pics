@@ -1,18 +1,20 @@
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
+import { useFetcher } from '@remix-run/react';
 import { useEffect, useState } from 'react';
+import { z } from 'zod';
+
+import { useToast } from '~/components/toast';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { useAppLoaderData } from '../_app';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Button } from '~/components/ui/button';
-import { z } from 'zod';
 import { prisma } from '~/services/database.server';
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { getSession, getUserBySession } from '~/services/session.server';
-import { useFetcher } from '@remix-run/react';
-import { useToast } from '~/components/toast';
+
+import { useAppLoaderData } from '../_app';
 
 const embedUpdateSchema = z.object({
   embed_title: z.string(),
@@ -106,9 +108,9 @@ export default function Embed() {
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                       src={
-                        data!.user.avatar_url
-                          ? `/avatar/${data!.user.id}`
-                          : `https://api.dicebear.com/6.x/initials/svg?seed=${data!.user.username}`
+                        data!.user.avatar_url ?
+                          `/avatar/${data!.user.id}`
+                        : `https://api.dicebear.com/6.x/initials/svg?seed=${data!.user.username}`
                       }
                       alt={data!.user.username}
                     />
@@ -129,7 +131,7 @@ export default function Embed() {
                 method="post"
                 onSubmit={(e) => {
                   const fd = new FormData(e.currentTarget);
-                  fetcher.submit(fd, { method: 'post', headers: { Accept: 'application/json' } });
+                  fetcher.submit(fd, { method: 'post' });
                   showToast('Embed settings saved', 'success');
                   e.preventDefault();
                 }}

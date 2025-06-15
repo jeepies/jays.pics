@@ -1,7 +1,7 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from "@tanstack/react-table";
 
-import { Checkbox } from '~/components/ui/checkbox';
-import { Input } from '~/components/ui/input';
+import { Checkbox } from "~/components/ui/checkbox";
+import { Input } from "~/components/ui/input";
 
 export type URL = {
   url: string;
@@ -10,13 +10,18 @@ export type URL = {
   };
 };
 
-export function getColumns(subdomains: Record<string, string>): ColumnDef<URL>[] {
+export function getColumns(
+  subdomains: Record<string, string>,
+): ColumnDef<URL>[] {
   return [
     {
-      id: 'select',
+      id: "select",
       header: ({ table }) => (
         <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
         />
@@ -32,24 +37,24 @@ export function getColumns(subdomains: Record<string, string>): ColumnDef<URL>[]
       enableHiding: false,
     },
     {
-      accessorKey: 'url',
-      header: 'Domain',
+      accessorKey: "url",
+      header: "Domain",
     },
     {
-      id: 'subdomain',
-      header: 'Subdomain',
+      id: "subdomain",
+      header: "Subdomain",
       cell: ({ row }) => (
         <Input
           name={`subdomain_${row.original.url}`}
-          defaultValue={subdomains[row.original.url] ?? ''}
+          defaultValue={subdomains[row.original.url] ?? ""}
           className="w-32"
           placeholder="optional"
         />
       ),
     },
     {
-      accessorKey: 'donator.username',
-      header: 'Donator',
+      accessorKey: "donator.username",
+      header: "Donator",
     },
   ];
 }

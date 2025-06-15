@@ -17,7 +17,7 @@ const chipVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 export interface ChipProps
@@ -25,7 +25,9 @@ export interface ChipProps
     VariantProps<typeof chipVariants> {}
 
 export function Chip({ className, variant, ...props }: ChipProps) {
-  return <div className={cn(chipVariants({ variant }), className)} {...props} />;
+  return (
+    <div className={cn(chipVariants({ variant }), className)} {...props} />
+  );
 }
 
 export { chipVariants };

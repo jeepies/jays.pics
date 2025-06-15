@@ -1,26 +1,27 @@
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
-import { getSession, getUserBySession } from '~/services/session.server';
-import { stripe } from '~/services/stripe.server';
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+
+import { getSession, getUserBySession } from "~/services/session.server";
+import { stripe } from "~/services/stripe.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  if (!session.has('userID')) return redirect('/login');
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userID")) return redirect("/login");
   const user = await getUserBySession(session);
-  if (!user) return redirect('/login');
+  if (!user) return redirect("/login");
 
   const base = process.env.BASE_DOMAIN
     ? `https://${process.env.BASE_DOMAIN}`
-    : 'http://localhost';
+    : "http://localhost";
 
   const checkout = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    mode: 'payment',
+    payment_method_types: ["card"],
+    mode: "payment",
     line_items: [
       {
         price_data: {
-          currency: 'gbp',
+          currency: "gbp",
           unit_amount: 199,
-          product_data: { name: '500MB Storage Increase' },
+          product_data: { name: "500MB Storage Increase" },
         },
         quantity: 1,
       },
@@ -30,7 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
     metadata: { userId: user.id },
   });
 
-  return redirect(checkout.url ?? '/dashboard/settings');
+  return redirect(checkout.url ?? "/dashboard/settings");
 }
 
 export async function loader() {

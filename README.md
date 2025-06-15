@@ -10,6 +10,7 @@
 ---
 
 ## Table of Contents
+
 - [Introduction](#introduction)
 - [Development](#development)
 - [Contributing](#contributing)
@@ -18,6 +19,7 @@
 ---
 
 ## Introduction
+
 [jays.pics](https://jays.pics) is a online image host that allows users to store their images with tags, and access and share them across multiple domains, donated by users.
 
 ---
@@ -49,6 +51,7 @@ This README assumes you have Docker installed. If you do not, please read [this]
    ```bash
    npm i
    ```
+
 #### Setting up the database
 
 1. Ensure your Docker instance is started by running
@@ -56,9 +59,9 @@ This README assumes you have Docker installed. If you do not, please read [this]
    docker info
    ```
 2. Compose the containers
-    ```bash
-    docker compose up -d
-    ```
+   ```bash
+   docker compose up -d
+   ```
 
 #### Creating the environment
 
@@ -88,7 +91,9 @@ This README assumes you have Docker installed. If you do not, please read [this]
    ```
 
 ## Contributing
+
 Contributions are welcome! 🥳
+
 1. Fork the repository.
 2. Create a new branch for your feature or bugfix.
 3. Commit your changes with a clear message.

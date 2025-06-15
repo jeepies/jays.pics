@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react';
+import { Link } from "@remix-run/react";
 import {
   Bell,
   BellDotIcon,
@@ -16,16 +16,16 @@ import {
   WandSparkles,
   ChevronDown,
   GitBranch,
-} from 'lucide-react';
-import { useState } from 'react';
-import { FaDiscord } from 'react-icons/fa';
+} from "lucide-react";
+import { useState } from "react";
+import { FaDiscord } from "react-icons/fa";
 
-import { Button } from '~/components/ui/button';
-import { cn, formatNumber } from '~/lib/utils';
+import { Button } from "~/components/ui/button";
+import { cn, formatNumber } from "~/lib/utils";
 
-import { NotificationTray } from './notification-tray';
-import { Separator } from './separator';
-import { ThemeToggle } from './themetoggle';
+import { NotificationTray } from "./notification-tray";
+import { Separator } from "./separator";
+import { ThemeToggle } from "./themetoggle";
 
 interface SidebarProps {
   className?: string;
@@ -39,22 +39,36 @@ interface SidebarProps {
   onLinkClick?: () => void;
 }
 
-export function Sidebar({ className, user, version, onLinkClick }: Readonly<SidebarProps>) {
+export function Sidebar({
+  className,
+  user,
+  version,
+  onLinkClick,
+}: Readonly<SidebarProps>) {
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(user.notifications ?? []);
   const [showUploadMenu, setShowUploadMenu] = useState(false);
 
-  const removeNotification = (id: string) => setNotifications((prev) => prev.filter((n) => n.id !== id));
+  const removeNotification = (id: string) =>
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
 
   return (
-    <div className={cn('pb-12 w-64 relative', className)}>
-      {showTray && <NotificationTray notifications={notifications} onRemove={removeNotification} />}
+    <div className={cn("pb-12 w-64 relative", className)}>
+      {showTray && (
+        <NotificationTray
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+      )}
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             jays.pics
             {!user.notifications || user.notifications.length === 0 ? (
-              <Bell className="float-right w-4 m-1 cursor-pointer" onClick={() => setShowTray(!showTray)} />
+              <Bell
+                className="float-right w-4 m-1 cursor-pointer"
+                onClick={() => setShowTray(!showTray)}
+              />
             ) : (
               <BellDotIcon
                 className="float-right w-4 m-1 hover:text-accent cursor-pointer"
@@ -85,7 +99,9 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                 <Image className="h-4 w-4" />
                 Images
                 <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
-                  {formatNumber(user.images.filter((img) => !img.deleted_at).length)}
+                  {formatNumber(
+                    user.images.filter((img) => !img.deleted_at).length,
+                  )}
                 </span>
               </Link>
             </Button>
@@ -95,7 +111,10 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/dashboard/referrals" className="flex items-center gap-2">
+              <Link
+                to="/dashboard/referrals"
+                className="flex items-center gap-2"
+              >
                 <Link2 className="h-4 w-4" />
                 Referrals
               </Link>
@@ -108,18 +127,26 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
               <div className="flex items-center gap-2 w-full">
                 <ImageIcon className="h-4 w-4" />
                 Upload Config
-                <ChevronDown className={cn('h-4 w-4 ml-auto transition-transform', showUploadMenu && 'rotate-180')} />
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 ml-auto transition-transform",
+                    showUploadMenu && "rotate-180",
+                  )}
+                />
               </div>
             </Button>
             {showUploadMenu && (
               <div className="pl-4 space-y-1">
-                                <Button
+                <Button
                   onClick={onLinkClick}
                   asChild
                   variant="ghost"
                   className="w-full justify-start text-gray-900 dark:text-gray-100"
                 >
-                  <Link to="/dashboard/domain-selector" className="flex items-center gap-2">
+                  <Link
+                    to="/dashboard/domain-selector"
+                    className="flex items-center gap-2"
+                  >
                     <Globe2 className="h-4 w-4" />
                     Domain Selector
                   </Link>
@@ -130,7 +157,10 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                   variant="ghost"
                   className="w-full justify-start text-gray-900 dark:text-gray-100"
                 >
-                  <Link to="/dashboard/embed" className="flex items-center gap-2">
+                  <Link
+                    to="/dashboard/embed"
+                    className="flex items-center gap-2"
+                  >
                     <Code className="h-4 w-4" />
                     Embed
                   </Link>
@@ -141,7 +171,10 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                   variant="ghost"
                   className="w-full justify-start text-gray-900 dark:text-gray-100"
                 >
-                  <Link to="/dashboard/effects" className="flex items-center gap-2">
+                  <Link
+                    to="/dashboard/effects"
+                    className="flex items-center gap-2"
+                  >
                     <WandSparkles className="h-4 w-4" />
                     Effects
                   </Link>
@@ -152,7 +185,10 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                   variant="ghost"
                   className="w-full justify-start text-gray-900 dark:text-gray-100"
                 >
-                  <Link to="/dashboard/triggers" className="flex items-center gap-2">
+                  <Link
+                    to="/dashboard/triggers"
+                    className="flex items-center gap-2"
+                  >
                     <GitBranch className="h-4 w-4" />
                     Triggers
                     <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
@@ -211,7 +247,11 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
               {user.username}
             </Link>
           </Button>
-          <Button asChild variant="ghost" className="w-full justify-start text-gray-900 dark:text-gray-100">
+          <Button
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
             <ThemeToggle />
           </Button>
           {user.is_admin ? (

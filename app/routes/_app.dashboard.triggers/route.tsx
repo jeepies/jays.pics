@@ -16,7 +16,6 @@ import 'reactflow/dist/style.css';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
 
@@ -57,7 +56,9 @@ export async function action({ request }: ActionFunctionArgs) {
     include: { actions: true },
   });
   if (existing) {
-    await prisma.triggerAction.deleteMany({ where: { trigger_id: existing.id } });
+    await prisma.triggerAction.deleteMany({
+      where: { trigger_id: existing.id },
+    });
     await prisma.trigger.delete({ where: { id: existing.id } });
   }
 
@@ -85,14 +86,23 @@ export default function Triggers() {
 
   const initialNodes = useMemo<Node[]>(() => {
     const nodes: Node[] = [
-      { id: 'trigger', type: 'input', position: { x: 0, y: 0 }, data: { label: 'Image Uploaded' } },
+      {
+        id: 'trigger',
+        type: 'input',
+        position: { x: 0, y: 0 },
+        data: { label: 'Image Uploaded' },
+      },
     ];
     if (trigger) {
       trigger.actions.forEach((a, i) => {
         nodes.push({
           id: `a${i}`,
           position: { x: 250, y: i * 100 },
-          data: { label: a.type, actionType: a.type, ...a.data },
+          data: {
+            label: a.type,
+            actionType: a.type,
+            ...(a.data as Record<string, unknown>),
+          },
         });
       });
     }
@@ -101,13 +111,21 @@ export default function Triggers() {
 
   const initialEdges = useMemo<Edge[]>(() => {
     if (!trigger) return [];
-    return trigger.actions.map((_, i) => ({ id: `e${i}`, source: 'trigger', target: `a${i}` }));
+    return trigger.actions.map((_, i) => ({
+      id: `e${i}`,
+      source: 'trigger',
+      target: `a${i}`,
+    }));
   }, [trigger]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    nodeId: string;
+  } | null>(null);
 
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)), []);
 
@@ -123,7 +141,10 @@ export default function Triggers() {
       if (!type || !reactFlowInstance) return;
 
       const rect = reactFlowWrapper.current!.getBoundingClientRect();
-      const position = reactFlowInstance.project({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+      const position = reactFlowInstance.project({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+      });
       const id = `${type}_${nodes.length}`;
       const newNode: Node = {
         id,

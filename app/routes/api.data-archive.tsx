@@ -1,19 +1,21 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { getSession, getUserBySession } from '~/services/session.server';
-import { prisma } from '~/services/database.server';
-import { gzip } from 'node:zlib';
-import { promisify } from 'node:util';
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
+
+import { LoaderFunctionArgs } from "@remix-run/node";
+
+import { prisma } from "~/services/database.server";
+import { getSession, getUserBySession } from "~/services/session.server";
 
 const gzipAsync = promisify(gzip);
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  if (!session.has('userID')) {
-    return new Response('Unauthorized', { status: 401 });
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userID")) {
+    return new Response("Unauthorized", { status: 401 });
   }
   const user = await getUserBySession(session);
   if (!user) {
-    return new Response('Unauthorized', { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
   const data = await prisma.user.findUnique({
@@ -50,12 +52,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return new Response(gz, {
     headers: {
-      'Content-Type': 'application/gzip',
-      'Content-Disposition': `attachment; filename="${user.username}-data.json.gz"`,
+      "Content-Type": "application/gzip",
+      "Content-Disposition": `attachment; filename="${user.username}-data.json.gz"`,
     },
   });
 }
 
 export async function action() {
-  return new Response('Method not allowed', { status: 405 });
+  return new Response("Method not allowed", { status: 405 });
 }

@@ -1,7 +1,7 @@
-import { ActionFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, json } from "@remix-run/node";
 
-import { prisma } from '~/services/database.server';
-import { del } from '~/services/s3.server';
+import { prisma } from "~/services/database.server";
+import { del } from "~/services/s3.server";
 
 export async function action({ params }: ActionFunctionArgs) {
   const image = await prisma.image.findFirst({
