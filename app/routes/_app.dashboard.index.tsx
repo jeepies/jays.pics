@@ -4,10 +4,10 @@ import { Ban, Link as LinkIcon, Plus, Upload } from 'lucide-react';
 import prettyBytes from 'pretty-bytes';
 import { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
+import { CartesianGrid, Line, ResponsiveContainer, Tooltip, XAxis, LineChart } from 'recharts';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { SimpleLineChart } from '~/components/ui/line-chart';
 import { Progress } from '~/components/ui/progress';
 import { generateInvisibleURL } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
@@ -40,7 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const storageDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
     SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
     FROM "Image"
-    WHERE "created_at" >= ${startDate} AND "uploader_id" = ${user.id}
+    WHERE "created_at" >= ${startDate} AND "uploader_id" = ${user.id} AND "deleted_at" IS NULL
     GROUP BY date
     ORDER BY date`;
 
@@ -205,8 +205,18 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Storage Usage (7d)</CardTitle>
           </CardHeader>
-          <CardContent>
-            <SimpleLineChart data={storageDaily} />
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+              <LineChart data={storageDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+                <Tooltip
+                  labelFormatter={(v) => new Date(v).toLocaleDateString()}
+                  formatter={(value: number) => prettyBytes(value)}
+                />
+                <Line type="monotone" dataKey="count" stroke="currentColor" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
         <div className="flex justify-between items-center mb-6">
