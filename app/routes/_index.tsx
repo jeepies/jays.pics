@@ -231,6 +231,7 @@ export default function Index() {
           <div className="flex items-center justify-between p-4">
             <div className="text-sm text-muted-foreground">© 2025 jays.pics. All rights reserved.</div>
             <div className="flex items-center space-x-4">
+            <Link to="/tos" className="text-muted-foreground hover:text-foreground">Terms of Service</Link>
               <Link to="https://github.com/jeepies/jays.pics" className="text-muted-foreground hover:text-foreground">
                 <FaGithub className="h-4 w-4" />
               </Link>
