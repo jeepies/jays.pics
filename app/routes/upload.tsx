@@ -103,6 +103,43 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
   if (response?.$metadata.httpStatusCode === 200) {
+    const triggers = await prisma.trigger.findMany({
+      where: { user_id: user.id, type: 'image_upload' },
+      include: { actions: true },
+    });
+
+    for (const trig of triggers) {
+      for (const act of trig.actions) {
+        if (act.type === 'webhook' && act.data.url) {
+          try {
+            await fetch(act.data.url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageId: dbImage.id, name: dbImage.display_name }),
+            });
+          } catch (_) {}
+        }
+        if (act.type === 'add_tag' && act.data.tag) {
+          const tag = await prisma.tag.upsert({
+            where: { user_id_name: { user_id: user.id, name: act.data.tag } },
+            update: {},
+            create: { name: act.data.tag, user_id: user.id },
+          });
+          await prisma.imageTag.upsert({
+            where: { image_id_tag_id: { image_id: dbImage.id, tag_id: tag.id } },
+            update: {},
+            create: { image_id: dbImage.id, tag_id: tag.id },
+          });
+        }
+        if (act.type === 'rename' && act.data.name) {
+          await prisma.image.update({
+            where: { id: dbImage.id },
+            data: { display_name: act.data.name },
+          });
+        }
+      }
+    }
+
     const urls = user.upload_preferences!.urls;
     let url;
     if (urls.length === 1) url = urls[0];
