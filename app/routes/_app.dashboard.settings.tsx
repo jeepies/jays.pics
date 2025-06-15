@@ -11,6 +11,7 @@ import { getSession, getUserBySession } from '~/services/session.server';
 import { useAppLoaderData } from './_app';
 import { useToast } from '~/components/toast';
 import { useState } from 'react';
+import prettyBytes from 'pretty-bytes';
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -146,6 +147,20 @@ export default function Settings() {
                 Download My Data
               </a>
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Storage</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Current limit: {prettyBytes(data.user.max_space)}
+            </p>
+            <Form method="post" action="/api/create-checkout-session">
+              <Button type="submit">Buy 500MB (£1.99)</Button>
+            </Form>
           </CardContent>
         </Card>
       </div>

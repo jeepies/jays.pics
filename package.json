@@ -73,6 +73,7 @@
     "remix-auth-form": "^1.5.0",
     "remix-utils": "^7.7.0",
     "sharp": "^0.34.2",
+    "stripe": "^18.2.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
