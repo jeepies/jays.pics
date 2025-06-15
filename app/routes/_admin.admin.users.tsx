@@ -90,7 +90,7 @@ export default function AdminUsers() {
           </Table>
         </CardContent>
       </Card>
-      <Pagination path="/admin/users" currentPage={page} totalCount={count} query={`search=${search}`} />
+      <Pagination path="/admin/users" currentPage={page} totalCount={count} query={`search=${search}&sort=${sort}`} />
     </>
   );
 }
