@@ -38,7 +38,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const search = url.searchParams.get("search") ?? "";
   const sort = url.searchParams.get("sort") ?? "desc";
 
-  const user = await prisma.user.findFirst({
+  const userData = await prisma.user.findFirst({
     where: { id: params.id },
     select: {
       username: true,
@@ -52,7 +52,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  if (user === null) return redirect("/admin/index");
+  if (userData === null) return redirect('/admin/index');
+
+  const user = {
+    ...userData,
+    space_used: Number(userData.space_used),
+    max_space: Number(userData.max_space),
+  };
 
   const where = {
     uploader_id: params.id as string,
@@ -452,8 +458,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     return null;
   } else if (requestType === "update_space") {
-    const maxSpace = Number(formData.get("max_space"));
-    if (!isNaN(maxSpace) && maxSpace > 0) {
+    const maxSpaceRaw = formData.get('max_space');
+    const maxSpace = maxSpaceRaw ? BigInt(maxSpaceRaw.toString()) : 0n;
+    if (maxSpace > 0) {
       await prisma.user.update({
         where: { id: user!.id },
         data: { max_space: maxSpace },
