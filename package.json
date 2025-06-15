@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "npx prisma db seed"
+    "db:seed": "npx prisma db seed",
+    "prepare": "husky"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
