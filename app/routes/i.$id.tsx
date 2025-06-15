@@ -106,10 +106,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (typeof commentId !== 'string') return redirect(`/i/${params.id}`);
     const comment = await prisma.imageComment.findFirst({
       where: { id: commentId },
-      select: { commenter_id: true },
+      select: { commenter_id: true, image: { select: { uploader_id: true } } },
     });
     if (!comment) return redirect(`/i/${params.id}`);
-    if (comment.commenter_id !== user!.id && !user!.is_admin) return redirect(`/i/${params.id}`);
+    if (comment.commenter_id !== user!.id && comment.image.uploader_id !== user!.id && !user!.is_admin)
+      return redirect(`/i/${params.id}`);
     await prisma.imageComment.delete({ where: { id: commentId } });
   }
 
@@ -296,7 +297,7 @@ export default function Image() {
                         <p className="font-medium">{c.commenter.username}</p>
                         <p className="text-muted-foreground break-words">{c.content}</p>
                       </div>
-                      {user!.id === c.commenter_id && (
+                      {(user!.id === c.commenter_id || user!.id === data.image.uploader_id || user!.is_admin) && (
                         <ConfirmDialog
                           onConfirm={() => {
                             const fd = new FormData();
