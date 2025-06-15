@@ -1,4 +1,3 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import {
@@ -18,7 +17,7 @@ import {
 } from "~/components/ui/table";
 import { prisma } from "~/services/database.server";
 
-export async function loader({}: LoaderFunctionArgs) {
+export async function loader() {
   const count = await prisma.uRL.count();
   const urls = await prisma.uRL.findMany({
     select: {

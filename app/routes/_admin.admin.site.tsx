@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, useLoaderData, useNavigate } from "@remix-run/react";
 import { z } from "zod";
 
@@ -15,7 +15,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { prisma } from "~/services/database.server";
 
-export async function loader({}: LoaderFunctionArgs) {
+export async function loader() {
   const announcement = await prisma.announcement.findMany({
     select: {
       content: true,
