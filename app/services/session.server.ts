@@ -1,6 +1,13 @@
 import { createCookieSessionStorage, Session } from '@remix-run/node';
+import { randomUUID } from 'crypto';
 
 import { prisma } from '~/services/database.server';
+
+const sessionSecret = process.env.SESSION_SECRET;
+
+if (process.env.NODE_ENV === 'production' && !sessionSecret) {
+  throw new Error('SESSION_SECRET must be set in production');
+}
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -8,7 +15,7 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
-    secrets: [process.env.SESSION_SECRET ?? 'totally_secret'],
+    secrets: [sessionSecret ?? randomUUID()],
     secure: process.env.NODE_ENV === 'production',
   },
 });
