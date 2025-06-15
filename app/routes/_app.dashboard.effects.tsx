@@ -14,7 +14,7 @@ import {
 } from '~/components/ui/select';
 import { useAppLoaderData } from './_app';
 import { prisma } from '~/services/database.server';
-import { uploadToS3 } from '~/services/s3.server';
+import { del, uploadToS3 } from '~/services/s3.server';
 import { getSession, getUserBySession } from '~/services/session.server';
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -22,6 +22,16 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!session.has('userID')) return redirect('/login');
   const user = await getUserBySession(session);
   const formData = await request.formData();
+  if (formData.get('remove_overlay')) {
+    if (user!.upload_preferences?.effect_overlay) {
+      await del(user!.upload_preferences.effect_overlay);
+    }
+    await prisma.uploaderPreferences.update({
+      where: { userId: user!.id },
+      data: { effect_overlay: null },
+    });
+    return redirect('/dashboard/effects');
+  }
   const effect = formData.get('effect');
   let overlayKey = user!.upload_preferences?.effect_overlay ?? null;
 
@@ -42,6 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   return redirect('/dashboard/effects');
 }
+
 
 export default function Effects() {
   const data = useAppLoaderData();
@@ -70,9 +81,17 @@ export default function Effects() {
             <label htmlFor="overlay">Overlay Image</label>
             <Input id="overlay" name="overlay" type="file" accept="image/*" />
             {prefs?.effect_overlay && (
+              <div className='space-y-2'>
               <p className="text-sm text-muted-foreground break-all">
                 Current: {prefs.effect_overlay}
               </p>
+              <Form method="post">
+                  <input type="hidden" name="remove_overlay" value="1" />
+                  <Button type="submit" variant="destructive">
+                    Remove Overlay
+                  </Button>
+                </Form>
+              </div>
             )}
             <Button type="submit">Save</Button>
           </Form>
