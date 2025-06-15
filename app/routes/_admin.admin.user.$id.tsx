@@ -280,14 +280,20 @@ export default function AdminProfile() {
               {images.map((image) => (
                 <Card key={image.id}>
                   <CardContent className="p-2 space-y-2">
-                    <img
-                      src={`/i/${image.id}/raw`}
-                      alt={image.display_name}
-                      className="aspect-square w-full rounded-md object-cover blur-xl cursor-pointer"
-                      onClick={(e) =>
-                        e.currentTarget.classList.toggle("blur-xl")
+                  <button
+                      type="button"
+                      onClick={(e) => e.currentTarget.querySelector('img')?.classList.toggle('blur-xl')}
+                      onKeyDown={(e) =>
+                        e.key === 'Enter' && e.currentTarget.querySelector('img')?.classList.toggle('blur-xl')
                       }
-                    />
+                      className="p-0 border-0 bg-transparent"
+                    >
+                      <img
+                        src={`/i/${image.id}/raw`}
+                        alt={image.display_name}
+                        className="aspect-square w-full rounded-md object-cover blur-xl cursor-pointer"
+                      />
+                    </button>
                     <p className="truncate text-sm font-medium hover:text-primary">
                       <a href={`/i/${image.id}`}>{image.display_name}</a>
                     </p>
