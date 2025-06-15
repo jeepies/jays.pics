@@ -5,13 +5,7 @@ import { Form } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { useAppLoaderData } from './_app';
 import { prisma } from '~/services/database.server';
 import { del, uploadToS3 } from '~/services/s3.server';
@@ -53,7 +47,6 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect('/dashboard/effects');
 }
 
-
 export default function Effects() {
   const data = useAppLoaderData();
   const prefs = data?.user.upload_preferences;
@@ -74,18 +67,15 @@ export default function Effects() {
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 <SelectItem value="grayscale">Grayscale</SelectItem>
-                <SelectItem value="invert">Invert</SelectItem>
                 <SelectItem value="sepia">Sepia</SelectItem>
               </SelectContent>
             </Select>
             <label htmlFor="overlay">Overlay Image</label>
             <Input id="overlay" name="overlay" type="file" accept="image/*" />
             {prefs?.effect_overlay && (
-              <div className='space-y-2'>
-              <p className="text-sm text-muted-foreground break-all">
-                Current: {prefs.effect_overlay}
-              </p>
-              <Form method="post">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground break-all">Current: {prefs.effect_overlay}</p>
+                <Form method="post">
                   <input type="hidden" name="remove_overlay" value="1" />
                   <Button type="submit" variant="destructive">
                     Remove Overlay
