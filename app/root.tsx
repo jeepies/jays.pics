@@ -66,13 +66,25 @@ export function ErrorBoundary() {
   const error = useRouteError();
   let title = 'Something went wrong';
   let message: string | undefined;
+  let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
     title = `${error.status} ${error.statusText}`;
     message = error.data?.message ?? error.statusText;
   } else if (error instanceof Error) {
     message = error.message;
+    stack = error.stack;
   }
+
+  useEffect(() => {
+    if (message) {
+      fetch('/api/error-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, stack }),
+      }).catch(() => {});
+    }
+  }, [message, stack]);
 
   return (
     <Layout>
