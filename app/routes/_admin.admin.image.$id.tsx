@@ -76,15 +76,18 @@ export default function AdminImage() {
     <div className="space-y-4">
       <Card className="flex items-center justify-center">
         <CardContent className="p-4">
-          <img
-            src={`/i/${image.id}/raw`}
-            alt={image.display_name}
-            className={cn(
-              "max-h-[512px] max-w-full object-contain transition-all",
-              blur ? "blur-md cursor-pointer" : "cursor-pointer",
-            )}
+        <button
+            type="button"
             onClick={() => setBlur((b) => !b)}
-          />
+            onKeyDown={(e) => e.key === 'Enter' && setBlur((b) => !b)}
+            className="p-0 border-0 bg-transparent"
+          >
+            <img
+              src={`/i/${image.id}/raw`}
+              alt={image.display_name}
+              className={cn('max-h-[512px] max-w-full object-contain transition-all', blur ? 'blur-md cursor-pointer' : 'cursor-pointer')}
+            />
+          </button>
         </CardContent>
       </Card>
 
