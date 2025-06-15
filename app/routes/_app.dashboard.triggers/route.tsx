@@ -16,9 +16,18 @@ import 'reactflow/dist/style.css';
 
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
+
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
+
+import AddTagAction from './triggers/add_tag';
+import RenameAction from './triggers/rename';
+
+const ACTION_COMPONENTS: Record<string, React.FC<{ data: any; update: (d: any) => void }>> = {
+  add_tag: AddTagAction,
+  rename: RenameAction,
+};
+const AVAILABLE_ACTIONS = Object.keys(ACTION_COMPONENTS);
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
@@ -43,7 +52,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const data = await request.json();
   if (!Array.isArray(data.actions)) return json({ ok: false }, { status: 400 });
 
-  // clear existing trigger/actions
   const existing = await prisma.trigger.findFirst({
     where: { user_id: user.id, type: 'image_upload' },
     include: { actions: true },
@@ -99,6 +107,8 @@ export default function Triggers() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)), []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -133,10 +143,35 @@ export default function Triggers() {
     setSelectedNode(node);
   }, []);
 
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    if (node.id === 'trigger') return;
+    setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
+  }, []);
+
   function updateSelected(data: Record<string, unknown>) {
     if (!selectedNode) return;
     setNodes((nds) => nds.map((n) => (n.id === selectedNode.id ? { ...n, data: { ...n.data, ...data } } : n)));
     setSelectedNode((n) => (n ? { ...n, data: { ...n.data, ...data } } : n));
+  }
+
+  function handleRename() {
+    if (!contextMenu) return;
+    const node = nodes.find((n) => n.id === contextMenu.nodeId);
+    if (!node) return;
+    const name = prompt('Node name', String(node.data.label || ''));
+    if (name) {
+      setNodes((nds) => nds.map((n) => (n.id === node.id ? { ...n, data: { ...n.data, label: name } } : n)));
+    }
+    setContextMenu(null);
+  }
+
+  function handleDelete() {
+    if (!contextMenu) return;
+    const id = contextMenu.nodeId;
+    setNodes((nds) => nds.filter((n) => n.id !== id));
+    setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
+    setContextMenu(null);
   }
 
   async function handleSave() {
@@ -152,15 +187,15 @@ export default function Triggers() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-4">
-      <Card>
+    <div className="container mx-auto px-4 py-8 space-y-4 h-screen">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>Triggers</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <aside className="w-96 space-y-2" onDragOver={onDragOver}>
-              {['add_tag', 'rename'].map((t) => (
+        <CardContent className="flex-1 relative flex flex-col">
+          <div className="flex gap-4 h-full">
+            <aside className="w-60 space-y-2" onDragOver={onDragOver}>
+              {AVAILABLE_ACTIONS.map((t) => (
                 <div
                   key={t}
                   className="p-2 border rounded cursor-grab bg-background"
@@ -171,7 +206,7 @@ export default function Triggers() {
                 </div>
               ))}
             </aside>
-            <div className="h-96 flex-1" ref={reactFlowWrapper}>
+            <div className="flex-1 h-full" ref={reactFlowWrapper}>
               <ReactFlowProvider>
                 <ReactFlow
                   nodes={nodes}
@@ -183,6 +218,7 @@ export default function Triggers() {
                   onDragOver={onDragOver}
                   onNodeClick={onNodeClick}
                   onInit={setReactFlowInstance}
+                  onNodeContextMenu={onNodeContextMenu}
                   fitView
                 >
                   <Background />
@@ -193,20 +229,23 @@ export default function Triggers() {
           </div>
           {selectedNode && (
             <div className="mt-4 space-y-2">
-              {selectedNode.data.actionType === 'add_tag' && (
-                <Input
-                  placeholder="Tag Name"
-                  value={selectedNode.data.tag || ''}
-                  onChange={(e) => updateSelected({ tag: e.target.value })}
-                />
-              )}
-              {selectedNode.data.actionType === 'rename' && (
-                <Input
-                  placeholder="New Name"
-                  value={selectedNode.data.name || ''}
-                  onChange={(e) => updateSelected({ name: e.target.value })}
-                />
-              )}
+              {(() => {
+                const Action = ACTION_COMPONENTS[selectedNode.data.actionType];
+                return Action ? <Action data={selectedNode.data} update={updateSelected} /> : null;
+              })()}
+            </div>
+          )}
+          {contextMenu && (
+            <div
+              className="absolute bg-background border rounded shadow"
+              style={{ top: contextMenu.y, left: contextMenu.x }}
+            >
+              <button className="block px-4 py-2 w-full text-left" onClick={handleRename}>
+                Rename
+              </button>
+              <button className="block px-4 py-2 w-full text-left" onClick={handleDelete}>
+                Delete
+              </button>
             </div>
           )}
           <Button className="mt-4" onClick={handleSave}>
