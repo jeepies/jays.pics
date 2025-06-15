@@ -1,11 +1,6 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  json,
-  redirect,
-} from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { ActionFunctionArgs, LoaderFunctionArgs, json, redirect } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -16,34 +11,31 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-} from "reactflow";
-import "reactflow/dist/style.css";
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { prisma } from "~/services/database.server";
-import { getSession, getUserBySession } from "~/services/session.server";
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { prisma } from '~/services/database.server';
+import { getSession, getUserBySession } from '~/services/session.server';
 
-import AddTagAction from "./triggers/add_tag";
-import RenameAction from "./triggers/rename";
+import AddTagAction from './triggers/add_tag';
+import RenameAction from './triggers/rename';
 
-const ACTION_COMPONENTS: Record<
-  string,
-  React.FC<{ data: any; update: (d: any) => void }>
-> = {
+const ACTION_COMPONENTS: Record<string, React.FC<{ data: any; update: (d: any) => void }>> = {
   add_tag: AddTagAction,
   rename: RenameAction,
 };
 const AVAILABLE_ACTIONS = Object.keys(ACTION_COMPONENTS);
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userID")) return redirect("/");
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session.has('userID')) return redirect('/');
   const user = await getUserBySession(session);
-  if (!user) return redirect("/");
+  if (!user) return redirect('/');
 
   const trigger = await prisma.trigger.findFirst({
-    where: { user_id: user.id, type: "image_upload" },
+    where: { user_id: user.id, type: 'image_upload' },
     include: { actions: true },
   });
 
@@ -51,16 +43,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  if (!session.has("userID")) return redirect("/");
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session.has('userID')) return redirect('/');
   const user = await getUserBySession(session);
-  if (!user) return redirect("/");
+  if (!user) return redirect('/');
 
   const data = await request.json();
   if (!Array.isArray(data.actions)) return json({ ok: false }, { status: 400 });
 
   const existing = await prisma.trigger.findFirst({
-    where: { user_id: user.id, type: "image_upload" },
+    where: { user_id: user.id, type: 'image_upload' },
     include: { actions: true },
   });
   if (existing) {
@@ -71,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const trigger = await prisma.trigger.create({
-    data: { user_id: user.id, type: "image_upload", name: "Image Uploaded" },
+    data: { user_id: user.id, type: 'image_upload', name: 'Image Uploaded' },
   });
 
   for (const a of data.actions) {
@@ -95,10 +87,10 @@ export default function Triggers() {
   const initialNodes = useMemo<Node[]>(() => {
     const nodes: Node[] = [
       {
-        id: "trigger",
-        type: "input",
+        id: 'trigger',
+        type: 'input',
         position: { x: 0, y: 0 },
-        data: { label: "Image Uploaded" },
+        data: { label: 'Image Uploaded' },
       },
     ];
     if (trigger) {
@@ -106,7 +98,11 @@ export default function Triggers() {
         nodes.push({
           id: `a${i}`,
           position: { x: 250, y: i * 100 },
-          data: { label: a.type, actionType: a.type, ...a.data },
+          data: {
+            label: a.type,
+            actionType: a.type,
+            ...(a.data as Record<string, unknown>),
+          },
         });
       });
     }
@@ -117,7 +113,7 @@ export default function Triggers() {
     if (!trigger) return [];
     return trigger.actions.map((_, i) => ({
       id: `e${i}`,
-      source: "trigger",
+      source: 'trigger',
       target: `a${i}`,
     }));
   }, [trigger]);
@@ -131,20 +127,17 @@ export default function Triggers() {
     nodeId: string;
   } | null>(null);
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [],
-  );
+  const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)), []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
+    event.dataTransfer.dropEffect = 'move';
   }, []);
 
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      const type = event.dataTransfer.getData("application/reactflow");
+      const type = event.dataTransfer.getData('application/reactflow');
       if (!type || !reactFlowInstance) return;
 
       const rect = reactFlowWrapper.current!.getBoundingClientRect();
@@ -159,36 +152,27 @@ export default function Triggers() {
         data: { label: type, actionType: type },
       };
       setNodes((nds) => nds.concat(newNode));
-      setEdges((eds) =>
-        eds.concat({ id: `e_${id}`, source: "trigger", target: id }),
-      );
+      setEdges((eds) => eds.concat({ id: `e_${id}`, source: 'trigger', target: id }));
     },
-    [reactFlowInstance, nodes.length, setEdges, setNodes],
+    [reactFlowInstance, nodes.length, setEdges, setNodes]
   );
 
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   const onNodeClick = useCallback((_: any, node: Node) => {
-    if (node.id === "trigger") return;
+    if (node.id === 'trigger') return;
     setSelectedNode(node);
   }, []);
 
-  const onNodeContextMenu = useCallback(
-    (event: React.MouseEvent, node: Node) => {
-      event.preventDefault();
-      if (node.id === "trigger") return;
-      setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
-    },
-    [],
-  );
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    if (node.id === 'trigger') return;
+    setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
+  }, []);
 
   function updateSelected(data: Record<string, unknown>) {
     if (!selectedNode) return;
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.id === selectedNode.id ? { ...n, data: { ...n.data, ...data } } : n,
-      ),
-    );
+    setNodes((nds) => nds.map((n) => (n.id === selectedNode.id ? { ...n, data: { ...n.data, ...data } } : n)));
     setSelectedNode((n) => (n ? { ...n, data: { ...n.data, ...data } } : n));
   }
 
@@ -196,13 +180,9 @@ export default function Triggers() {
     if (!contextMenu) return;
     const node = nodes.find((n) => n.id === contextMenu.nodeId);
     if (!node) return;
-    const name = prompt("Node name", String(node.data.label || ""));
+    const name = prompt('Node name', String(node.data.label || ''));
     if (name) {
-      setNodes((nds) =>
-        nds.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, label: name } } : n,
-        ),
-      );
+      setNodes((nds) => nds.map((n) => (n.id === node.id ? { ...n, data: { ...n.data, label: name } } : n)));
     }
     setContextMenu(null);
   }
@@ -217,12 +197,12 @@ export default function Triggers() {
 
   async function handleSave() {
     const actions = nodes
-      .filter((n) => n.id !== "trigger")
+      .filter((n) => n.id !== 'trigger')
       .map((n) => ({ type: n.data.actionType, data: { ...n.data } }));
 
-    await fetch("/dashboard/triggers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    await fetch('/dashboard/triggers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ actions }),
     });
   }
@@ -241,9 +221,7 @@ export default function Triggers() {
                   key={t}
                   className="p-2 border rounded cursor-grab bg-background"
                   draggable
-                  onDragStart={(event) =>
-                    event.dataTransfer.setData("application/reactflow", t)
-                  }
+                  onDragStart={(event) => event.dataTransfer.setData('application/reactflow', t)}
                 >
                   {t}
                 </div>
@@ -274,9 +252,7 @@ export default function Triggers() {
             <div className="mt-4 space-y-2">
               {(() => {
                 const Action = ACTION_COMPONENTS[selectedNode.data.actionType];
-                return Action ? (
-                  <Action data={selectedNode.data} update={updateSelected} />
-                ) : null;
+                return Action ? <Action data={selectedNode.data} update={updateSelected} /> : null;
               })()}
             </div>
           )}
@@ -285,16 +261,10 @@ export default function Triggers() {
               className="absolute bg-background border rounded shadow"
               style={{ top: contextMenu.y, left: contextMenu.x }}
             >
-              <button
-                className="block px-4 py-2 w-full text-left"
-                onClick={handleRename}
-              >
+              <button className="block px-4 py-2 w-full text-left" onClick={handleRename}>
                 Rename
               </button>
-              <button
-                className="block px-4 py-2 w-full text-left"
-                onClick={handleDelete}
-              >
+              <button className="block px-4 py-2 w-full text-left" onClick={handleDelete}>
                 Delete
               </button>
             </div>
