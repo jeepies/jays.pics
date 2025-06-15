@@ -85,6 +85,9 @@ model UploaderPreferences {
 
   urls String[] @default(["jays.pics"])
   subdomains Json     @default("{}")
+
+  effect         String  @default("none")
+  effect_overlay String?
 }
 
 model Comment {
