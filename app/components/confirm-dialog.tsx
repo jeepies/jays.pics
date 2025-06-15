@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,10 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from './ui/dialog';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Button } from './ui/button';
-import { AnimatePresence, motion } from 'framer-motion';
+} from "./ui/dialog";
 
 interface ConfirmDialogProps {
   title?: string;
@@ -19,7 +20,12 @@ interface ConfirmDialogProps {
   trigger: React.ReactNode;
 }
 
-export function ConfirmDialog({ title = 'Are you sure?', description, onConfirm, trigger }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  title = "Are you sure?",
+  description,
+  onConfirm,
+  trigger,
+}: ConfirmDialogProps) {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -44,7 +50,9 @@ export function ConfirmDialog({ title = 'Are you sure?', description, onConfirm,
             >
               <DialogHeader>
                 <DialogTitle>{title}</DialogTitle>
-                {description && <DialogDescription>{description}</DialogDescription>}
+                {description && (
+                  <DialogDescription>{description}</DialogDescription>
+                )}
               </DialogHeader>
               <DialogFooter>
                 <Button variant="secondary" onClick={() => setOpen(false)}>

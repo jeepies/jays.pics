@@ -10,8 +10,8 @@ export function ThemeToggle() {
       return savedTheme
         ? savedTheme
         : window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+          ? "dark"
+          : "light";
     }
     return "light";
   });

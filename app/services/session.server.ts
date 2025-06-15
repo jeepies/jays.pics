@@ -1,28 +1,29 @@
-import { createCookieSessionStorage, Session } from '@remix-run/node';
-import { randomUUID } from 'crypto';
+import { randomUUID } from "crypto";
 
-import { prisma } from '~/services/database.server';
+import { createCookieSessionStorage, Session } from "@remix-run/node";
+
+import { prisma } from "~/services/database.server";
 
 const sessionSecret = process.env.SESSION_SECRET;
 
-if (process.env.NODE_ENV === 'production' && !sessionSecret) {
-  throw new Error('SESSION_SECRET must be set in production');
+if (process.env.NODE_ENV === "production" && !sessionSecret) {
+  throw new Error("SESSION_SECRET must be set in production");
 }
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: '_session',
-    sameSite: 'lax',
-    path: '/',
+    name: "_session",
+    sameSite: "lax",
+    path: "/",
     httpOnly: true,
     secrets: [sessionSecret ?? randomUUID()],
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === "production",
   },
 });
 
 export async function getUserBySession(session: Session) {
   return await prisma.user.findUnique({
-    where: { id: session.get('userID') },
+    where: { id: session.get("userID") },
     select: {
       id: true,
       username: true,
@@ -69,13 +70,13 @@ export async function getAllReferrals(referrer_id: string) {
 }
 
 export function getClientIP(request: Request): string | null {
-  const forwarded = request.headers.get('x-forwarded-for');
+  const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    return forwarded.split(",")[0].trim();
   }
-  const cf = request.headers.get('cf-connecting-ip');
+  const cf = request.headers.get("cf-connecting-ip");
   if (cf) return cf;
-  const real = request.headers.get('x-real-ip');
+  const real = request.headers.get("x-real-ip");
   if (real) return real;
   return null;
 }

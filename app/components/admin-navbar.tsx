@@ -1,12 +1,13 @@
-import { Menu } from 'lucide-react';
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Link } from '@remix-run/react';
+import { Link } from "@remix-run/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
-import { Sidebar } from '~/components/ui/sidebar';
-import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
-import { SidebarAdmin } from './ui/sidebar-admin';
+import { Button } from "~/components/ui/button";
+import { Sidebar } from "~/components/ui/sidebar";
+import { cn } from "~/lib/utils";
+
+import { SidebarAdmin } from "./ui/sidebar-admin";
 
 interface DashboardNavbarProps {
   user: {
@@ -47,16 +48,16 @@ export function AdminNavbar({ user }: Readonly<DashboardNavbarProps>) {
               className="absolute inset-0 bg-black/50"
             />
             <motion.div
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.2 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.2 }}
               className="relative z-50 h-full"
             >
               <SidebarAdmin
                 onLinkClick={() => setOpen(false)}
                 user={user}
-                className={cn('w-64 border-r bg-background h-full')}
+                className={cn("w-64 border-r bg-background h-full")}
               />
             </motion.div>
           </motion.div>

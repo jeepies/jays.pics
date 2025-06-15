@@ -1,7 +1,7 @@
-import { useFetcher } from '@remix-run/react';
-import { X } from 'lucide-react';
+import { useFetcher } from "@remix-run/react";
+import { X } from "lucide-react";
 
-import { cn } from '~/lib/utils';
+import { cn } from "~/lib/utils";
 
 interface Notification {
   id: string;
@@ -22,16 +22,23 @@ export function NotificationTray({
 
   const markSeen = (id: string) => {
     fetcher.submit(null, {
-      method: 'post',
+      method: "post",
       action: `/api/notification/${id}/seen`,
     });
     onRemove?.(id);
   };
 
   return (
-    <div className={cn('absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow', className)}>
+    <div
+      className={cn(
+        "absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow",
+        className,
+      )}
+    >
       {notifications.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center">No notifications</p>
+        <p className="text-sm text-muted-foreground text-center">
+          No notifications
+        </p>
       ) : (
         <ul className="space-y-1 text-sm max-h-64 overflow-y-auto">
           {notifications.map((n) => (

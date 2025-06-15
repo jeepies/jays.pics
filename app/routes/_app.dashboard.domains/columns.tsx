@@ -30,9 +30,9 @@ export const columns: ColumnDef<any>[] = [
     // @ts-ignore
     cell: (cell) =>
       `${new Date(
-        Date.parse(cell.getValue() as string)
+        Date.parse(cell.getValue() as string),
       ).toLocaleTimeString()} - ${new Date(
-        Date.parse(cell.getValue() as string)
+        Date.parse(cell.getValue() as string),
       ).toLocaleDateString()}`,
   },
   {

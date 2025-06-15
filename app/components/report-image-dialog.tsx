@@ -1,7 +1,7 @@
-import { Form } from '@remix-run/react'
-import * as React from 'react'
+import { Form } from "@remix-run/react";
+import * as React from "react";
 
-import { Button } from '~/components/ui/button'
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogTrigger,
@@ -10,17 +10,23 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '~/components/ui/dialog'
-import { Input } from '~/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
-import { Textarea } from '~/components/ui/textarea'
+} from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { Textarea } from "~/components/ui/textarea";
 
 interface Props {
-  imageId: string
+  imageId: string;
 }
 
 export function ReportImageDialog({ imageId }: Readonly<Props>) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -70,5 +76,5 @@ export function ReportImageDialog({ imageId }: Readonly<Props>) {
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

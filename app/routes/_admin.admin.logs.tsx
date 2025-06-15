@@ -1,15 +1,28 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 
-import { PAGE_SIZE, Pagination } from '~/components/pagination';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { prisma } from '~/services/database.server';
+import { PAGE_SIZE, Pagination } from "~/components/pagination";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { prisma } from "~/services/database.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
 
-  const page = Number(url.searchParams.get('page')) || 1;
+  const page = Number(url.searchParams.get("page")) || 1;
   const count = await prisma.log.count();
   const logs = await prisma.log.findMany({
     take: PAGE_SIZE,
@@ -46,7 +59,8 @@ export default function Users() {
                     <TableCell className="font-medium">{log.message}</TableCell>
                     <TableCell>{log.type}</TableCell>
                     <TableCell className="text-right">
-                      {new Date(log.created_at).toLocaleDateString()} @ {new Date(log.created_at).toLocaleTimeString()}
+                      {new Date(log.created_at).toLocaleDateString()} @{" "}
+                      {new Date(log.created_at).toLocaleTimeString()}
                     </TableCell>
                   </TableRow>
                 );

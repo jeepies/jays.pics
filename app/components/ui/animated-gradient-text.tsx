@@ -22,7 +22,7 @@ export default function AnimatedGradientText({
           "mr-auto": align === "left",
           "ml-auto": align === "right",
         },
-        className
+        className,
       )}
     >
       <div

@@ -1,32 +1,41 @@
-import { useEffect, useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
-import { useAppLoaderData } from '../_app';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Button } from '~/components/ui/button';
-import { z } from 'zod';
-import { prisma } from '~/services/database.server';
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
-import { getSession, getUserBySession } from '~/services/session.server';
-import { useFetcher } from '@remix-run/react';
-import { useToast } from '~/components/toast';
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+
+import { useToast } from "~/components/toast";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import { prisma } from "~/services/database.server";
+import { getSession, getUserBySession } from "~/services/session.server";
+
+import { useAppLoaderData } from "../_app";
 
 const embedUpdateSchema = z.object({
   embed_title: z.string(),
   embed_author: z.string(),
   embed_colour: z
     .string()
-    .length(7, { message: 'Must be 7 characters long' })
-    .regex(/^#/, { message: 'Must be a valid hex colour' }),
+    .length(7, { message: "Must be 7 characters long" })
+    .regex(/^#/, { message: "Must be a valid hex colour" }),
   domain_hack: z.string().optional(),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  if (!session.has('userID')) return redirect('/login');
+  const session = await getSession(request.headers.get("Cookie"));
+  if (!session.has("userID")) return redirect("/login");
 
   const user = await getUserBySession(session);
   const formData = await request.formData();
@@ -45,46 +54,55 @@ export async function action({ request }: ActionFunctionArgs) {
       embed_author: result.data.embed_author,
       embed_title: result.data.embed_title,
       embed_colour: result.data.embed_colour,
-      domain_hack: result.data.domain_hack === 'on',
+      domain_hack: result.data.domain_hack === "on",
     },
   });
 
-  const accept = request.headers.get('Accept') || '';
-  if (accept.includes('application/json')) {
+  const accept = request.headers.get("Accept") || "";
+  if (accept.includes("application/json")) {
     return json({ ok: true });
   }
 
-  return redirect('/dashboard/embed');
+  return redirect("/dashboard/embed");
 }
 
 export default function Embed() {
   const data = useAppLoaderData();
   const fetcher = useFetcher();
   const { showToast } = useToast();
-  const [title, setTitle] = useState(data!.user.upload_preferences?.embed_title);
-  const [author, setAuthor] = useState(data!.user.upload_preferences?.embed_author);
-  const [colour, setColour] = useState(data!.user.upload_preferences?.embed_colour);
+  const [title, setTitle] = useState(
+    data!.user.upload_preferences?.embed_title,
+  );
+  const [author, setAuthor] = useState(
+    data!.user.upload_preferences?.embed_author,
+  );
+  const [colour, setColour] = useState(
+    data!.user.upload_preferences?.embed_colour,
+  );
   const [templates, setTemplates] = useState<Record<string, string>>({});
-  const footer = 'Hosted with 🩵 at jays.pics';
+  const footer = "Hosted with 🩵 at jays.pics";
 
   const TEMPLATE_EXAMPLES: Record<string, string> = {
-    'image.name': 'Image.png',
-    'image.size_bytes': '123456',
-    'image.size': '120 KB',
-    'image.created_at': '2025-01-01',
-    'uploader.name': data!.user.username,
-    'uploader.storage_used_bytes': '204800',
-    'uploader.storage_used': '200 KB',
-    'uploader.total_storage_bytes': '1048576',
-    'uploader.total_storage': '1 MB',
+    "image.name": "Image.png",
+    "image.size_bytes": "123456",
+    "image.size": "120 KB",
+    "image.created_at": "2025-01-01",
+    "uploader.name": data!.user.username,
+    "uploader.storage_used_bytes": "204800",
+    "uploader.storage_used": "200 KB",
+    "uploader.total_storage_bytes": "1048576",
+    "uploader.total_storage": "1 MB",
   };
 
   function applyTemplates(text: string): string {
-    return text.replace(/{{(.*?)}}/g, (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? '');
+    return text.replace(
+      /{{(.*?)}}/g,
+      (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? "",
+    );
   }
 
   useEffect(() => {
-    fetch('/api/get-templates')
+    fetch("/api/get-templates")
       .then((res) => res.json())
       .then((d) => {
         if (d.success) setTemplates(d.data);
@@ -112,15 +130,38 @@ export default function Embed() {
                       }
                       alt={data!.user.username}
                     />
-                    <AvatarFallback>{data!.user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {data!.user.username.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
-                  <p className="font-medium text-sm leading-8">{data!.user.username}</p>
+                  <p className="font-medium text-sm leading-8">
+                    {data!.user.username}
+                  </p>
                 </div>
-                <div className="border rounded p-4" style={{ borderLeftWidth: '4px', borderLeftColor: colour }}>
-                  {author && <div className="text-sm text-muted-foreground mb-1">{applyTemplates(author)}</div>}
-                  {title && <div className="font-semibold text-lg">{applyTemplates(title)}</div>}
-                  <img src="/logo.png" alt="example" className="mt-2 w-full rounded bg-discordbg" />
-                  {footer && <div className="text-xs text-muted-foreground mt-2">{footer}</div>}
+                <div
+                  className="border rounded p-4"
+                  style={{ borderLeftWidth: "4px", borderLeftColor: colour }}
+                >
+                  {author && (
+                    <div className="text-sm text-muted-foreground mb-1">
+                      {applyTemplates(author)}
+                    </div>
+                  )}
+                  {title && (
+                    <div className="font-semibold text-lg">
+                      {applyTemplates(title)}
+                    </div>
+                  )}
+                  <img
+                    src="/logo.png"
+                    alt="example"
+                    className="mt-2 w-full rounded bg-discordbg"
+                  />
+                  {footer && (
+                    <div className="text-xs text-muted-foreground mt-2">
+                      {footer}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -129,8 +170,11 @@ export default function Embed() {
                 method="post"
                 onSubmit={(e) => {
                   const fd = new FormData(e.currentTarget);
-                  fetcher.submit(fd, { method: 'post', headers: { Accept: 'application/json' } });
-                  showToast('Embed settings saved', 'success');
+                  fetcher.submit(fd, {
+                    method: "post",
+                    headers: { Accept: "application/json" },
+                  });
+                  showToast("Embed settings saved", "success");
                   e.preventDefault();
                 }}
               >
@@ -168,7 +212,10 @@ export default function Embed() {
                   />
                 </div>
                 <div className="items-top flex space-x-2 my-2">
-                  <Checkbox name="domain_hack" defaultChecked={data?.user.upload_preferences?.domain_hack}>
+                  <Checkbox
+                    name="domain_hack"
+                    defaultChecked={data?.user.upload_preferences?.domain_hack}
+                  >
                     Invisible Extension
                   </Checkbox>
                   <div className="grid gap-1.5 leading-none">
@@ -203,7 +250,9 @@ export default function Embed() {
             <TableBody>
               {Object.entries(templates).map(([key, desc]) => (
                 <TableRow key={key}>
-                  <TableCell className="font-mono">{'{{' + key + '}}'}</TableCell>
+                  <TableCell className="font-mono">
+                    {"{{" + key + "}}"}
+                  </TableCell>
                   <TableCell>{desc}</TableCell>
                 </TableRow>
               ))}

@@ -3,7 +3,9 @@ const prisma = new PrismaClient();
 
 module.exports = async () => {
   const now = new Date();
-  const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const startOfDay = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
 
   const imageCount = await prisma.image.count({
     where: {

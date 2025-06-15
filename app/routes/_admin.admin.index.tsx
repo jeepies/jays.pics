@@ -1,5 +1,8 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { Clock, FileChartColumn, FileImage, Users } from "lucide-react";
+import prettyBytes from "pretty-bytes";
+import prettyMs from "pretty-ms";
 import {
   BarChart,
   Bar,
@@ -12,15 +15,13 @@ import {
   Cell,
   LineChart,
   Line,
-} from 'recharts';
+} from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { prisma } from '~/services/database.server';
-import { useAdminLoader } from './_admin';
-import { ChartPoint } from '~/components/ui/simple-chart';
-import { Clock, FileChartColumn, FileImage, Users } from 'lucide-react';
-import prettyBytes from 'pretty-bytes';
-import prettyMs from 'pretty-ms';
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { ChartPoint } from "~/components/ui/simple-chart";
+import { prisma } from "~/services/database.server";
+
+import { useAdminLoader } from "./_admin";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const startDate = new Date();
@@ -34,7 +35,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     GROUP BY date
     ORDER BY date`;
 
-  const imagesDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+  const imagesDailyRaw = await prisma.$queryRaw<
+    { date: Date; count: number }[]
+  >`
     SELECT DATE_TRUNC('day', "created_at") as date, COUNT(*)::int as count
     FROM "Image"
     WHERE "created_at" >= ${startDate} AND "deleted_at" IS NULL
@@ -49,7 +52,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ORDER BY count DESC
     LIMIT 5`;
 
-  const topUploaders = await prisma.$queryRaw<{ username: string; count: number }[]>`
+  const topUploaders = await prisma.$queryRaw<
+    { username: string; count: number }[]
+  >`
     SELECT "User"."username", COUNT(*)::int as count
     FROM "Image"
     JOIN "User" ON "User"."id" = "Image"."uploader_id"
@@ -70,7 +75,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return out;
   }
 
-  const storageDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+  const storageDailyRaw = await prisma.$queryRaw<
+    { date: Date; count: number }[]
+  >`
   SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
   FROM "Image"
   WHERE "created_at" >= ${startDate} AND "deleted_at" IS NULL
@@ -81,7 +88,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const users = await prisma.user.count();
   const images = await prisma.image.count();
-  const bytesUsed = prettyBytes((await prisma.image.findMany({ select: { size: true } })).reduce((acc, val) => acc + val.size, 0));
+  const bytesUsed = prettyBytes(
+    (await prisma.image.findMany({ select: { size: true } })).reduce(
+      (acc, val) => acc + val.size,
+      0,
+    ),
+  );
 
   return {
     usersDaily: fillMissing(usersDailyRaw),
@@ -92,14 +104,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     uptime,
     users,
     images,
-    bytesUsed
+    bytesUsed,
   };
 }
 
-const COLORS = ['#e05cd9', '#8b5cf6', '#22d3ee', '#16a34a', '#f97316'];
+const COLORS = ["#e05cd9", "#8b5cf6", "#22d3ee", "#16a34a", "#f97316"];
 
 export default function AdminIndex() {
-  const { usersDaily, imagesDaily, typeCounts, topUploaders, storageDaily, uptime, users, images, bytesUsed } = useLoaderData<typeof loader>();
+  const {
+    usersDaily,
+    imagesDaily,
+    typeCounts,
+    topUploaders,
+    storageDaily,
+    uptime,
+    users,
+    images,
+    bytesUsed,
+  } = useLoaderData<typeof loader>();
   useAdminLoader();
 
   return (
@@ -140,11 +162,23 @@ export default function AdminIndex() {
             <CardTitle>Registrations (7d)</CardTitle>
           </CardHeader>
           <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%" className="text-primary">
-              <BarChart data={usersDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="text-primary"
+            >
+              <BarChart
+                data={usersDaily}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
-                <Tooltip labelFormatter={(v) => new Date(v).toLocaleDateString()} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v) => new Date(v).getUTCDate().toString()}
+                />
+                <Tooltip
+                  labelFormatter={(v) => new Date(v).toLocaleDateString()}
+                />
                 <Bar dataKey="count" fill="currentColor" />
               </BarChart>
             </ResponsiveContainer>
@@ -155,11 +189,23 @@ export default function AdminIndex() {
             <CardTitle>Uploads (7d)</CardTitle>
           </CardHeader>
           <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%" className="text-primary">
-              <BarChart data={imagesDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="text-primary"
+            >
+              <BarChart
+                data={imagesDaily}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
-                <Tooltip labelFormatter={(v) => new Date(v).toLocaleDateString()} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v) => new Date(v).getUTCDate().toString()}
+                />
+                <Tooltip
+                  labelFormatter={(v) => new Date(v).toLocaleDateString()}
+                />
                 <Bar dataKey="count" fill="currentColor" />
               </BarChart>
             </ResponsiveContainer>
@@ -170,11 +216,25 @@ export default function AdminIndex() {
             <CardTitle>File Types</CardTitle>
           </CardHeader>
           <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%" className="text-primary">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="text-primary"
+            >
               <PieChart>
-                <Pie dataKey="count" data={typeCounts} cx="50%" cy="50%" outerRadius={80} label={(entry) => entry.type}>
+                <Pie
+                  dataKey="count"
+                  data={typeCounts}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={(entry) => entry.type}
+                >
                   {typeCounts.map((_, index) => (
-                    <Cell key={`tc-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`tc-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -187,8 +247,15 @@ export default function AdminIndex() {
             <CardTitle>Top Uploaders</CardTitle>
           </CardHeader>
           <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%" className="text-primary">
-              <BarChart data={topUploaders} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="text-primary"
+            >
+              <BarChart
+                data={topUploaders}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="username" />
                 <Tooltip />
@@ -203,15 +270,30 @@ export default function AdminIndex() {
           <CardTitle>Storage Usage (7d)</CardTitle>
         </CardHeader>
         <CardContent className="h-60">
-          <ResponsiveContainer width="100%" height="100%" className="text-primary">
-            <LineChart data={storageDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            className="text-primary"
+          >
+            <LineChart
+              data={storageDaily}
+              margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(v) => new Date(v).getUTCDate().toString()}
+              />
               <Tooltip
                 labelFormatter={(v) => new Date(v).toLocaleDateString()}
                 formatter={(value: number) => prettyBytes(value)}
               />
-              <Line type="monotone" dataKey="count" stroke="currentColor" dot={false} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="currentColor"
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

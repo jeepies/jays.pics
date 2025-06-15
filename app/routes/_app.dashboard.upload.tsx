@@ -1,17 +1,26 @@
-import { ActionFunctionArgs, json, LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
-import { z } from 'zod';
-import { useEffect, useRef, useState } from 'react';
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
+import { Ban } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-
-import { prisma } from '~/services/database.server';
-import { uploadToS3 } from '~/services/s3.server';
-import { destroySession, getSession, getUserBySession, getClientIP } from '~/services/session.server';
-import { Ban } from 'lucide-react';
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { prisma } from "~/services/database.server";
+import { uploadToS3 } from "~/services/s3.server";
+import {
+  destroySession,
+  getSession,
+  getUserBySession,
+  getClientIP,
+} from "~/services/session.server";
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -20,7 +29,8 @@ const schema = z.object({
 
 export async function action({ request }: ActionFunctionArgs) {
   const siteData = await prisma.site.findFirst();
-  if (siteData?.is_upload_blocked) return json({ success: false, message: 'Uploading is currently blocked' });
+  if (siteData?.is_upload_blocked)
+    return json({ success: false, message: "Uploading is currently blocked" });
   const formData = await request.formData();
   const payload = Object.fromEntries(formData);
   const result = schema.safeParse(payload);
@@ -38,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!paramEntries.upload_key)
     return json({
       success: false,
-      message: 'Upload key is not set',
+      message: "Upload key is not set",
     });
 
   const user = await prisma.user.findFirst({
@@ -48,21 +58,23 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!user) {
     return json({
       success: false,
-      message: 'You are not authorised',
+      message: "You are not authorised",
     });
   }
 
-  if (!['image/png', 'image/gif', 'image/jpeg', 'image/webp'].includes(image.type)) {
+  if (
+    !["image/png", "image/gif", "image/jpeg", "image/webp"].includes(image.type)
+  ) {
     return json({
       success: false,
-      message: 'Incorrect file type',
+      message: "Incorrect file type",
     });
   }
 
   if (user.space_used + image.size > user.max_space) {
     return json({
       success: false,
-      message: 'When uploading this image, your allocated space was exceeded.',
+      message: "When uploading this image, your allocated space was exceeded.",
     });
   }
 
@@ -81,37 +93,45 @@ export async function action({ request }: ActionFunctionArgs) {
     data: { space_used: user.space_used + image.size },
   });
 
-  const response = await uploadToS3(result.data.image, `${user.id}/${dbImage.id}`);
+  const response = await uploadToS3(
+    result.data.image,
+    `${user.id}/${dbImage.id}`,
+  );
   if (response?.$metadata.httpStatusCode === 200) {
     const triggers = await prisma.trigger.findMany({
-      where: { user_id: user.id, type: 'image_upload' },
+      where: { user_id: user.id, type: "image_upload" },
       include: { actions: true },
     });
 
     for (const trig of triggers) {
       for (const act of trig.actions) {
-        if (act.type === 'webhook' && act.data.url) {
+        if (act.type === "webhook" && act.data.url) {
           try {
             await fetch(act.data.url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ imageId: dbImage.id, name: dbImage.display_name }),
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                imageId: dbImage.id,
+                name: dbImage.display_name,
+              }),
             });
           } catch (_) {}
         }
-        if (act.type === 'add_tag' && act.data.tag) {
+        if (act.type === "add_tag" && act.data.tag) {
           const tag = await prisma.tag.upsert({
             where: { user_id_name: { user_id: user.id, name: act.data.tag } },
             update: {},
             create: { name: act.data.tag, user_id: user.id },
           });
           await prisma.imageTag.upsert({
-            where: { image_id_tag_id: { image_id: dbImage.id, tag_id: tag.id } },
+            where: {
+              image_id_tag_id: { image_id: dbImage.id, tag_id: tag.id },
+            },
             update: {},
             create: { image_id: dbImage.id, tag_id: tag.id },
           });
         }
-        if (act.type === 'rename' && act.data.name) {
+        if (act.type === "rename" && act.data.name) {
           await prisma.image.update({
             where: { id: dbImage.id },
             data: { display_name: act.data.name },
@@ -128,16 +148,16 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has('userID')) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect('/', {
+    return redirect("/", {
       headers: {
-        'Set-Cookie': await destroySession(session),
+        "Set-Cookie": await destroySession(session),
       },
     });
 
@@ -149,7 +169,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Upload() {
   const { user, uploads_blocked } = useLoaderData<typeof loader>();
   const [preview, setPreview] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -196,7 +216,7 @@ export default function Upload() {
               tabIndex={0}
               onClick={() => fileInputRef.current?.click()}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   fileInputRef.current?.click();
                 }
@@ -205,9 +225,15 @@ export default function Upload() {
               onDragOver={handleDragOver}
             >
               {preview ? (
-                <img src={preview} alt="Preview" className="max-h-48 object-contain mb-2" />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="max-h-48 object-contain mb-2"
+                />
               ) : (
-                <p className="text-sm text-muted-foreground">Click or drop image here</p>
+                <p className="text-sm text-muted-foreground">
+                  Click or drop image here
+                </p>
               )}
             </div>
             <input

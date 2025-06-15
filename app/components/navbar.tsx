@@ -14,7 +14,7 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex justify-end gap-2">
-        <Link to="/login">
+          <Link to="/login">
             <Button variant="outline" className="text-white" size="sm">
               Log in
             </Button>

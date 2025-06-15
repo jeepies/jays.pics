@@ -23,7 +23,6 @@ module.exports = async () => {
         data: { last_checked_at: new Date() },
       });
       if (!zone || zone.status !== "active") {
-        
         await prisma.uRL.delete({ where: { id: domain.id } });
         await cf.zones.delete({ zone_id: domain.zone_id }).catch(() => {});
 

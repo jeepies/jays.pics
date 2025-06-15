@@ -9,10 +9,10 @@ concurrently(
     },
     {
       command: "npx graphile-worker",
-      name: "worker"
+      name: "worker",
     },
   ],
   {
     restartTries: 3,
-  }
+  },
 );

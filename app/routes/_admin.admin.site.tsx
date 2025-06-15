@@ -1,12 +1,19 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { Form, useLoaderData, useNavigate } from '@remix-run/react';
-import { z } from 'zod';
-import { ConfirmDialog } from '~/components/confirm-dialog';
-import { useToast } from '~/components/toast';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { prisma } from '~/services/database.server';
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import { z } from "zod";
+
+import { ConfirmDialog } from "~/components/confirm-dialog";
+import { useToast } from "~/components/toast";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { prisma } from "~/services/database.server";
 
 export async function loader({}: LoaderFunctionArgs) {
   const announcement = await prisma.announcement.findMany({
@@ -14,7 +21,7 @@ export async function loader({}: LoaderFunctionArgs) {
       content: true,
     },
     orderBy: {
-      created_at: 'desc',
+      created_at: "desc",
     },
     take: 1,
   });
@@ -37,8 +44,16 @@ export default function AdminSite() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={'update_annoucement'} name="type" />
-            <Input className="mb-2" name="content" defaultValue={data.announcement[0].content} />
+            <Input
+              className="hidden"
+              value={"update_annoucement"}
+              name="type"
+            />
+            <Input
+              className="mb-2"
+              name="content"
+              defaultValue={data.announcement[0].content}
+            />
             <Button type="submit">Post</Button>
           </Form>
         </CardContent>
@@ -53,17 +68,34 @@ export default function AdminSite() {
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input className="hidden" value={'danger_zone'} name="type" />
+            <Input className="hidden" value={"danger_zone"} name="type" />
           </Form>
           <div>
             <ConfirmDialog
-              title={data.siteData?.is_upload_blocked ? 'Unblock uploads?' : 'Block uploads?'}
+              title={
+                data.siteData?.is_upload_blocked
+                  ? "Unblock uploads?"
+                  : "Block uploads?"
+              }
               description="This will toggle the ability for users to upload images."
               onConfirm={() => {
-                navigate(`?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`);
-                showToast(data.siteData?.is_upload_blocked ? 'Uploads unblocked' : 'Uploads blocked', 'success');
+                navigate(
+                  `?action=site_block_toggle&value=${!data.siteData?.is_upload_blocked}`,
+                );
+                showToast(
+                  data.siteData?.is_upload_blocked
+                    ? "Uploads unblocked"
+                    : "Uploads blocked",
+                  "success",
+                );
               }}
-              trigger={<Button>{data.siteData?.is_upload_blocked ? 'Unblock Uploads' : 'Block Uploads'}</Button>}
+              trigger={
+                <Button>
+                  {data.siteData?.is_upload_blocked
+                    ? "Unblock Uploads"
+                    : "Block Uploads"}
+                </Button>
+              }
             />
           </div>
         </CardContent>
@@ -74,9 +106,9 @@ export default function AdminSite() {
 
 const announcementSchema = z.object({
   content: z
-    .string({ required_error: 'Content is required' })
-    .min(1, { message: 'Should be at least one character' })
-    .max(256, { message: 'Should be 256 or less characters' }),
+    .string({ required_error: "Content is required" })
+    .min(1, { message: "Should be at least one character" })
+    .max(256, { message: "Should be 256 or less characters" }),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -84,10 +116,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const payload = Object.fromEntries(formData);
   let result;
 
-  const requestType = formData.get('type');
-  formData.delete('type');
+  const requestType = formData.get("type");
+  formData.delete("type");
 
-  if (requestType === 'update_annoucement') {
+  if (requestType === "update_annoucement") {
     result = announcementSchema.safeParse(payload);
     if (!result.success) {
       const error = result.error.flatten();

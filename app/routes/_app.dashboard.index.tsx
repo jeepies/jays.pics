@@ -1,29 +1,41 @@
-import { LoaderFunctionArgs, redirect } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
-import { Ban, Link as LinkIcon, Plus, Upload } from 'lucide-react';
-import prettyBytes from 'pretty-bytes';
-import { useEffect, useState } from 'react';
-import Markdown from 'react-markdown';
-import { CartesianGrid, Line, ResponsiveContainer, Tooltip, XAxis, LineChart } from 'recharts';
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { Ban, Link as LinkIcon, Plus, Upload } from "lucide-react";
+import prettyBytes from "pretty-bytes";
+import { useEffect, useState } from "react";
+import Markdown from "react-markdown";
+import {
+  CartesianGrid,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  LineChart,
+} from "recharts";
 
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Progress } from '~/components/ui/progress';
-import { generateInvisibleURL } from '~/lib/utils';
-import { prisma } from '~/services/database.server';
-import { destroySession, getAllReferrals, getSession, getUserBySession } from '~/services/session.server';
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Progress } from "~/components/ui/progress";
+import { generateInvisibleURL } from "~/lib/utils";
+import { prisma } from "~/services/database.server";
+import {
+  destroySession,
+  getAllReferrals,
+  getSession,
+  getUserBySession,
+} from "~/services/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
+  const session = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has('userID')) return redirect('/');
+  if (!session.has("userID")) return redirect("/");
 
   const user = await getUserBySession(session);
 
   if (user === null)
-    return redirect('/', {
+    return redirect("/", {
       headers: {
-        'Set-Cookie': await destroySession(session),
+        "Set-Cookie": await destroySession(session),
       },
     });
 
@@ -37,7 +49,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   startDate.setUTCHours(0, 0, 0, 0);
   startDate.setUTCDate(startDate.getUTCDate() - 6);
 
-  const storageDailyRaw = await prisma.$queryRaw<{ date: Date; count: number }[]>`
+  const storageDailyRaw = await prisma.$queryRaw<
+    { date: Date; count: number }[]
+  >`
     SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
     FROM "Image"
     WHERE "created_at" >= ${startDate} AND "uploader_id" = ${user.id} AND "deleted_at" IS NULL
@@ -63,7 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       content: true,
     },
     orderBy: {
-      created_at: 'desc',
+      created_at: "desc",
     },
     take: 1,
   });
@@ -71,7 +85,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const siteData = await prisma.site.findFirst();
 
   const url = new URL(request.url);
-  const query = url.searchParams.get('generate_link');
+  const query = url.searchParams.get("generate_link");
 
   let clipboard;
   if (query !== null) {
@@ -79,7 +93,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let url;
     if (urls.length === 1) url = urls[0];
     else url = urls[Math.floor(Math.random() * urls.length)];
-    const subdomains = user.upload_preferences?.subdomains as Record<string, string> | undefined;
+    const subdomains = user.upload_preferences?.subdomains as
+      | Record<string, string>
+      | undefined;
     const sub = subdomains?.[url];
     const domain = sub ? `${sub}.${url}` : url;
     const formedURL = `https://${domain}/i/${query}/`;
@@ -92,22 +108,41 @@ export async function loader({ request }: LoaderFunctionArgs) {
     clipboard = returnableURL;
   }
 
-  return { user, referrals, images, announcement, siteData, clipboard, storageDaily };
+  return {
+    user,
+    referrals,
+    images,
+    announcement,
+    siteData,
+    clipboard,
+    storageDaily,
+  };
 }
 
 export default function Dashboard() {
-  const { user, referrals, images, announcement, siteData, clipboard, storageDaily } = useLoaderData<typeof loader>();
+  const {
+    user,
+    referrals,
+    images,
+    announcement,
+    siteData,
+    clipboard,
+    storageDaily,
+  } = useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
-    window.location.href = '/dashboard/index';
+    window.location.href = "/dashboard/index";
   }
 
   const [totalStorage, setTotalStorage] = useState(0);
   const [storageLimit] = useState(user.max_space);
 
   useEffect(() => {
-    const calculatedStorage = images.reduce((acc, image) => acc + image.size, 0);
+    const calculatedStorage = images.reduce(
+      (acc, image) => acc + image.size,
+      0,
+    );
     setTotalStorage(calculatedStorage);
   }, [user.images]);
 
@@ -130,7 +165,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Images</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Images
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -153,7 +190,9 @@ export default function Dashboard() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Storage Used
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -168,16 +207,24 @@ export default function Dashboard() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{prettyBytes(totalStorage)}</div>
-              <Progress value={(totalStorage / storageLimit) * 100} className="mt-2" />
+              <div className="text-2xl font-bold">
+                {prettyBytes(totalStorage)}
+              </div>
+              <Progress
+                value={(totalStorage / storageLimit) * 100}
+                className="mt-2"
+              />
               <p className="text-xs text-muted-foreground mt-2">
-                {((totalStorage / storageLimit) * 100).toFixed(2)}% of {prettyBytes(storageLimit)} limit
+                {((totalStorage / storageLimit) * 100).toFixed(2)}% of{" "}
+                {prettyBytes(storageLimit)} limit
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Referrals</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Referrals
+              </CardTitle>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -206,15 +253,30 @@ export default function Dashboard() {
             <CardTitle>Storage Usage (7d)</CardTitle>
           </CardHeader>
           <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%" className="text-primary">
-              <LineChart data={storageDaily} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              className="text-primary"
+            >
+              <LineChart
+                data={storageDaily}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="date" tickFormatter={(v) => new Date(v).getUTCDate().toString()} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v) => new Date(v).getUTCDate().toString()}
+                />
                 <Tooltip
                   labelFormatter={(v) => new Date(v).toLocaleDateString()}
                   formatter={(value: number) => prettyBytes(value)}
                 />
-                <Line type="monotone" dataKey="count" stroke="currentColor" dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="currentColor"
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -242,11 +304,17 @@ export default function Dashboard() {
               return (
                 <Card key={image.id}>
                   <CardContent className="p-2">
-                    <img src={`/i/${image.id}/raw`} alt="Image" className="w-full h-24 object-cover rounded-md" />
+                    <img
+                      src={`/i/${image.id}/raw`}
+                      alt="Image"
+                      className="w-full h-24 object-cover rounded-md"
+                    />
                     <p className="mt-2 text-sm font-medium truncate">
                       <a href={`/i/${image.id}`}>{image.display_name}</a>
                     </p>
-                    <p className="text-xs text-muted-foreground">{new Date(image.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(image.created_at).toLocaleDateString()}
+                    </p>
                     <Link to={`?generate_link=${image.id}`}>
                       <LinkIcon className="text-sm"></LinkIcon>
                     </Link>
