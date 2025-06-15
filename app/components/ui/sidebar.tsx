@@ -113,6 +113,17 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
             </Button>
             {showUploadMenu && (
               <div className="pl-4 space-y-1">
+                                <Button
+                  onClick={onLinkClick}
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start text-gray-900 dark:text-gray-100"
+                >
+                  <Link to="/dashboard/domain-selector" className="flex items-center gap-2">
+                    <Globe2 className="h-4 w-4" />
+                    Domain Selector
+                  </Link>
+                </Button>
                 <Button
                   onClick={onLinkClick}
                   asChild
@@ -140,10 +151,14 @@ export function Sidebar({ className, user, version, onLinkClick }: Readonly<Side
                   asChild
                   variant="ghost"
                   className="w-full justify-start text-gray-900 dark:text-gray-100"
+                  disabled
                 >
-                  <Link to="/dashboard/triggers" className="flex items-center gap-2">
+                  <Link to="#" className="flex items-center gap-2">
                     <GitBranch className="h-4 w-4" />
                     Triggers
+                    <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
+                      SOON
+                    </span>
                   </Link>
                 </Button>
               </div>
