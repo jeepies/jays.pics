@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 
 import { PAGE_SIZE, Pagination } from '~/components/pagination';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
@@ -14,30 +15,41 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get('page')) || 1;
   const search = url.searchParams.get('search') ?? '';
+  const sort = url.searchParams.get('sort') ?? 'desc';
 
   const images = await prisma.image.findMany({
     where: {
-      display_name: { contains: search, mode: 'insensitive'}
+      display_name: { contains: search, mode: 'insensitive' },
     },
     select: {
       id: true,
       display_name: true,
+      ImageReport: true,
     },
-    orderBy: { created_at: 'asc' },
+    orderBy: { ImageReport: { _count: sort === 'asc' ? 'asc' : 'desc' } },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
   });
 
-  return { count, images, page, search };
+  return { count, images, page, search, sort };
 }
 
 export default function AdminImages() {
-  const { count, images, page, search } = useLoaderData<typeof loader>();
+  const { count, images, page, search, sort } = useLoaderData<typeof loader>();
 
   return (
     <>
       <Form method="get" className="mb-4 flex items-end gap-2">
         <Input type="text" name="search" placeholder="Search by name" defaultValue={search} />
+        <Select name="sort" defaultValue={sort}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="desc">Most Reports</SelectItem>
+            <SelectItem value="asc">Least Reports</SelectItem>
+          </SelectContent>
+        </Select>
         <Button type="submit">Apply</Button>
       </Form>
       <Card className="mt-4">
@@ -49,15 +61,17 @@ export default function AdminImages() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">User</TableHead>
+                <TableHead className="w-[100px]">Image</TableHead>
+                <TableHead>Reports</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {images.map((image) => {
                 return (
-                  <TableRow>
+                  <TableRow key={image.id}>
                     <TableCell className="font-medium">{image.display_name}</TableCell>
+                    <TableCell>{image.ImageReport.length}</TableCell>
                     <TableCell className="text-right">
                       <Link to={`/admin/image/${image.id}`}>
                         <Button variant={'outline'}>Review</Button>
@@ -70,7 +84,7 @@ export default function AdminImages() {
           </Table>
         </CardContent>
       </Card>
-      <Pagination path="/admin/images" currentPage={page} totalCount={count} query={`search=${search}`} />
+      <Pagination path="/admin/images" currentPage={page} totalCount={count} query={`search=${search}&sort=${sort}`} />
     </>
   );
 }
