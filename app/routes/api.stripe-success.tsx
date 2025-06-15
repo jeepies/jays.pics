@@ -20,7 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ) {
     await prisma.user.update({
       where: { id: user.id },
-      data: { max_space: user.max_space + 500 * 1024 * 1024 },
+      data: { max_space: BigInt(user.max_space) + BigInt(500 * 1024 * 1024) },
     });
     return redirect("/dashboard/settings?purchase=success");
   }
