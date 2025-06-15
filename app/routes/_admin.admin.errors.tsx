@@ -1,5 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import type { ErrorStatus } from "@prisma/client";
 
 import { PAGE_SIZE, Pagination } from "~/components/pagination";
 import { Button } from "~/components/ui/button";
@@ -37,7 +38,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const id = form.get("id") as string | null;
   const status = form.get("status") as string | null;
   if (!id || !status) return json({ success: false }, { status: 400 });
-  await prisma.siteError.update({ where: { id }, data: { status } });
+  await prisma.siteError.update({
+    where: { id },
+    data: { status: status as ErrorStatus },
+  });
   return json({ success: true });
 }
 
