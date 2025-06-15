@@ -30,7 +30,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const imageTotal = await prisma.image.count();
   const userTotal = await prisma.user.count();
-  const storageTotal = (
+  const storageTotalBig = (
     await prisma.user.aggregate({
       _sum: {
         space_used: true,
@@ -42,6 +42,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       progress: Progress.DONE,
     },
   });
+
+  const storageTotal = Number(storageTotalBig ?? 0n);
 
   return { imageTotal, userTotal, storageTotal, domainsTotal };
 }
