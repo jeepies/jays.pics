@@ -33,8 +33,8 @@ model User {
   pinned_images String[] @default([])
 
   images     Image[]
-  space_used Int     @default(0)
-  max_space  Int     @default(100000000)
+  space_used BigInt  @default(0)
+  max_space  BigInt  @default(100000000)
 
   last_login_ip String?
 
