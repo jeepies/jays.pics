@@ -12,13 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
+import { Badge } from '~/components/ui/badge';
 import { Sidebar } from '~/components/ui/sidebar';
 import { SidebarGuest } from '~/components/ui/sidebar-guest';
 import { Textarea } from '~/components/ui/textarea';
 import { templateReplacer } from '~/lib/utils';
 import { prisma } from '~/services/database.server';
 import { getSession, getUserBySession } from '~/services/session.server';
-
 
 const nameSchema = z.object({
   display_name: z.string().min(1).max(256),
@@ -73,7 +73,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     user,
     comments,
     tags: image.tags.map((t) => t.tag),
-    version: process.env.VERSION ?? '0.0.0'
+    version: process.env.VERSION ?? '0.0.0',
   };
 }
 
@@ -147,11 +147,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (type === 'remove_tag') {
     const tagId = formData.get('tag_id');
     if (typeof tagId === 'string') {
-      await prisma.imageTag
-        .delete({
-          where: { image_id_tag_id: { image_id: params.id!, tag_id: tagId } },
-        })
-        .catch(() => {});
+      const image = await prisma.image.findUnique({
+        where: { id: params.id! },
+        select: { uploader_id: true },
+      });
+      if (image && image.uploader_id === user!.id) {
+        await prisma.imageTag
+          .delete({
+            where: { image_id_tag_id: { image_id: params.id!, tag_id: tagId } },
+          })
+          .catch(() => {});
+      }
     }
   }
 
@@ -171,7 +177,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-
   const accept = request.headers.get('Accept') || '';
   if (accept.includes('application/json')) {
     return json({ ok: true });
@@ -190,7 +195,12 @@ export default function Image() {
     <div className="flex h-screen overflow-hidden">
       {user!.id !== '' ? (
         <Sidebar
-          user={{ username: user!.username, is_admin: user!.is_admin, notifications: user!.notifications, images: user!.images }}
+          user={{
+            username: user!.username,
+            is_admin: user!.is_admin,
+            notifications: user!.notifications,
+            images: user!.images,
+          }}
           version={version}
           className="border-r"
         />
@@ -201,11 +211,13 @@ export default function Image() {
         <div className="flex w-full max-w-md flex-col space-y-4">
           <Card>
             <CardHeader>
-            {editingName && user!.id === data.image.uploader_id ? (
+              {editingName && user!.id === data.image.uploader_id ? (
                 <Form method="POST" className="flex gap-2" onSubmit={() => setEditingName(false)}>
                   <Input type="hidden" name="type" value="update_display_name" />
                   <Input name="display_name" defaultValue={data.image.display_name} className="flex-1" />
-                  <Button type="submit" size="sm">Save</Button>
+                  <Button type="submit" size="sm">
+                    Save
+                  </Button>
                   <Button type="button" variant="ghost" size="sm" onClick={() => setEditingName(false)}>
                     Cancel
                   </Button>
@@ -226,15 +238,21 @@ export default function Image() {
               <p>Uploaded on {new Date(data.image.created_at).toLocaleDateString()}</p>
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
-                  {tags.map((t) => (
-                    <Form method="POST" key={t.id} className="flex">
-                      <Input type="hidden" name="type" value="remove_tag" />
-                      <Input type="hidden" name="tag_id" value={t.id} />
-                      <Button variant="outline" size="sm" className="px-1 py-0">
-                        {t.name} {user!.id === data.image.uploader_id && '✕'}
-                      </Button>
-                    </Form>
-                  ))}
+                  {tags.map((t) =>
+                    user!.id === data.image.uploader_id ? (
+                      <Form method="POST" key={t.id} className="flex">
+                        <Input type="hidden" name="type" value="remove_tag" />
+                        <Input type="hidden" name="tag_id" value={t.id} />
+                        <Button variant="outline" size="sm" className="px-1 py-0">
+                          {t.name} ✕
+                        </Button>
+                      </Form>
+                    ) : (
+                      <Badge key={t.id} className="px-1 py-0">
+                        {t.name}
+                      </Badge>
+                    )
+                  )}
                 </div>
               )}
               {user!.id === data.image.uploader_id && (
@@ -265,7 +283,11 @@ export default function Image() {
                     <div key={c.id} className="flex items-start space-x-2 text-sm">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={c.commenter.avatar_url ? `/avatar/${c.commenter_id}` : `https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`}
+                          src={
+                            c.commenter.avatar_url
+                              ? `/avatar/${c.commenter_id}`
+                              : `https://api.dicebear.com/6.x/initials/svg?seed=${c.commenter.username}`
+                          }
                           alt={c.commenter.username}
                         />
                         <AvatarFallback>{c.commenter.username.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -276,16 +298,20 @@ export default function Image() {
                       </div>
                       {user!.id === c.commenter_id && (
                         <ConfirmDialog
-                        onConfirm={() => {
-                          const fd = new FormData();
-                          fd.append('type', 'delete_comment');
-                          fd.append('comment_id', c.id);
-                          fetcher.submit(fd, { method: 'post' });
-                          setCommentList((prev) => prev.filter((cm) => cm.id !== c.id));
-                          showToast('Comment deleted', 'success');
-                        }}
-                        trigger={<Button variant="ghost" size="icon">✕</Button>}
-                      />
+                          onConfirm={() => {
+                            const fd = new FormData();
+                            fd.append('type', 'delete_comment');
+                            fd.append('comment_id', c.id);
+                            fetcher.submit(fd, { method: 'post' });
+                            setCommentList((prev) => prev.filter((cm) => cm.id !== c.id));
+                            showToast('Comment deleted', 'success');
+                          }}
+                          trigger={
+                            <Button variant="ghost" size="icon">
+                              ✕
+                            </Button>
+                          }
+                        />
                       )}
                     </div>
                   ))}
@@ -297,7 +323,7 @@ export default function Image() {
                 <fetcher.Form
                   method="POST"
                   className="w-full space-y-2"
-                  onSubmit={(e: { currentTarget: any; preventDefault: () => void; }) => {
+                  onSubmit={(e: { currentTarget: any; preventDefault: () => void }) => {
                     const form = e.currentTarget;
                     const fd = new FormData(form);
                     fetcher.submit(fd, { method: 'post' });
