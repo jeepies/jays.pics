@@ -1,9 +1,8 @@
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Outlet, redirect } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-
-import { getSession } from "~/services/session.server";
+import { redirectIfUser } from "~/services/auth.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -13,9 +12,7 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  if (session.has("userID")) return redirect("/dashboard/index");
-  return null;
+  return redirectIfUser(request);
 }
 
 export default function Authorization() {
