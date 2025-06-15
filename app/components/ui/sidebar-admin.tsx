@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react';
-import { ArrowLeft, Bell, BellDotIcon, Globe2, Hammer, Home, Images, Logs, PanelsTopLeft, Sticker, User, Users } from 'lucide-react';
+import { ArrowLeft, Bell, BellDotIcon, CircleX, Globe2, Hammer, Home, Images, Logs, PanelsTopLeft, Sticker, User, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '~/components/ui/button';
@@ -81,6 +81,17 @@ export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
               <Link to="/admin/logs">
                 <Logs className="mr-2 h-4 w-4" />
                 Logs
+              </Link>
+            </Button>
+            <Button
+              onClick={onLinkClick}
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/admin/errors">
+                <CircleX className="mr-2 h-4 w-4" />
+                Errors
               </Link>
             </Button>
             <Button
