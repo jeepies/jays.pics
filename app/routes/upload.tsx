@@ -121,9 +121,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
     for (const trig of triggers) {
       for (const act of trig.actions) {
-        if (act.type === "webhook" && act.data.url) {
+        const actionData = act.data as { url?: string; tag?: string; name?: string }
+        if (act.type === 'webhook' && actionData?.url) {
           try {
-            await fetch(act.data.url, {
+            await fetch(actionData.url, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -133,11 +134,11 @@ export async function action({ request }: ActionFunctionArgs) {
             });
           } catch (_) {}
         }
-        if (act.type === "add_tag" && act.data.tag) {
+        if (act.type === 'add_tag' && actionData?.tag) {
           const tag = await prisma.tag.upsert({
-            where: { user_id_name: { user_id: user.id, name: act.data.tag } },
+            where: { user_id_name: { user_id: user.id, name: actionData.tag } },
             update: {},
-            create: { name: act.data.tag, user_id: user.id },
+            create: { name: actionData.tag, user_id: user.id },
           });
           await prisma.imageTag.upsert({
             where: {
@@ -147,10 +148,10 @@ export async function action({ request }: ActionFunctionArgs) {
             create: { image_id: dbImage.id, tag_id: tag.id },
           });
         }
-        if (act.type === "rename" && act.data.name) {
+        if (act.type === 'rename' && actionData?.name) {
           await prisma.image.update({
             where: { id: dbImage.id },
-            data: { display_name: act.data.name },
+            data: { display_name: actionData.name },
           });
         }
       }
