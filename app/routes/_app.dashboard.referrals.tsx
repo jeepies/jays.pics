@@ -43,7 +43,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { referrer_id: user!.referrer_profile?.id },
     select: {
       created_at: true,
-      referred: true,
+      referred: {
+        select: {
+          id: true,
+          username: true,
+        },
+      }
     },
   });
 
