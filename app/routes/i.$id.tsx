@@ -46,7 +46,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include: { tags: { include: { tag: true } } },
   });
   if (!image) return redirect("/");
-  const uploader = await prisma.user.findFirst({
+
+  const uploaderData = await prisma.user.findFirst({
     where: { id: image!.uploader_id },
     select: {
       username: true,
@@ -55,6 +56,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       max_space: true,
     },
   });
+
+  const uploader = uploaderData
+  ? {
+      ...uploaderData,
+      space_used: Number(uploaderData.space_used),
+      max_space: Number(uploaderData.max_space),
+    }
+  : null;
 
   const comments = await prisma.imageComment.findMany({
     where: { image_id: params.id },

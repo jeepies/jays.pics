@@ -22,7 +22,7 @@ export const sessionStorage = createCookieSessionStorage({
 });
 
 export async function getUserBySession(session: Session) {
-  return await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: session.get("userID") },
     select: {
       id: true,
@@ -45,6 +45,14 @@ export async function getUserBySession(session: Session) {
       },
     },
   });
+
+  if (!user) return null;
+
+  return {
+    ...user,
+    max_space: Number(user.max_space),
+    space_used: Number(user.space_used),
+  };
 }
 
 export async function getUserByID(id: string) {

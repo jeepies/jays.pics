@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "space_used" SET DATA TYPE BIGINT,
+ALTER COLUMN "max_space" SET DATA TYPE BIGINT;
