@@ -7,7 +7,7 @@ import { get } from '~/services/s3.server';
 export const meta: MetaFunction = () => {
   return [
     { title: 'Image | jays.pics' },
-    { name: 'description', content: 'Administration Dashboard' },
+    { name: 'description', content: 'Image' },
     {
       name: 'theme-color',
       content: '#e05cd9',
