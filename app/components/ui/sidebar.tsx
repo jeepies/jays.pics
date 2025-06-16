@@ -7,20 +7,17 @@ import {
   Globe2,
   Home,
   Image,
-  ImageIcon,
   Link2,
   LogOut,
   Shield,
-  User,
   Code,
   WandSparkles,
   ChevronDown,
   GitBranch,
   Wrench,
   TableProperties,
-  UserIcon,
   User2,
-  UserPen,
+  SquareUser,
 } from "lucide-react";
 import { useState } from "react";
 import { FaDiscord } from "react-icons/fa";
@@ -31,7 +28,6 @@ import { cn, formatNumber } from "~/lib/utils";
 import { NotificationTray } from "./notification-tray";
 import { Separator } from "./separator";
 import { ThemeToggle } from "./themetoggle";
-import { RegionSelector } from "../region-selector";
 
 interface SidebarProps {
   className?: string;
@@ -245,7 +241,7 @@ export function Sidebar({
             className="w-full justify-start text-gray-900 dark:text-gray-100"
           >
             <div className="flex items-center gap-2 w-full">
-              <UserIcon className="h-4 w-4" />
+              <User2 className="h-4 w-4" />
               {user.username}
               <ChevronDown
                 className={cn(
@@ -265,7 +261,7 @@ export function Sidebar({
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
               <Link to="/profile/me" className="flex items-center gap-2">
-                <UserPen className="h-4 w-4" />
+                <SquareUser className="h-4 w-4" />
                 Profile
               </Link>
             </Button>
