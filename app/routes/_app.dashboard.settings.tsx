@@ -272,6 +272,50 @@ export default function Settings() {
                 </div>
               </div>
             </fetcher.Form>
+
+            <fetcher.Form
+              method="post"
+              encType="multipart/form-data"
+              className="space-y-2"
+              onSubmit={(e) => {
+                const fd = new FormData(e.currentTarget);
+                if (
+                  !(fd.get("avatar") instanceof File) ||
+                  (fd.get("avatar") as File).size === 0
+                ) {
+                  showToast("Select an image to upload", "error");
+                  e.preventDefault();
+                  return;
+                }
+                showToast("Avatar updated", "success");
+                fetcher.submit(fd, {
+                  method: "post",
+                  encType: "multipart/form-data",
+                });
+                e.preventDefault();
+              }}
+            >
+              <div className="flex space-x-2">
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <Input type="hidden" name="type" value="update_avatar" />
+                    <Label htmlFor="avatar">Profile Picture</Label>
+                    <div className="flex items-center space-x-2 mt-1 w-full">
+                      <Input
+                        id="avatar"
+                        name="avatar"
+                        type="file"
+                        accept="image/*"
+                        className="my-1"
+                      />
+                      <Button type="submit" variant="ghost" size="icon">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fetcher.Form>
           </CardContent>
         </Card>
 
