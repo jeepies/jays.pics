@@ -6,6 +6,7 @@ import {
   CircleX,
   Globe2,
   Hammer,
+  HardDrive,
   Home,
   Images,
   Logs,
@@ -84,6 +85,17 @@ export function SidebarAdmin({ className, user, onLinkClick }: SidebarProps) {
               <Link to="/admin/domains">
                 <Globe2 className="mr-2 h-4 w-4" />
                 Domains
+              </Link>
+            </Button>
+            <Button
+              onClick={onLinkClick}
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/admin/subscriptions">
+                <HardDrive className="mr-2 h-4 w-4" />
+                Subscriptions
               </Link>
             </Button>
             <Button
