@@ -22,11 +22,13 @@ import {
   Check,
   CloudUpload,
   Container,
+  Cross,
   Eye,
   Hammer,
   Pencil,
   User,
   UserPen,
+  X,
 } from "lucide-react";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 
@@ -158,15 +160,51 @@ export default function Settings() {
                 <div className="flex-1 space-y-2">
                   <div>
                     <Label htmlFor="username">Username</Label>
-                    <Input
-                      id="username"
-                      name="username"
-                      className="mt-1"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      readOnly={!editingUsername}
-                    />
+                    <div className="flex space-x-1">
+                      <Input
+                        id="username"
+                        name="username"
+                        className="mt-1"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        readOnly={!editingUsername}
+                      />
+                      {canChange && (
+                        <div>
+                          {editingUsername ? (
+                            <>
+                              <Button type="submit" variant="ghost" size="icon">
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setEditingUsername(false);
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setEditingUsername(true);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+
                   <div>
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -177,24 +215,6 @@ export default function Settings() {
                     />
                   </div>
                 </div>
-                {canChange && (
-                  <div>
-                    {editingUsername ? (
-                      <Button type="submit" variant="ghost" size="icon">
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingUsername((prev) => !prev)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                )}
               </div>
             </fetcher.Form>
           </CardContent>
