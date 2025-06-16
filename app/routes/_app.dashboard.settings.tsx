@@ -6,7 +6,13 @@ import { useMemo, useState } from "react";
 
 import { useToast } from "~/components/toast";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { prisma } from "~/services/database.server";
@@ -26,6 +32,7 @@ import {
   Eye,
   Hammer,
   Pencil,
+  TriangleAlert,
   User,
   UserPen,
   X,
@@ -336,6 +343,22 @@ export default function Settings() {
                   Download My Images
                 </a>
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-red-900">
+          <CardHeader>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle>Destructive Actions</CardTitle>
+              <TriangleAlert className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <CardDescription className="text-red-700">
+              <i>These actions can be catastrophic</i>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex space-x-2">
               <Button variant="destructive">Purge images</Button>
               <Button variant="destructive">Delete account</Button>
             </div>
