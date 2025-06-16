@@ -18,7 +18,16 @@ import {
   Segment,
   SegmentedProgressBar,
 } from "~/components/segmented-progress-bar";
-import { Check, Eye, Pencil } from "lucide-react";
+import {
+  Check,
+  CloudUpload,
+  Container,
+  Eye,
+  Hammer,
+  Pencil,
+  User,
+  UserPen,
+} from "lucide-react";
 import { EyeClosedIcon } from "@radix-ui/react-icons";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -129,8 +138,9 @@ export default function Settings() {
     <>
       <div className="container mx-auto px-4 py-8">
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Account Details</CardTitle>
+            <UserPen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="space-y-4">
             <fetcher.Form
@@ -142,20 +152,30 @@ export default function Settings() {
                 showToast("Username updated", "success");
                 e.preventDefault();
               }}
-              className="space-y-2"
             >
               <Input type="hidden" name="type" value="update_username" />
               <div className="flex items-end space-x-2">
-                <div className="flex-1">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    name="username"
-                    className="mt-1"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    readOnly={!editingUsername}
-                  />
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      className="mt-1"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      readOnly={!editingUsername}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      className="mt-1"
+                      value={""}
+                    />
+                  </div>
                 </div>
                 {canChange && (
                   <div>
@@ -181,8 +201,9 @@ export default function Settings() {
         </Card>
 
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Uploader Details</CardTitle>
+            <CloudUpload className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="space-y-4">
             <label>Upload Key:</label>
@@ -217,8 +238,9 @@ export default function Settings() {
         </Card>
 
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Storage</CardTitle>
+            <Container className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -272,12 +294,20 @@ export default function Settings() {
         </Card>
 
         <Card className="mb-8">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>Actions</CardTitle>
+            <Hammer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex space-x-2">
-              <Button>Download my data</Button>
+              <Button
+                asChild
+                onClick={() => showToast("Preparing download", "info")}
+              >
+                <a href="/api/data-archive" download>
+                  Download My Data
+                </a>
+              </Button>
               <Button variant="destructive">Purge images</Button>
               <Button variant="destructive">Delete account</Button>
             </div>
