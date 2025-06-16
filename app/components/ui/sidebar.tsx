@@ -237,6 +237,17 @@ export function Sidebar({
             <ThemeToggle />
           </Button>
           <Button
+            onClick={onLinkClick}
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <Link to="/dashboard/upload" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload
+            </Link>
+          </Button>
+          <Button
             onClick={() => setShowUserMenu(!showUserMenu)}
             variant="ghost"
             className="w-full justify-start text-gray-900 dark:text-gray-100"
@@ -308,18 +319,6 @@ export function Sidebar({
             </Button>
           </div>
         )}
-
-        <Button
-          onClick={onLinkClick}
-          asChild
-          variant="ghost"
-          className="w-full justify-start text-gray-900 dark:text-gray-100"
-        >
-          <Link to="/dashboard/upload" className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            Upload
-          </Link>
-        </Button>
 
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-3">
           <span>v{version}</span>
