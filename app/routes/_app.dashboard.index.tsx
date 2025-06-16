@@ -45,33 +45,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { uploader_id: user.id },
   });
 
-  const startDate = new Date();
-  startDate.setUTCHours(0, 0, 0, 0);
-  startDate.setUTCDate(startDate.getUTCDate() - 6);
-
-  const storageDailyRaw = await prisma.$queryRaw<
-    { date: Date; count: number }[]
-  >`
-    SELECT DATE_TRUNC('day', "created_at") as date, SUM(size)::int as count
-    FROM "Image"
-    WHERE "created_at" >= ${startDate} AND "uploader_id" = ${user.id} AND "deleted_at" IS NULL
-    GROUP BY date
-    ORDER BY date`;
-
-  function fillMissing(src: { date: Date; count: number }[]) {
-    const out: { date: string; count: number }[] = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startDate);
-      d.setUTCDate(startDate.getUTCDate() + i);
-      const key = d.toISOString().slice(0, 10);
-      const found = src.find((s) => s.date.toISOString().slice(0, 10) === key);
-      out.push({ date: key, count: found ? found.count : 0 });
-    }
-    return out;
-  }
-
-  const storageDaily = fillMissing(storageDailyRaw);
-
   const announcement = await prisma.announcement.findMany({
     select: {
       content: true,
@@ -115,20 +88,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     announcement,
     siteData,
     clipboard,
-    storageDaily,
   };
 }
 
 export default function Dashboard() {
-  const {
-    user,
-    referrals,
-    images,
-    announcement,
-    siteData,
-    clipboard,
-    storageDaily,
-  } = useLoaderData<typeof loader>();
+  const { user, referrals, images, announcement, siteData, clipboard } =
+    useLoaderData<typeof loader>();
 
   if (clipboard) {
     navigator.clipboard.writeText(clipboard);
@@ -247,40 +212,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Storage Usage (7d)</CardTitle>
-          </CardHeader>
-          <CardContent className="h-60">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-              className="text-primary"
-            >
-              <LineChart
-                data={storageDaily}
-                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(v) => new Date(v).getUTCDate().toString()}
-                />
-                <Tooltip
-                  labelFormatter={(v) => new Date(v).toLocaleDateString()}
-                  formatter={(value: number) => prettyBytes(value)}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="currentColor"
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Recent Uploads</h2>
           {siteData?.is_upload_blocked ? (
