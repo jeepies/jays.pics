@@ -394,19 +394,25 @@ export default function Settings() {
                 method="post"
                 action="/api/create-checkout-session?order=500mb"
               >
-                <Button type="submit">+500MB (£0.49/month)</Button>
+                <Button disabled type="submit">
+                  +500MB (£0.49/month)
+                </Button>
               </Form>
               <Form
                 method="post"
                 action="/api/create-checkout-session?order=1gb"
               >
-                <Button type="submit">+1GB (£1.99/month)</Button>
+                <Button disabled type="submit">
+                  +1GB (£1.99/month)
+                </Button>
               </Form>
               <Form
                 method="post"
                 action="/api/create-checkout-session?order=5gb"
               >
-                <Button type="submit">+5GB (£3.99/month)</Button>
+                <Button disabled type="submit">
+                  +5GB (£3.99/month)
+                </Button>
               </Form>
             </div>
           </CardContent>
