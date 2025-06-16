@@ -27,9 +27,7 @@ import {
 } from "~/components/segmented-progress-bar";
 import {
   Check,
-  CloudUpload,
   Container,
-  Eye,
   Hammer,
   Pencil,
   TriangleAlert,
@@ -378,27 +376,39 @@ export default function Settings() {
                 method="post"
                 action="/api/create-checkout-session?order=500mb"
               >
-                <Button disabled type="submit">
-                  +500MB (£0.49/month)
-                </Button>
+                <Button type="submit">+500MB (£0.49/month)</Button>
               </Form>
               <Form
                 method="post"
                 action="/api/create-checkout-session?order=1gb"
               >
-                <Button disabled type="submit">
-                  +1GB (£1.99/month)
-                </Button>
+                <Button type="submit">+1GB (£1.99/month)</Button>
               </Form>
               <Form
                 method="post"
                 action="/api/create-checkout-session?order=5gb"
               >
-                <Button disabled type="submit">
-                  +5GB (£3.99/month)
-                </Button>
+                <Button type="submit">+5GB (£3.99/month)</Button>
               </Form>
             </div>
+            {data.user.StorageSubscription.length > 0 && (
+              <div className="space-y-2 mt-4">
+                <h4 className="font-medium">Active Subscriptions</h4>
+                {data.user.StorageSubscription.map((sub) => (
+                  <Form
+                    key={sub.id}
+                    method="post"
+                    action={`/api/subscription/${sub.id}/cancel`}
+                    className="flex items-center space-x-2"
+                  >
+                    <span>{prettyBytes(sub.storage)} plan</span>
+                    <Button type="submit" variant="destructive">
+                      Cancel
+                    </Button>
+                  </Form>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

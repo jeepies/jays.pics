@@ -39,6 +39,7 @@ export async function getUserBySession(session: Session) {
       pinned_images: true,
       avatar_url: true,
       email: true,
+      StorageSubscription: true,
       notifications: {
         where: {
           seen: false,
@@ -53,6 +54,11 @@ export async function getUserBySession(session: Session) {
     ...user,
     max_space: Number(user.max_space),
     space_used: Number(user.space_used),
+    StorageSubscription:
+      user.StorageSubscription?.map((s) => ({
+        ...s,
+        storage: Number(s.storage),
+      })) ?? [],
   };
 }
 
