@@ -24,6 +24,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
       where: { id: user.id },
       data: { max_space: BigInt(user.max_space) + increase },
     });
+    if (typeof checkout.subscription === "string") {
+      await prisma.storageSubscription.create({
+        data: {
+          user_id: user.id,
+          stripe_subscription_id: checkout.subscription,
+          storage: increase,
+        },
+      });
+    }
     return redirect("/dashboard/settings?purchase=success");
   }
 

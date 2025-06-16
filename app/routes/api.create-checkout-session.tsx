@@ -9,9 +9,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const user = await getUserBySession(session);
   if (!user) return redirect("/login");
 
-  const base = process.env.BASE_DOMAIN
-    ? `https://${process.env.BASE_DOMAIN}`
-    : "http://localhost";
+  // const base = process.env.BASE_DOMAIN
+  //   ? `https://${process.env.BASE_DOMAIN}`
+  //   : "http://localhost:5173";
+
+  const base = "http://localhost:5173";
 
   const url = new URL(request.url);
   const order = url.searchParams.get("order") ?? "500mb";
