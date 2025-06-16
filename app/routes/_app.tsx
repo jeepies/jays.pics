@@ -3,6 +3,7 @@ import { Outlet, useLoaderData, useRouteLoaderData } from "@remix-run/react";
 
 import { DashboardNavbar } from "~/components/dashboard-navbar";
 import { Sidebar } from "~/components/ui/sidebar";
+import { StorageLimitBanner } from "~/components/storage-limit-banner";
 import {
   destroySession,
   getSession,
@@ -53,6 +54,10 @@ export default function Application() {
       <div className="flex-grow rounded w-full h-full overflow-auto">
         <Outlet />
       </div>
+      <StorageLimitBanner
+        spaceUsed={user.space_used}
+        maxSpace={user.max_space}
+      />
     </div>
   );
 }
