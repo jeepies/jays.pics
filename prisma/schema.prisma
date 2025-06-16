@@ -61,6 +61,8 @@ model User {
   Trigger Trigger[]
 
   ImageArchiveRequest ImageArchiveRequest[]
+
+  StorageSubscription StorageSubscription[]
 }
 
 model ReferrerProfile {
@@ -308,14 +310,14 @@ enum ErrorStatus {
 }
 
 model SiteError {
-  id        String   @unique @default(cuid())
-  code      String   @unique
-  message   String
-  stack     String?
-  user_ids  String[] @default([])
-  status    ErrorStatus @default(OPEN)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         String      @unique @default(cuid())
+  code       String      @unique
+  message    String
+  stack      String?
+  user_ids   String[]    @default([])
+  status     ErrorStatus @default(OPEN)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
 }
 
 model ImageArchiveRequest {
@@ -323,6 +325,18 @@ model ImageArchiveRequest {
   user       User     @relation(fields: [user_id], references: [id])
   user_id    String
   created_at DateTime @default(now())
+
+  @@index([user_id])
+}
+
+model StorageSubscription {
+  id                     String    @unique @default(cuid())
+  user                   User      @relation(fields: [user_id], references: [id])
+  user_id                String
+  stripe_subscription_id String    @unique
+  storage                BigInt
+  created_at             DateTime  @default(now())
+  cancelled_at           DateTime?
 
   @@index([user_id])
 }
