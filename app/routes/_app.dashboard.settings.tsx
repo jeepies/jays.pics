@@ -146,6 +146,31 @@ export default function Settings() {
     { label: "WEBP", value: usage.webp, color: "bg-green-500" },
   ];
 
+  async function handleImageArchive() {
+    showToast("Preparing download", "info");
+    try {
+      const res = await fetch("/api/image-archive");
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${data.user.username}-images.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } else {
+        const j = await res
+          .json()
+          .catch(() => ({ message: "Failed to download" }));
+        showToast(j.message ?? "Failed to download", "error");
+      }
+    } catch {
+      showToast("Failed to download", "error");
+    }
+  }
+
   return (
     <>
       <div className="container mx-auto px-4 py-8">
@@ -431,13 +456,8 @@ export default function Settings() {
                   Download My Data
                 </a>
               </Button>
-              <Button
-                asChild
-                onClick={() => showToast("Preparing download", "info")}
-              >
-                <a href="/api/image-archive" download>
-                  Download My Images
-                </a>
+              <Button type="button" onClick={handleImageArchive}>
+                Download My Images
               </Button>
             </div>
           </CardContent>
