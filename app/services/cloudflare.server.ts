@@ -17,3 +17,9 @@ export async function getNameServers(zoneID: string) {
   const zone = await cf.zones.get({ zone_id: zoneID });
   return zone.name_servers;
 }
+
+export async function deleteZone(zoneID: string) {
+  try {
+    await cf.zones.delete({ zone_id: zoneID });
+  } catch {}
+}

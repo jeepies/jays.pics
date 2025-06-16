@@ -3,7 +3,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -13,6 +13,7 @@ import { prisma } from "~/services/database.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 
 import { columns } from "./columns";
+import { deleteZone } from "~/services/cloudflare.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await getUserBySession(
@@ -42,6 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
   const url = formData.get("url");
   const actionType = formData.get("action");
+  const selected = formData.get("selected");
 
   if (typeof url === "string") {
     const domain = await prisma.uRL.findUnique({
@@ -70,6 +72,39 @@ export async function action({ request }: ActionFunctionArgs) {
         data: { public: false },
       });
     }
+
+    if (actionType === "delete_selected" && typeof selected === "string") {
+      const toDelete = Object.keys(JSON.parse(selected));
+      const domains = await prisma.uRL.findMany({
+        where: {
+          url: { in: toDelete },
+          donator_id: user!.id,
+        },
+        select: { url: true, zone_id: true },
+      });
+
+      for (const d of domains) {
+        await prisma.uRL.delete({ where: { url: d.url } });
+        await deleteZone(d.zone_id);
+
+        const prefs = await prisma.uploaderPreferences.findMany({
+          where: { urls: { has: d.url } },
+          select: { userId: true, urls: true },
+        });
+        for (const pref of prefs) {
+          await prisma.notification.create({
+            data: {
+              receiver_id: pref.userId,
+              content: `Domain ${d.url} was removed`,
+            },
+          });
+          await prisma.uploaderPreferences.update({
+            where: { userId: pref.userId },
+            data: { urls: pref.urls.filter((u: string) => u !== d.url) },
+          });
+        }
+      }
+    }
   }
 
   return redirect("/dashboard/my-domains");
@@ -85,13 +120,18 @@ export default function MyDomains() {
           <CardTitle>Domains</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={urls} selected={[]} />
-          <Button className="mt-2">
-            <Link to="/dashboard/domain/add">Add Domain</Link>
-          </Button>
-          <Button className="mt-2 ml-2">
-            <Link to="/dashboard/domain/add">Delete Domain(s)</Link>
-          </Button>
+          <Form method="post">
+            <input type="hidden" name="action" value="delete_selected" />
+            <DataTable columns={columns} data={urls} selected={[]} />
+            <div className="mt-2 space-x-2">
+              <Button type="button" asChild>
+                <Link to="/dashboard/domain/add">Add Domain</Link>
+              </Button>
+              <Button type="submit" variant="destructive">
+                Delete Domain(s)
+              </Button>
+            </div>
+          </Form>
         </CardContent>
       </Card>
     </div>
