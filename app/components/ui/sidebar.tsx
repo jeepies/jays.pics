@@ -16,6 +16,8 @@ import {
   WandSparkles,
   ChevronDown,
   GitBranch,
+  Wrench,
+  TableProperties,
 } from "lucide-react";
 import { useState } from "react";
 import { FaDiscord } from "react-icons/fa";
@@ -125,7 +127,7 @@ export function Sidebar({
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
               <div className="flex items-center gap-2 w-full">
-                <ImageIcon className="h-4 w-4" />
+                <Wrench className="h-4 w-4" />
                 Upload Config
                 <ChevronDown
                   className={cn(
@@ -147,7 +149,7 @@ export function Sidebar({
                     to="/dashboard/domain-selector"
                     className="flex items-center gap-2"
                   >
-                    <Globe2 className="h-4 w-4" />
+                    <TableProperties className="h-4 w-4" />
                     Domain Selector
                   </Link>
                 </Button>
