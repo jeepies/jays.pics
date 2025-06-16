@@ -2,7 +2,7 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useFetcher } from "@remix-run/react";
 import prettyBytes from "pretty-bytes";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useToast } from "~/components/toast";
 import { Button } from "~/components/ui/button";
@@ -14,6 +14,10 @@ import { uploadToS3 } from "~/services/s3.server";
 import { getSession, getUserBySession } from "~/services/session.server";
 
 import { useAppLoaderData } from "./_app";
+import {
+  Segment,
+  SegmentedProgressBar,
+} from "~/components/segmented-progress-bar";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -77,6 +81,7 @@ export default function Settings() {
   const fetcher = useFetcher();
   const { showToast } = useToast();
   const [username, setUsername] = useState(data.user.username);
+  const [editingUsername, setEditingUsername] = useState(false);
 
   const changedAt = Date.parse(data!.user.username_changed_at);
   const sevenDaysAgo = Date.parse(
@@ -85,108 +90,107 @@ export default function Settings() {
 
   const canChange = changedAt < sevenDaysAgo;
 
+  const usage = useMemo(() => {
+    const totals = { png: 0, jpeg: 0, gif: 0, webp: 0, other: 0 };
+    for (const img of data.user.images as Array<any>) {
+      if (img.deleted_at) continue;
+      switch (img.type) {
+        case "image/png":
+          totals.png += img.size;
+          break;
+        case "image/jpeg":
+        case "image/jpg":
+          totals.jpeg += img.size;
+          break;
+        case "image/gif":
+          totals.gif += img.size;
+          break;
+        case "image/webp":
+          totals.webp += img.size;
+          break;
+        default:
+          totals.other += img.size;
+      }
+    }
+    return totals;
+  }, [data.user.images]);
+
+  const segments: Segment[] = [
+    { label: "PNG", value: usage.png, color: "bg-blue-500" },
+    { label: "JPEG", value: usage.jpeg, color: "bg-yellow-500" },
+    { label: "GIF", value: usage.gif, color: "bg-green-500" },
+    { label: "WEBP", value: usage.webp, color: "bg-purple-500" },
+  ];
+
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <Card>
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Account Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <fetcher.Form
-              method="post"
-              className="space-y-2"
-              onSubmit={(e) => {
-                const fd = new FormData(e.currentTarget);
-                if (!canChange) {
-                  showToast(
-                    "You can change your username every 7 days",
-                    "error",
-                  );
-                  e.preventDefault();
-                  return;
-                }
-                const value = fd.get("username");
-                if (typeof value === "string") setUsername(value);
-                showToast("Username updated", "success");
-                fetcher.submit(fd, { method: "post" });
-                e.preventDefault();
-              }}
-            >
-              <Input type="hidden" name="type" value="update_username" />
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                readOnly={!canChange}
-                className="my-1"
-              />
-              {!canChange && (
-                <p className="text-sm text-muted-foreground">
-                  You can change your username every 7 days. Your last change
-                  was {new Date(changedAt).toLocaleDateString()}.
-                </p>
-              )}
-              {canChange && <Button type="submit">Update Username</Button>}
-            </fetcher.Form>
-            <fetcher.Form
-              method="post"
-              encType="multipart/form-data"
-              className="space-y-2"
-              onSubmit={(e) => {
-                const fd = new FormData(e.currentTarget);
-                if (
-                  !(fd.get("avatar") instanceof File) ||
-                  (fd.get("avatar") as File).size === 0
-                ) {
-                  showToast("Select an image to upload", "error");
-                  e.preventDefault();
-                  return;
-                }
-                showToast("Avatar updated", "success");
-                fetcher.submit(fd, {
-                  method: "post",
-                  encType: "multipart/form-data",
-                });
-                e.preventDefault();
-              }}
-            >
-              <Input type="hidden" name="type" value="update_avatar" />
-              <Label htmlFor="avatar">Profile Picture</Label>
-              <Input
-                id="avatar"
-                name="avatar"
-                type="file"
-                accept="image/*"
-                className="my-1"
-              />
-              <Button type="submit">Update Avatar</Button>
-            </fetcher.Form>
-            <Button
-              variant="outline"
-              asChild
-              onClick={() => showToast("Preparing download", "info")}
-            >
-              <a href="/api/data-archive" download>
-                Download My Data
-              </a>
-            </Button>
-          </CardContent>
+          <CardContent className="space-y-4"></CardContent>
         </Card>
 
-        <Card className="mt-8">
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Uploader Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4"></CardContent>
+        </Card>
+
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Storage</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Current limit: {prettyBytes(data.user.max_space)}
-            </p>
-            <Form method="post" action="/api/create-checkout-session">
-              <Button type="submit">Buy 500MB (£1.99)</Button>
-            </Form>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex flex-wrap gap-4">
+                  {segments
+                    .filter((s) => s.value > 0)
+                    .map((seg) => (
+                      <div
+                        key={seg.label}
+                        className="flex items-center space-x-1"
+                      >
+                        <span
+                          className={`w-3 h-3 rounded-sm ${seg.color}`}
+                        ></span>
+                        <span className="text-xs">{seg.label}</span>
+                      </div>
+                    ))}
+                </div>
+                <span className="text-sm font-medium">
+                  {prettyBytes(data.user.space_used)} of{" "}
+                  {prettyBytes(data.user.max_space)} used
+                </span>
+              </div>
+              <SegmentedProgressBar
+                segments={segments}
+                max={data.user.max_space}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Form
+                method="post"
+                action="/api/create-checkout-session?order=500mb"
+              >
+                <Button type="submit">+500MB (£0.49/month)</Button>
+              </Form>
+              <Form
+                method="post"
+                action="/api/create-checkout-session?order=1gb"
+              >
+                <Button type="submit">+1GB (£1.99/month)</Button>
+              </Form>
+              <Form
+                method="post"
+                action="/api/create-checkout-session?order=5gb"
+              >
+                <Button type="submit">+5GB (£3.99/month)</Button>
+              </Form>
+            </div>
           </CardContent>
         </Card>
       </div>
