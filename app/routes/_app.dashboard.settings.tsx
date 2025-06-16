@@ -18,6 +18,8 @@ import {
   Segment,
   SegmentedProgressBar,
 } from "~/components/segmented-progress-bar";
+import { Check, Eye, Pencil } from "lucide-react";
+import { EyeClosedIcon } from "@radix-ui/react-icons";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -82,6 +84,7 @@ export default function Settings() {
   const { showToast } = useToast();
   const [username, setUsername] = useState(data.user.username);
   const [editingUsername, setEditingUsername] = useState(false);
+  const [canSeeUploadKey, setCanSeeUploadKey] = useState(false);
 
   const changedAt = Date.parse(data!.user.username_changed_at);
   const sevenDaysAgo = Date.parse(
@@ -129,14 +132,88 @@ export default function Settings() {
           <CardHeader>
             <CardTitle>Account Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4"></CardContent>
+          <CardContent className="space-y-4">
+            <fetcher.Form
+              method="post"
+              onSubmit={(e) => {
+                const fd = new FormData(e.currentTarget);
+                fetcher.submit(fd, { method: "post" });
+                setEditingUsername(false);
+                showToast("Username updated", "success");
+                e.preventDefault();
+              }}
+              className="space-y-2"
+            >
+              <Input type="hidden" name="type" value="update_username" />
+              <div className="flex items-end space-x-2">
+                <div className="flex-1">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    name="username"
+                    className="mt-1"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    readOnly={!editingUsername}
+                  />
+                </div>
+                {canChange && (
+                  <div>
+                    {editingUsername ? (
+                      <Button type="submit" variant="ghost" size="icon">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingUsername((prev) => !prev)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </fetcher.Form>
+          </CardContent>
         </Card>
 
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Uploader Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4"></CardContent>
+          <CardContent className="space-y-4">
+            <label>Upload Key:</label>
+            <div className="flex space-x-2">
+              <Input
+                type={canSeeUploadKey ? "text" : "password"}
+                readOnly
+                value={data?.user.upload_key}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setCanSeeUploadKey(!canSeeUploadKey)}
+              >
+                {canSeeUploadKey ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeClosedIcon className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <div className="flex space-x-2">
+              <Button>
+                <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
+              </Button>
+              <Button>
+                <a href={`/api/sharenix/${data?.user.id}`}>ShareNix</a>
+              </Button>
+            </div>
+          </CardContent>
         </Card>
 
         <Card className="mb-8">
@@ -190,6 +267,19 @@ export default function Settings() {
               >
                 <Button type="submit">+5GB (£3.99/month)</Button>
               </Form>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex space-x-2">
+              <Button>Download my data</Button>
+              <Button variant="destructive">Purge images</Button>
+              <Button variant="destructive">Delete account</Button>
             </div>
           </CardContent>
         </Card>
