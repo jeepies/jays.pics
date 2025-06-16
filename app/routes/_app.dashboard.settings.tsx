@@ -18,6 +18,7 @@ import { Label } from "~/components/ui/label";
 import { prisma } from "~/services/database.server";
 import { uploadToS3 } from "~/services/s3.server";
 import { getSession, getUserBySession } from "~/services/session.server";
+import { ConfirmDialog } from "~/components/confirm-dialog";
 
 import { useAppLoaderData } from "./_app";
 import {
@@ -97,6 +98,8 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Settings() {
   const data = useAppLoaderData()!;
   const fetcher = useFetcher();
+  const purgeFetcher = useFetcher();
+  const deleteFetcher = useFetcher();
   const { showToast } = useToast();
   const [username, setUsername] = useState(data.user.username);
   const [email, setEmail] = useState(data.user.email);
@@ -404,8 +407,30 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex space-x-2">
-              <Button variant="destructive">Purge images</Button>
-              <Button variant="destructive">Delete account</Button>
+              <ConfirmDialog
+                title="Purge images"
+                description="Are you sure you want to delete all images? This action is irreversible."
+                onConfirm={() => {
+                  purgeFetcher.submit(null, {
+                    method: "post",
+                    action: "/account/purge-images",
+                  });
+                  showToast("Images purged", "success");
+                }}
+                trigger={<Button variant="destructive">Purge images</Button>}
+              />
+              <ConfirmDialog
+                title="Delete account"
+                description="Delete your account and all images? This action cannot be undone."
+                onConfirm={() => {
+                  deleteFetcher.submit(null, {
+                    method: "post",
+                    action: "/account/delete",
+                  });
+                  showToast("Account deleted", "success");
+                }}
+                trigger={<Button variant="destructive">Delete account</Button>}
+              />
             </div>
           </CardContent>
         </Card>
