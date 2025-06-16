@@ -16,11 +16,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const checkout = await stripe.checkout.sessions.retrieve(checkoutId);
   if (
     checkout.payment_status === "paid" &&
-    checkout.metadata?.userId === user.id
+    checkout.metadata?.userId === user.id &&
+    checkout.metadata?.storage
   ) {
+    const increase = BigInt(checkout.metadata.storage);
     await prisma.user.update({
       where: { id: user.id },
-      data: { max_space: BigInt(user.max_space) + BigInt(500 * 1024 * 1024) },
+      data: { max_space: BigInt(user.max_space) + increase },
     });
     return redirect("/dashboard/settings?purchase=success");
   }
