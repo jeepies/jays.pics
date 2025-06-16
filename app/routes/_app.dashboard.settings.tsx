@@ -308,6 +308,14 @@ export default function Settings() {
                   Download My Data
                 </a>
               </Button>
+              <Button
+                asChild
+                onClick={() => showToast("Preparing download", "info")}
+              >
+                <a href="/api/image-archive" download>
+                  Download My Images
+                </a>
+              </Button>
               <Button variant="destructive">Purge images</Button>
               <Button variant="destructive">Delete account</Button>
             </div>
