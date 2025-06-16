@@ -200,6 +200,20 @@ export function Sidebar({
                     </span>
                   </Link>
                 </Button>
+                <Button
+                  onClick={onLinkClick}
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start text-gray-900 dark:text-gray-100"
+                >
+                  <Link
+                    to="/dashboard/upload-config/settings"
+                    className="flex items-center gap-2"
+                  >
+                    <Cog className="h-4 w-4" />
+                    Config
+                  </Link>
+                </Button>
               </div>
             )}
             <Button

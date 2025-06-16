@@ -36,7 +36,6 @@ import {
   UserPen,
   X,
 } from "lucide-react";
-import { EyeClosedIcon } from "@radix-ui/react-icons";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -105,7 +104,6 @@ export default function Settings() {
   const [email, setEmail] = useState(data.user.email);
   const [editingUsername, setEditingUsername] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
-  const [canSeeUploadKey, setCanSeeUploadKey] = useState(false);
 
   const changedAt = Date.parse(data!.user.username_changed_at);
   const sevenDaysAgo = Date.parse(
@@ -341,43 +339,6 @@ export default function Settings() {
                 </div>
               </div>
             </fetcher.Form>
-          </CardContent>
-        </Card>
-
-        <Card className="mb-8">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>Uploader Details</CardTitle>
-            <CloudUpload className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <label>Upload Key:</label>
-            <div className="flex space-x-2">
-              <Input
-                type={canSeeUploadKey ? "text" : "password"}
-                readOnly
-                value={data?.user.upload_key}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => setCanSeeUploadKey(!canSeeUploadKey)}
-              >
-                {canSeeUploadKey ? (
-                  <Eye className="h-4 w-4" />
-                ) : (
-                  <EyeClosedIcon className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            <div className="flex space-x-2">
-              <Button>
-                <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
-              </Button>
-              <Button>
-                <a href={`/api/sharenix/${data?.user.id}`}>ShareNix</a>
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
