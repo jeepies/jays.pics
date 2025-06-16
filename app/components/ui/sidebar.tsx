@@ -18,6 +18,9 @@ import {
   GitBranch,
   Wrench,
   TableProperties,
+  UserIcon,
+  User2,
+  UserPen,
 } from "lucide-react";
 import { useState } from "react";
 import { FaDiscord } from "react-icons/fa";
@@ -28,6 +31,7 @@ import { cn, formatNumber } from "~/lib/utils";
 import { NotificationTray } from "./notification-tray";
 import { Separator } from "./separator";
 import { ThemeToggle } from "./themetoggle";
+import { RegionSelector } from "../region-selector";
 
 interface SidebarProps {
   className?: string;
@@ -50,6 +54,7 @@ export function Sidebar({
   const [showTray, setShowTray] = useState(false);
   const [notifications, setNotifications] = useState(user.notifications ?? []);
   const [showUploadMenu, setShowUploadMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const removeNotification = (id: string) =>
     setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -228,61 +233,85 @@ export function Sidebar({
       <div className="absolute bottom-4 left-0 right-0 px-3">
         <div className="space-y-1">
           <Button
-            onClick={onLinkClick}
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-gray-900 dark:text-gray-100"
-          >
-            <Link to="/dashboard/settings" className="flex items-center gap-2">
-              <Cog className="h-4 w-4" />
-              Settings
-            </Link>
-          </Button>
-          <Button
-            onClick={onLinkClick}
-            asChild
-            variant="ghost"
-            className="w-full justify-start text-gray-900 dark:text-gray-100"
-          >
-            <Link to="/profile/me" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              {user.username}
-            </Link>
-          </Button>
-          <Button
             asChild
             variant="ghost"
             className="w-full justify-start text-gray-900 dark:text-gray-100"
           >
             <ThemeToggle />
           </Button>
-          {user.is_admin ? (
+          <Button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <div className="flex items-center gap-2 w-full">
+              <UserIcon className="h-4 w-4" />
+              {user.username}
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 ml-auto transition-transform",
+                  showUserMenu && "rotate-180",
+                )}
+              />
+            </div>
+          </Button>
+        </div>
+        {showUserMenu && (
+          <div className="pl-4 space-y-1">
             <Button
               onClick={onLinkClick}
               asChild
               variant="ghost"
               className="w-full justify-start text-gray-900 dark:text-gray-100"
             >
-              <Link to="/admin/index" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Admin Dashboard
+              <Link to="/profile/me" className="flex items-center gap-2">
+                <UserPen className="h-4 w-4" />
+                Profile
               </Link>
             </Button>
-          ) : (
-            <></>
-          )}
-          <Button
-            onClick={onLinkClick}
-            asChild
-            variant="ghost"
-            className="w-full justify-start hover:bg-red-700 hover:text-white text-gray-900 dark:text-gray-100"
-          >
-            <Link to="/logout" className="flex items-center gap-2">
-              <LogOut className="h-4 w-4" />
-              Log out
-            </Link>
-          </Button>
-        </div>
+            {user.is_admin ? (
+              <Button
+                onClick={onLinkClick}
+                asChild
+                variant="ghost"
+                className="w-full justify-start text-gray-900 dark:text-gray-100"
+              >
+                <Link to="/admin/index" className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Admin Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <></>
+            )}
+            <Button
+              onClick={onLinkClick}
+              asChild
+              variant="ghost"
+              className="w-full justify-start text-gray-900 dark:text-gray-100"
+            >
+              <Link
+                to="/dashboard/settings"
+                className="flex items-center gap-2"
+              >
+                <Cog className="h-4 w-4" />
+                Settings
+              </Link>
+            </Button>
+            <Button
+              onClick={onLinkClick}
+              asChild
+              variant="ghost"
+              className="w-full justify-start hover:bg-red-700 hover:text-white text-gray-900 dark:text-gray-100"
+            >
+              <Link to="/logout" className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Log out
+              </Link>
+            </Button>
+          </div>
+        )}
+
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 px-3">
           <span>v{version}</span>
           <Link
