@@ -59,6 +59,8 @@ model User {
   CommentReport CommentReport[]
 
   Trigger Trigger[]
+
+  ImageArchiveRequest ImageArchiveRequest[]
 }
 
 model ReferrerProfile {
@@ -314,4 +316,13 @@ model SiteError {
   status    ErrorStatus @default(OPEN)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model ImageArchiveRequest {
+  id         String   @unique @default(cuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  created_at DateTime @default(now())
+
+  @@index([user_id])
 }

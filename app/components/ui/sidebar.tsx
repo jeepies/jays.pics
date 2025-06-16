@@ -18,6 +18,7 @@ import {
   TableProperties,
   User2,
   SquareUser,
+  Upload,
 } from "lucide-react";
 import { useState } from "react";
 import { FaDiscord } from "react-icons/fa";
@@ -234,6 +235,17 @@ export function Sidebar({
             className="w-full justify-start text-gray-900 dark:text-gray-100"
           >
             <ThemeToggle />
+          </Button>
+          <Button
+            onClick={onLinkClick}
+            asChild
+            variant="ghost"
+            className="w-full justify-start text-gray-900 dark:text-gray-100"
+          >
+            <Link to="/dashboard/upload" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload
+            </Link>
           </Button>
           <Button
             onClick={() => setShowUserMenu(!showUserMenu)}

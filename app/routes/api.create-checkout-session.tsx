@@ -13,22 +13,52 @@ export async function action({ request }: ActionFunctionArgs) {
     ? `https://${process.env.BASE_DOMAIN}`
     : "http://localhost";
 
+  const url = new URL(request.url);
+  const order = url.searchParams.get("order") ?? "500mb";
+
+  const tiers: Record<
+    string,
+    { amount: number; storage: number; name: string }
+  > = {
+    "500mb": {
+      amount: 49,
+      storage: 500 * 1024 * 1024,
+      name: "500MB Storage Increase",
+    },
+    "1gb": {
+      amount: 199,
+      storage: 1024 * 1024 * 1024,
+      name: "1GB Storage Increase",
+    },
+    "5gb": {
+      amount: 399,
+      storage: 5 * 1024 * 1024 * 1024,
+      name: "5GB Storage Increase",
+    },
+  };
+
+  const tier = tiers[order] ?? tiers["500mb"];
+
   const checkout = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    mode: "payment",
+    payment_method_types: ["card", "paypal"],
+    mode: "subscription",
     line_items: [
       {
         price_data: {
           currency: "gbp",
-          unit_amount: 199,
-          product_data: { name: "500MB Storage Increase" },
+          unit_amount: tier.amount,
+          recurring: { interval: "month" },
+          product_data: { name: tier.name },
         },
         quantity: 1,
       },
     ],
     success_url: `${base}/api/stripe-success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base}/dashboard/settings`,
-    metadata: { userId: user.id },
+    metadata: {
+      userId: user.id,
+      storage: tier.storage.toString(),
+    },
   });
 
   return redirect(checkout.url ?? "/dashboard/settings");

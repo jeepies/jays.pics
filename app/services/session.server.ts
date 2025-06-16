@@ -38,6 +38,7 @@ export async function getUserBySession(session: Session) {
       space_used: true,
       pinned_images: true,
       avatar_url: true,
+      email: true,
       notifications: {
         where: {
           seen: false,
