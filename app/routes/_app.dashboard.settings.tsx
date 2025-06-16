@@ -140,10 +140,10 @@ export default function Settings() {
   }, [data.user.images]);
 
   const segments: Segment[] = [
-    { label: "PNG", value: usage.png, color: "bg-blue-500" },
+    { label: "PNG", value: usage.png, color: "bg-purple-500" },
     { label: "JPEG", value: usage.jpeg, color: "bg-yellow-500" },
-    { label: "GIF", value: usage.gif, color: "bg-green-500" },
-    { label: "WEBP", value: usage.webp, color: "bg-purple-500" },
+    { label: "GIF", value: usage.gif, color: "bg-blue-500" },
+    { label: "WEBP", value: usage.webp, color: "bg-green-500" },
   ];
 
   return (
@@ -324,7 +324,7 @@ export default function Settings() {
             <CardTitle>Uploader Details</CardTitle>
             <CloudUpload className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             <label>Upload Key:</label>
             <div className="flex space-x-2">
               <Input
@@ -365,19 +365,17 @@ export default function Settings() {
             <div className="space-y-2">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex flex-wrap gap-4">
-                  {segments
-                    .filter((s) => s.value > 0)
-                    .map((seg) => (
-                      <div
-                        key={seg.label}
-                        className="flex items-center space-x-1"
-                      >
-                        <span
-                          className={`w-3 h-3 rounded-sm ${seg.color}`}
-                        ></span>
-                        <span className="text-xs">{seg.label}</span>
-                      </div>
-                    ))}
+                  {segments.map((seg) => (
+                    <div
+                      key={seg.label}
+                      className="flex items-center space-x-1"
+                    >
+                      <span
+                        className={`w-3 h-3 rounded-sm ${seg.color}`}
+                      ></span>
+                      <span className="text-xs">{seg.label}</span>
+                    </div>
+                  ))}
                 </div>
                 <span className="text-sm font-medium">
                   {prettyBytes(data.user.space_used)} of{" "}
@@ -389,7 +387,7 @@ export default function Settings() {
                 max={data.user.max_space}
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="md:flex md:space-x-2 space-y-2 md:space-y-0">
               <Form
                 method="post"
                 action="/api/create-checkout-session?order=500mb"
@@ -424,7 +422,7 @@ export default function Settings() {
             <Hammer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex space-x-2">
+            <div className="md:flex md:space-x-2 md:space-y-0 space-y-2">
               <Button
                 asChild
                 onClick={() => showToast("Preparing download", "info")}
@@ -467,7 +465,7 @@ export default function Settings() {
                   });
                   showToast("Images purged", "success");
                 }}
-                trigger={<Button variant="destructive">Purge images</Button>}
+                trigger={<Button variant="destructive">Delete images</Button>}
               />
               <ConfirmDialog
                 title="Delete account"
