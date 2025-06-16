@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const tier = tiers[order] ?? tiers["500mb"];
 
   const checkout = await stripe.checkout.sessions.create({
-    payment_method_types: ["card", "paypal"],
+    payment_method_types: ["card"],
     mode: "subscription",
     line_items: [
       {
