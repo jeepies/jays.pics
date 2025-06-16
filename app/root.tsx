@@ -15,6 +15,7 @@ import ErrorPage from "./components/error-page";
 import "./tailwind.css";
 import { LoadingOverlay } from "./components/loading";
 import { ToastProvider } from "./components/toast";
+import { CookieBanner } from "./components/cookie-banner";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -65,6 +66,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
           {navigation.state !== "idle" && <LoadingOverlay />}
         </ToastProvider>
+        <CookieBanner />
         <ScrollRestoration />
         <Scripts />
       </body>
