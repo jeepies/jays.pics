@@ -28,12 +28,10 @@ import {
   Check,
   CloudUpload,
   Container,
-  Cross,
   Eye,
   Hammer,
   Pencil,
   TriangleAlert,
-  User,
   UserPen,
   X,
 } from "lucide-react";
@@ -101,7 +99,9 @@ export default function Settings() {
   const fetcher = useFetcher();
   const { showToast } = useToast();
   const [username, setUsername] = useState(data.user.username);
+  const [email, setEmail] = useState(data.user.email);
   const [editingUsername, setEditingUsername] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
   const [canSeeUploadKey, setCanSeeUploadKey] = useState(false);
 
   const changedAt = Date.parse(data!.user.username_changed_at);
@@ -155,71 +155,116 @@ export default function Settings() {
             <fetcher.Form
               method="post"
               onSubmit={(e) => {
+                e.preventDefault();
+                if (username === data.user.username) {
+                  setEditingUsername(false);
+                  showToast("You can't change to the same username", "error");
+                  return;
+                }
                 const fd = new FormData(e.currentTarget);
                 fetcher.submit(fd, { method: "post" });
                 setEditingUsername(false);
                 showToast("Username updated", "success");
-                e.preventDefault();
               }}
             >
               <Input type="hidden" name="type" value="update_username" />
-              <div className="flex items-end space-x-2">
+              <div className="flex space-x-2">
                 <div className="flex-1 space-y-2">
                   <div>
                     <Label htmlFor="username">Username</Label>
-                    <div className="flex space-x-1">
+                    <div className="flex items-center space-x-2 mt-1 w-full">
                       <Input
                         id="username"
                         name="username"
-                        className="mt-1"
+                        className="flex-1"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         readOnly={!editingUsername}
                       />
-                      {canChange && (
-                        <div>
-                          {editingUsername ? (
-                            <>
-                              <Button type="submit" variant="ghost" size="icon">
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setEditingUsername(false);
-                                }}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
+                      {canChange &&
+                        (editingUsername ? (
+                          <>
+                            <Button type="submit" variant="ghost" size="icon">
+                              <Check className="h-4 w-4" />
+                            </Button>
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setEditingUsername(true);
+                              onClick={() => {
+                                setUsername(data.user.username);
+                                setEditingUsername(false);
                               }}
                             >
-                              <Pencil className="h-4 w-4" />
+                              <X className="h-4 w-4" />
                             </Button>
-                          )}
-                        </div>
-                      )}
+                          </>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingUsername(true)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            </fetcher.Form>
 
+            <fetcher.Form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setEditingEmail(false);
+                showToast("Sorry - you can't do this yet!", "error");
+                return;
+              }}
+            >
+              <Input type="hidden" name="type" value="update_email" />
+              <div className="flex space-x-2">
+                <div className="flex-1 space-y-2">
                   <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      className="mt-1"
-                      value={""}
-                    />
+                    <Label htmlFor="username">Email</Label>
+                    <div className="flex items-center space-x-2 mt-1 w-full">
+                      <Input
+                        id="username"
+                        name="username"
+                        className="flex-1"
+                        value={data.user.email ?? ""}
+                        onChange={(e) => setEmail(e.target.value)}
+                        readOnly={!editingEmail}
+                      />
+                      {editingEmail ? (
+                        <>
+                          <Button type="submit" variant="ghost" size="icon">
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setEmail(data.user.username);
+                              setEditingEmail(false);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setEditingEmail(true)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
