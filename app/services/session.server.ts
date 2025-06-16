@@ -54,7 +54,7 @@ export async function getUserBySession(session: Session) {
     ...user,
     max_space: Number(user.max_space),
     space_used: Number(user.space_used),
-    storage_subscriptions:
+    StorageSubscription:
       user.StorageSubscription?.map((s) => ({
         ...s,
         storage: Number(s.storage),

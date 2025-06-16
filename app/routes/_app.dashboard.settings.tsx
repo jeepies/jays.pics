@@ -391,10 +391,10 @@ export default function Settings() {
                 <Button type="submit">+5GB (£3.99/month)</Button>
               </Form>
             </div>
-            {data.user.storage_subscriptions.length > 0 && (
+            {data.user.StorageSubscription.length > 0 && (
               <div className="space-y-2 mt-4">
                 <h4 className="font-medium">Active Subscriptions</h4>
-                {data.user.storage_subscriptions.map((sub) => (
+                {data.user.StorageSubscription.map((sub) => (
                   <Form
                     key={sub.id}
                     method="post"
