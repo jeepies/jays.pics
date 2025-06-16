@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import prettyBytes from "pretty-bytes";
 
 import { PAGE_SIZE, Pagination } from "~/components/pagination";
@@ -24,12 +24,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page")) || 1;
   const count = await prisma.storageSubscription.count();
-  const subs = await prisma.storageSubscription.findMany({
+  const raw = await prisma.storageSubscription.findMany({
     include: { user: { select: { id: true, username: true } } },
     orderBy: { created_at: "desc" },
     take: PAGE_SIZE,
     skip: (page - 1) * PAGE_SIZE,
   });
+
+  const subs = raw.map((sub) => ({ ...sub, storage: Number(sub.storage) }));
 
   return { count, subs, page };
 }
@@ -57,7 +59,9 @@ export default function AdminSubscriptions() {
             {subs.map((sub) => (
               <TableRow key={sub.id}>
                 <TableCell className="font-medium">
-                  <a href={`/admin/user/${sub.user.id}`}>{sub.user.username}</a>
+                  <Link to={`/admin/user/${sub.user.id}`}>
+                    {sub.user.username}
+                  </Link>
                 </TableCell>
                 <TableCell>{prettyBytes(Number(sub.storage))}</TableCell>
                 <TableCell>
