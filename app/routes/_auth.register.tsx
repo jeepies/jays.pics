@@ -1,5 +1,6 @@
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import { AuthorizationError } from "remix-auth";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -66,6 +67,9 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (error) {
     if (error instanceof Response) throw error;
+    if (error instanceof AuthorizationError) {
+      if (error.cause instanceof FormError) return error.cause.data;
+    }
     if (error instanceof FormError) return error.data;
     throw error;
   }
