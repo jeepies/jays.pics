@@ -5,6 +5,8 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { authenticator, FormError } from "~/services/auth.server";
+import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
+import { registrationRateLimit } from "~/services/redis.server";
 
 export default function Register() {
   const actionData = useActionData<typeof action>();
@@ -12,14 +14,25 @@ export default function Register() {
   return (
     <Form className="space-y-4 dark text-white" method="post">
       <div className="space-y-1">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="email">Email (optional)</Label>
+        <Input id="email" name="email" placeholder="Email" type="email" />
+        <div className="text-red-500 text-sm dark">
+          {actionData?.fieldErrors.email}
+        </div>
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="username">
+          Username <span className="text-red-500 text-sm dark">*</span>
+        </Label>
         <Input id="username" name="username" placeholder="Username" required />
         <div className="text-red-500 text-sm dark">
           {actionData?.fieldErrors.username}
         </div>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">
+          Password <span className="text-red-500 text-sm dark">*</span>
+        </Label>
         <Input
           id="password"
           name="password"
@@ -32,7 +45,9 @@ export default function Register() {
         </div>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="referralCode">Referral Code</Label>
+        <Label htmlFor="referralCode">
+          Referral Code <span className="text-red-500 text-sm dark">*</span>
+        </Label>
         <Input
           id="referralCode"
           name="referralCode"
@@ -60,6 +75,11 @@ export default function Register() {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const rateLimitResult = await applyRateLimit(request, registrationRateLimit);
+  if (isRateLimitResponse(rateLimitResult)) {
+    return rateLimitResult;
+  }
+
   try {
     return await authenticator.authenticate("register", request, {
       successRedirect: "/dashboard/index",

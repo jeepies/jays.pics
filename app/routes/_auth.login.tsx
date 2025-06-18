@@ -1,10 +1,16 @@
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { authenticator, FormError } from "~/services/auth.server";
+import {
+  authenticator,
+  FormError,
+  redirectIfUser,
+} from "~/services/auth.server";
+import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
+import { loginRateLimit } from "~/services/redis.server";
 
 export default function Login() {
   const actionData = useActionData<typeof action>();
@@ -12,12 +18,12 @@ export default function Login() {
   return (
     <Form className="space-y-4 dark text-white" method="post">
       <div className="space-y-1">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="username">Username or Email</Label>
         <Input
           id="username"
           name="username"
           type="text"
-          placeholder="Username"
+          placeholder="Username or Email"
           required
         />
         <div className="text-red-500 text-sm">
@@ -54,6 +60,16 @@ export default function Login() {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const user = await redirectIfUser(request);
+  if (user) {
+    return redirect("/dashboard/index");
+  }
+
+  const rateLimitResult = await applyRateLimit(request, loginRateLimit);
+  if (isRateLimitResponse(rateLimitResult)) {
+    return rateLimitResult;
+  }
+
   try {
     return await authenticator.authenticate("login", request, {
       successRedirect: "/dashboard/index",

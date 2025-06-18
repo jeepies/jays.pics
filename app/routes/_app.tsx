@@ -34,6 +34,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
+  if (!user.email_verified && user.email) return redirect("/verify");
+
   const now = Date.now();
 
   return { user, now, version: process.env.VERSION ?? "0.0.0" };

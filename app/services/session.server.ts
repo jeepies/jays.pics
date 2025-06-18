@@ -21,13 +21,26 @@ export const sessionStorage = createCookieSessionStorage({
   },
 });
 
+export async function getVerificationBySession(session: Session) {
+  const userID = session.get("userID");
+  if (!userID) return null;
+  return await prisma.verification.findFirst({
+    where: { user_id: userID, expires_at: { gt: new Date() } },
+  });
+}
+
 export async function getUserBySession(session: Session) {
+  const userID = session.get("userID");
+  if (!userID) return null;
+
   const user = await prisma.user.findUnique({
-    where: { id: session.get("userID") },
+    where: { id: userID },
     select: {
       id: true,
       username: true,
       images: true,
+      email: true,
+      email_verified: true,
       referrer_profile: true,
       upload_preferences: true,
       is_admin: true,
@@ -57,16 +70,28 @@ export async function getUserBySession(session: Session) {
 
 export async function getUserByID(id: string) {
   return await prisma.user.findUnique({
-    where: { id: id },
+    where: { id },
     select: {
       id: true,
       username: true,
       images: true,
-      created_at: true,
-      badges: true,
+      email: true,
+      email_verified: true,
       referrer_profile: true,
+      upload_preferences: true,
+      is_admin: true,
+      upload_key: true,
+      username_changed_at: true,
+      username_history: true,
+      max_space: true,
+      space_used: true,
       pinned_images: true,
       avatar_url: true,
+      notifications: {
+        where: {
+          seen: false,
+        },
+      },
     },
   });
 }

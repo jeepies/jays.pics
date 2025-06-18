@@ -4,7 +4,10 @@ import { FormStrategy } from "remix-auth-form";
 import { z } from "zod";
 
 import { prisma } from "./database.server";
-import { sessionStorage, getClientIP } from "./session.server";
+import { getUserBySession, getSession, sessionStorage } from "./session.server";
+import { generateCode } from "~/lib/code";
+import { sendVerificationEmail } from "./resend.server";
+import { redirect } from "@remix-run/node";
 
 export class FormError extends AuthorizationError {
   constructor(
@@ -13,7 +16,7 @@ export class FormError extends AuthorizationError {
       payload: Record<string, string>;
       formErrors: string[];
       fieldErrors: Record<string, string | undefined>;
-    },
+    }
   ) {
     super(message);
   }
@@ -25,6 +28,11 @@ export const authenticator = new Authenticator<string>(sessionStorage, {
 });
 
 export async function redirectIfUser(request: Request) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const user = await getUserBySession(session);
+  if (user && !user.email_verified && user.email) {
+    return redirect("/verify");
+  }
   return authenticator.isAuthenticated(request, {
     successRedirect: "/dashboard/index",
   });
@@ -32,9 +40,8 @@ export async function redirectIfUser(request: Request) {
 
 const loginSchema = z.object({
   username: z
-    .string({ required_error: "Username is required" })
-    .min(3, "Must be 3 or more characters")
-    .max(20, "Must be 20 or less characters"),
+    .string({ required_error: "Username or email is required" })
+    .min(3, "Must be 3 or more characters"),
   password: z
     .string({ required_error: "Password is required" })
     .min(8, "Must be 8 or more characters")
@@ -51,7 +58,7 @@ authenticator.use(
       throw new FormError("Validation", {
         payload,
         formErrors: error.formErrors,
-        fieldErrors: error.fieldErrors,
+        fieldErrors: error.fieldErrors as Record<string, string | undefined>,
       });
     }
 
@@ -63,15 +70,24 @@ authenticator.use(
       });
     }
 
+    const isEmail = result.data.username.includes("@");
+
     const user = await prisma.user.findFirst({
-      where: { username: result.data.username },
+      where: isEmail
+        ? { email: result.data.username }
+        : { username: result.data.username },
     });
 
     if (user === null) {
       throw new FormError("Missing", {
         payload,
         formErrors: [],
-        fieldErrors: { username: "This username does not exist", password: "" },
+        fieldErrors: {
+          username: isEmail
+            ? "No account found with this email address"
+            : "This username does not exist",
+          password: "",
+        },
       });
     }
 
@@ -82,18 +98,16 @@ authenticator.use(
         fieldErrors: { username: "", password: "Incorrect password" },
       });
     }
-
     await prisma.user.update({
       where: { id: user.id },
       data: {
         last_login_at: new Date(),
-        last_login_ip: getClientIP(request) ?? null,
       },
     });
 
     return user.id;
   }),
-  "login",
+  "login"
 );
 
 const registerSchema = z.object({
@@ -108,12 +122,13 @@ const registerSchema = z.object({
     .max(256, { message: "Must be 256 or less characters" })
     .regex(
       /([!?&-_]+)/g,
-      "Insecure password - Please add one (or more) of (!, ?, &, - or _)",
+      "Insecure password - Please add one (or more) of (!, ?, &, - or _)"
     )
     .regex(
       /([0-9]+)/g,
-      "Insecure password - Please add one (or more) digit (0-9)",
+      "Insecure password - Please add one (or more) digit (0-9)"
     ),
+  email: z.string().email({ message: "Invalid email address" }),
   referralCode: z
     .string({ required_error: "Referral Code is required" })
     .uuid("Must be a valid referral code"),
@@ -129,7 +144,7 @@ authenticator.use(
       throw new FormError("Validation", {
         payload,
         formErrors: error.formErrors,
-        fieldErrors: error.fieldErrors,
+        fieldErrors: error.fieldErrors as Record<string, string | undefined>,
       });
     }
 
@@ -141,9 +156,15 @@ authenticator.use(
         formErrors: [],
         fieldErrors: {
           username: "This username already exists",
-          password: "",
-          referralCode: "",
         },
+      });
+    }
+
+    if (await prisma.user.findFirst({ where: { email: result.data.email } })) {
+      throw new FormError("Exists", {
+        payload,
+        formErrors: [],
+        fieldErrors: { email: "This email is already in use" },
       });
     }
 
@@ -156,8 +177,6 @@ authenticator.use(
         payload,
         formErrors: [],
         fieldErrors: {
-          username: "",
-          password: "",
           referralCode: "This referral code is invalid",
         },
       });
@@ -172,8 +191,6 @@ authenticator.use(
         payload,
         formErrors: [],
         fieldErrors: {
-          username: "",
-          password: "",
           referralCode: "This referral code has been used too many times",
         },
       });
@@ -194,6 +211,8 @@ authenticator.use(
     const user = await prisma.user.create({
       data: {
         username: result.data.username,
+        email: result.data.email,
+        email_verified: false,
         password: hashedPassword,
         referrer_profile: {
           create: {},
@@ -204,10 +223,19 @@ authenticator.use(
           },
         },
         last_login_at: new Date(),
-        last_login_ip: getClientIP(request) ?? null,
         badges,
       },
     });
+
+    const verification = await prisma.verification.create({
+      data: {
+        user_id: user.id,
+        code: generateCode(),
+        expires_at: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
+      },
+    });
+
+    await sendVerificationEmail(result.data.email, verification.code);
 
     if (process.env.DISCORD_WEBHOOK_URL) {
       fetch(process.env.DISCORD_WEBHOOK_URL, {
@@ -233,7 +261,84 @@ authenticator.use(
 
     return user.id;
   }),
-  "register",
+  "register"
+);
+
+const verifySchema = z.object({
+  code: z.string({ required_error: "Code is required" }).min(6, "Invalid code"),
+});
+
+authenticator.use(
+  new FormStrategy(async ({ form, request }) => {
+    const payload = Object.fromEntries(form) as Record<string, string>;
+    const result = verifySchema.safeParse(payload);
+
+    if (!result.success) {
+      const error = result.error.flatten();
+      throw new FormError("Validation", {
+        payload,
+        formErrors: error.formErrors,
+        fieldErrors: error.fieldErrors as Record<string, string | undefined>,
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        Verification: {
+          every: {
+            code: result.data.code,
+            expires_at: { lte: new Date() },
+          },
+        },
+      },
+      select: {
+        email: true,
+        id: true,
+        Verification: {
+          select: {
+            id: true,
+            expires_at: true,
+          },
+        },
+      },
+    });
+
+    if (user === null || !user.email) {
+      throw new FormError("Invalid", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Invalid code" },
+      });
+    }
+
+    if (user.Verification.length === 0) {
+      throw new FormError("Invalid", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Invalid code" },
+      });
+    }
+
+    if (user.Verification[0].expires_at < new Date()) {
+      throw new FormError("Expired", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Code has expired" },
+      });
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { email_verified: true, last_login_at: new Date() },
+    });
+
+    await prisma.verification.delete({
+      where: { id: user.Verification[0].id },
+    });
+
+    return user.id.toString();
+  }),
+  "verify"
 );
 
 export async function logout(request: Request) {

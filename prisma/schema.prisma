@@ -20,6 +20,7 @@ model User {
   email String? @unique
 
   avatar_url String?
+  email_verified Boolean @default(false)
 
   is_admin Boolean @default(false)
 
@@ -59,6 +60,8 @@ model User {
   CommentReport CommentReport[]
 
   Trigger Trigger[]
+
+  Verification Verification[]
 }
 
 model ReferrerProfile {
@@ -314,4 +317,16 @@ model SiteError {
   status    ErrorStatus @default(OPEN)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model Verification {
+  id String @unique @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+
+  code String
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  @@unique([user_id, code])
 }

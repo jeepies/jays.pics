@@ -40,14 +40,19 @@ This README assumes you have Docker installed. If you do not, please read [this]
 #### Cloning and initial setup
 
 1. Clone the repository with
+
    ```bash
    git clone https://github.com/jeepies/jays.pics.git
    ```
+
 2. Enter the cloned repository locally, typically with
+
    ```bash
    cd jays.pics
    ```
+
 3. Install all dependencies with
+
    ```bash
    npm i
    ```
@@ -55,10 +60,13 @@ This README assumes you have Docker installed. If you do not, please read [this]
 #### Setting up the database
 
 1. Ensure your Docker instance is started by running
+
    ```bash
    docker info
    ```
+
 2. Compose the containers
+
    ```bash
    docker compose up -d
    ```
@@ -71,14 +79,19 @@ This README assumes you have Docker installed. If you do not, please read [this]
 #### Migration and Seeding
 
 1. Run all of the migrations by executing
+
    ```bash
    npx prisma migrate dev
    ```
+
 2. Seed the database with
+
    ```bash
    npx prisma db seed
    ```
+
 3. You can check the database is migrated and seeded by running
+
    ```bash
    npx prisma studio
    ```
@@ -86,7 +99,8 @@ This README assumes you have Docker installed. If you do not, please read [this]
 #### Running the application
 
 1. You can start the development server with
-   ```
+
+   ```bash
    npm run dev
    ```
 
