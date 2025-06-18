@@ -3,6 +3,7 @@ import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+
 import { redirectIfUser } from "~/services/auth.server";
 
 export const meta: MetaFunction = () => {

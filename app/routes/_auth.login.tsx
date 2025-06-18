@@ -4,12 +4,12 @@ import { Form, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
 import {
   authenticator,
   FormError,
   redirectIfUser,
 } from "~/services/auth.server";
-import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
 import { loginRateLimit } from "~/services/redis.server";
 
 export default function Login() {

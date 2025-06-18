@@ -14,6 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { prisma } from "~/services/database.server";
+import {
+  uploadRateLimit,
+  checkRateLimit,
+  getIP,
+} from "~/services/redis.server";
 import { uploadToS3 } from "~/services/s3.server";
 import {
   destroySession,
@@ -21,11 +26,6 @@ import {
   getUserBySession,
   getClientIP,
 } from "~/services/session.server";
-import {
-  uploadRateLimit,
-  checkRateLimit,
-  getIP,
-} from "~/services/redis.server";
 
 const schema = z.object({
   image: z.instanceof(File),
@@ -110,7 +110,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const response = await uploadToS3(
     result.data.image,
-    `${user.id}/${dbImage.id}`
+    `${user.id}/${dbImage.id}`,
   );
   if (response?.$metadata.httpStatusCode === 200) {
     const triggers = await prisma.trigger.findMany({

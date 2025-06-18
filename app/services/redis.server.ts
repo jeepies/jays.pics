@@ -1,5 +1,5 @@
-import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 export const redis = new Redis({
   url: process.env.REDIS_ENDPOINT,
@@ -43,7 +43,7 @@ export const apiRateLimit = new Ratelimit({
 
 export async function checkRateLimit(
   rateLimit: Ratelimit,
-  identifier: string
+  identifier: string,
 ): Promise<{
   success: boolean;
   limit: number;

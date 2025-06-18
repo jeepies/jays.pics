@@ -4,8 +4,8 @@ import { Form, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { authenticator, FormError } from "~/services/auth.server";
 import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
+import { authenticator, FormError } from "~/services/auth.server";
 import { registrationRateLimit } from "~/services/redis.server";
 
 export default function Register() {

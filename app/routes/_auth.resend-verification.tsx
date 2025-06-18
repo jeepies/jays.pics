@@ -1,10 +1,5 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import {
-  getSession,
-  getUserBySession,
-  destroySession,
-} from "~/services/session.server";
-import { sendVerificationEmail } from "~/services/resend.server";
+
 import { generateCode } from "~/lib/code";
 import { prisma } from "~/services/database.server";
 import {
@@ -12,6 +7,12 @@ import {
   checkRateLimit,
   getIP,
 } from "~/services/redis.server";
+import { sendVerificationEmail } from "~/services/resend.server";
+import {
+  getSession,
+  getUserBySession,
+  destroySession,
+} from "~/services/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
@@ -31,12 +32,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const clientIP = getIP(request);
   const rateLimitResult = await checkRateLimit(
     emailVerificationRateLimit,
-    clientIP
+    clientIP,
   );
 
   if (!rateLimitResult.success) {
     return redirect(
-      `/verify?error=rate_limited&reset=${rateLimitResult.reset.getTime()}`
+      `/verify?error=rate_limited&reset=${rateLimitResult.reset.getTime()}`,
     );
   }
 

@@ -1,16 +1,13 @@
 // app/routes/verify.tsx
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getSession, getUserBySession } from "~/services/session.server";
-import { sendVerificationEmail } from "~/services/resend.server";
-import { generateCode } from "~/lib/code";
-import { prisma } from "~/services/database.server";
-import { emailVerificationRateLimit } from "~/services/redis.server";
+import { Form, useActionData, useSearchParams } from "@remix-run/react";
 import { Mail, ArrowLeft } from "lucide-react";
+
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,15 +15,19 @@ import {
   CardTitle,
   CardHeader,
 } from "~/components/ui/card";
-import { Label } from "~/components/ui/label";
-import { Button } from "~/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "~/components/ui/input-otp";
-import { authenticator, FormError } from "~/services/auth.server";
+import { Label } from "~/components/ui/label";
+import { generateCode } from "~/lib/code";
 import { applyRateLimit, isRateLimitResponse } from "~/lib/rate-limit";
+import { authenticator, FormError } from "~/services/auth.server";
+import { prisma } from "~/services/database.server";
+import { emailVerificationRateLimit } from "~/services/redis.server";
+import { sendVerificationEmail } from "~/services/resend.server";
+import { getSession, getUserBySession } from "~/services/session.server";
 
 type ActionData = {
   error?: string;
@@ -56,13 +57,13 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "resend") {
     const rateLimitResult = await applyRateLimit(
       request,
-      emailVerificationRateLimit
+      emailVerificationRateLimit,
     );
     if (isRateLimitResponse(rateLimitResult)) {
       const data = await rateLimitResult.json();
       const resetTime = new Date(data.reset);
       return redirect(
-        `/verify?error=rate_limited&reset=${resetTime.getTime()}`
+        `/verify?error=rate_limited&reset=${resetTime.getTime()}`,
       );
     }
 
@@ -104,7 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const rateLimitResult = await applyRateLimit(
     request,
-    emailVerificationRateLimit
+    emailVerificationRateLimit,
   );
   if (isRateLimitResponse(rateLimitResult)) {
     const data = await rateLimitResult.json();
@@ -122,7 +123,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
     if (error instanceof FormError) {
       return redirect(
-        `/verify?error=${error.data?.formErrors[0] || "invalid_code"}`
+        `/verify?error=${error.data?.formErrors[0] || "invalid_code"}`,
       );
     }
     console.error("Unknown error during verification:", error);

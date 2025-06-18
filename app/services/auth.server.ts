@@ -1,13 +1,14 @@
+import { redirect } from "@remix-run/node";
 import bcrypt from "bcryptjs";
 import { Authenticator, AuthorizationError } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { z } from "zod";
 
-import { prisma } from "./database.server";
-import { getUserBySession, getSession, sessionStorage } from "./session.server";
 import { generateCode } from "~/lib/code";
+
+import { prisma } from "./database.server";
 import { sendVerificationEmail } from "./resend.server";
-import { redirect } from "@remix-run/node";
+import { getUserBySession, getSession, sessionStorage } from "./session.server";
 
 export class FormError extends AuthorizationError {
   constructor(
@@ -16,7 +17,7 @@ export class FormError extends AuthorizationError {
       payload: Record<string, string>;
       formErrors: string[];
       fieldErrors: Record<string, string | undefined>;
-    }
+    },
   ) {
     super(message);
   }
@@ -107,7 +108,7 @@ authenticator.use(
 
     return user.id;
   }),
-  "login"
+  "login",
 );
 
 const registerSchema = z.object({
@@ -122,11 +123,11 @@ const registerSchema = z.object({
     .max(256, { message: "Must be 256 or less characters" })
     .regex(
       /([!?&-_]+)/g,
-      "Insecure password - Please add one (or more) of (!, ?, &, - or _)"
+      "Insecure password - Please add one (or more) of (!, ?, &, - or _)",
     )
     .regex(
       /([0-9]+)/g,
-      "Insecure password - Please add one (or more) digit (0-9)"
+      "Insecure password - Please add one (or more) digit (0-9)",
     ),
   email: z.string().email({ message: "Invalid email address" }),
   referralCode: z
@@ -261,7 +262,7 @@ authenticator.use(
 
     return user.id;
   }),
-  "register"
+  "register",
 );
 
 const verifySchema = z.object({
@@ -338,7 +339,7 @@ authenticator.use(
 
     return user.id.toString();
   }),
-  "verify"
+  "verify",
 );
 
 export async function logout(request: Request) {

@@ -1,7 +1,9 @@
 import { Resend } from "resend";
+
 import VerificationEmail from "~/emails/verification";
-import { checkRateLimit, emailVerificationRateLimit } from "./redis.server";
+
 import { prisma } from "./database.server";
+import { checkRateLimit, emailVerificationRateLimit } from "./redis.server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,7 +14,7 @@ export async function sendVerificationEmail(email: string, code: string) {
 
   const rateLimitResult = await checkRateLimit(
     emailVerificationRateLimit,
-    email
+    email,
   );
 
   const exists = await prisma.verification.findFirst({
