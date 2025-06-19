@@ -12,7 +12,6 @@ import {
   Text,
 } from "@react-email/components";
 
-import logo from "~/assets/logo.png";
 import { baseURL } from "~/lib/ip";
 import "../emails/emails.css";
 
@@ -31,7 +30,12 @@ export default function VerificationEmail({
       <Body className="main">
         <Preview>Log in with this magic link.</Preview>
         <Container className="container">
-          <Img src={logo} width={48} height={48} alt="jays.pics" />
+          <Img
+            src={`${baseUrl}/logo.png`}
+            width={48}
+            height={48}
+            alt="jays.pics"
+          />
           <Heading className="heading">🔑 Your verification code</Heading>
           <Section className="body">
             <code className="code">{verificationCode}</code>

@@ -13,7 +13,6 @@ import {
   Text,
 } from "@react-email/components";
 
-import logo from "~/assets/logo.png";
 import { baseURL } from "~/lib/ip";
 import "../emails/emails.css";
 

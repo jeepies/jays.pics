@@ -79,12 +79,19 @@ export function generateCode(options?: GenerateCodeOptions): string {
       break;
   }
 
-  let variableCode = "";
   const charactersLength = characters.length;
+  if (charactersLength === 0) {
+    throw new Error("No characters available for code generation.");
+  }
+
+  let variableCode = "";
+
+  const randomValues = new Uint32Array(codeLength);
+  crypto.getRandomValues(randomValues);
+
   for (let i = 0; i < codeLength; i++) {
-    variableCode += characters.charAt(
-      Math.floor(Math.random() * charactersLength),
-    );
+    const idx = randomValues[i] % charactersLength;
+    variableCode += characters.charAt(idx);
   }
 
   return `${prefix}${variableCode}${suffix}`;
