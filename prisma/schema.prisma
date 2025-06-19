@@ -18,7 +18,8 @@ model User {
   password String
 
   email String? @unique
-
+  email_verified Boolean @default(false)
+  
   avatar_url String?
 
   is_admin Boolean @default(false)
@@ -63,6 +64,8 @@ model User {
   ImageArchiveRequest ImageArchiveRequest[]
 
   StorageSubscription StorageSubscription[]
+
+  Verification Verification[]
 }
 
 model ReferrerProfile {
@@ -339,4 +342,14 @@ model StorageSubscription {
   cancelled_at           DateTime?
 
   @@index([user_id])
+}
+
+model Verification {
+  id String @unique @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+  code String
+  expires_at DateTime
+  created_at DateTime @default(now())
+  @@unique([user_id, code])
 }
