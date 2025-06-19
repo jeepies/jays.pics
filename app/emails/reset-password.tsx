@@ -14,13 +14,14 @@ import {
 } from "@react-email/components";
 
 import logo from "~/assets/logo.png";
+import { baseURL } from "~/lib/ip";
 
 interface ResetPasswordEmailProps {
   code?: string;
   userEmail?: string;
 }
 
-const baseUrl = process.env.BASE_DOMAIN ?? "http://localhost:5173";
+const baseUrl = baseURL();
 
 export default function ResetPasswordEmail({
   code = "jp-TOKENHERE-pr",

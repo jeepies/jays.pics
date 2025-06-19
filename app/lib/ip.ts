@@ -14,3 +14,7 @@ export function getIP(request: Request, fallback?: string): string {
 
   throw new Error("IP not found");
 }
+
+export function baseURL() {
+  return process.env.BASE_DOMAIN ?? "http://localhost:5173";
+}

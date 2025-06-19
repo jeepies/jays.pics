@@ -13,12 +13,13 @@ import {
 } from "@react-email/components";
 
 import logo from "~/assets/logo.png";
+import { baseURL } from "~/lib/ip";
 
 interface VerificationEmailProps {
   verificationCode?: string;
 }
 
-const baseUrl = process.env.BASE_DOMAIN ?? "http://localhost:5173";
+const baseUrl = baseURL();
 
 export default function VerificationEmail({
   verificationCode = "JP-12345-V",
