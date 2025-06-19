@@ -15,6 +15,7 @@ import {
 
 import logo from "~/assets/logo.png";
 import { baseURL } from "~/lib/ip";
+import "../emails/emails.css";
 
 interface ResetPasswordEmailProps {
   code?: string;
@@ -30,50 +31,48 @@ export default function ResetPasswordEmail({
   return (
     <Html>
       <Head />
-      <Body style={main}>
+      <Body className="main">
         <Preview>Reset your password for jays.pics</Preview>
-        <Container style={container}>
+        <Container className="container">
           <Img
             src={`${baseUrl}/logo.png`}
             width={48}
             height={48}
             alt="jays.pics"
           />
-          <Heading style={heading}>🔐 Reset your password</Heading>
-          <Section style={body}>
-            <Text style={paragraph}>Hello,</Text>
-            <Text style={paragraph}>
+          <Heading className="heading">🔐 Reset your password</Heading>
+          <Section className="body">
+            <Text className="paragraph">Hello,</Text>
+            <Text className="paragraph">
               Someone recently requested a password change for your jays.pics
               account (<strong>{userEmail}</strong>). If this was you, you can
               set a new password by clicking the button below.
             </Text>
             <Button
-              style={button}
+              className="button"
               href={`${baseUrl}/reset-password?token=${code}`}
             >
               Reset Password
             </Button>
-            <Text style={paragraph}>
+            <Text className="paragraph">
               If the button above doesn't work, you can copy and paste the
               following link into your browser:
             </Text>
-            <code
-              style={codeBlock}
-            >{`${baseUrl}/reset-password?token=${code}`}</code>
-            <Text style={paragraph}>
+            <code className="codeBlock">{`${baseUrl}/reset-password?token=${code}`}</code>
+            <Text className="paragraph">
               If you don't want to change your password or didn't request this,
               just ignore and delete this message.
             </Text>
-            <Text style={paragraph}>
+            <Text className="paragraph">
               This password reset link will expire in 24 hours for security
               reasons.
             </Text>
           </Section>
-          <Text style={paragraph}>
+          <Text className="paragraph">
             Stay secure,
             <br />- The jays.pics Team
           </Text>
-          <Hr style={hr} />
+          <Hr className="hr" />
           <Img
             src={`${baseUrl}/logo.png`}
             width={32}
@@ -84,8 +83,8 @@ export default function ResetPasswordEmail({
               margin: "20px 0",
             }}
           />
-          <Text style={footer}>jays.pics</Text>
-          <Text style={footer}>
+          <Text className="footer">jays.pics</Text>
+          <Text className="footer">
             <Link href={`${baseUrl}/terms`}>Terms of Service</Link> |{" "}
             <Link href={`${baseUrl}/privacy`}>Privacy Policy</Link> |{" "}
             <Link href="https://github.com/jeepies/jays.pics">GitHub</Link>
@@ -95,73 +94,3 @@ export default function ResetPasswordEmail({
     </Html>
   );
 }
-
-const main = {
-  backgroundColor: "#ffffff",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-};
-
-const container = {
-  margin: "0 auto",
-  padding: "20px 25px 48px",
-  backgroundImage: `url(${logo})`,
-  backgroundPosition: "bottom",
-  backgroundRepeat: "no-repeat, no-repeat",
-};
-
-const heading = {
-  fontSize: "28px",
-  fontWeight: "bold",
-  marginTop: "48px",
-};
-
-const body = {
-  margin: "24px 0",
-};
-
-const paragraph = {
-  fontSize: "16px",
-  lineHeight: "26px",
-};
-
-const codeBlock = {
-  fontFamily: "monospace",
-  fontWeight: "700",
-  padding: "12px 20px",
-  backgroundColor: "#f0f0f0",
-  borderRadius: "4px",
-  color: "#000000",
-  fontSize: "16px",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  width: "200px",
-  margin: "20px auto",
-};
-
-const button = {
-  fontFamily: "monospace",
-  fontWeight: "700",
-  padding: "12px 20px",
-  backgroundColor: "#007ee6",
-  borderRadius: "4px",
-  color: "#ffffff",
-  fontSize: "16px",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "block",
-  width: "200px",
-  margin: "20px auto",
-};
-
-const hr = {
-  borderColor: "#dddddd",
-  marginTop: "48px",
-};
-
-const footer = {
-  color: "#8898aa",
-  fontSize: "12px",
-  marginLeft: "4px",
-};
