@@ -77,10 +77,6 @@ export function generateCode(options?: GenerateCodeOptions): string {
       characters =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       break;
-    default:
-      characters =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      break;
   }
 
   let variableCode = "";

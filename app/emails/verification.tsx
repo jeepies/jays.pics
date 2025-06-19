@@ -22,7 +22,7 @@ const baseUrl = process.env.BASE_DOMAIN ?? "http://localhost:5173";
 
 export default function VerificationEmail({
   verificationCode = "JP-12345-V",
-}: VerificationEmailProps) {
+}: Readonly<VerificationEmailProps>) {
   return (
     <Html>
       <Head />

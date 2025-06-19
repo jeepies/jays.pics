@@ -140,11 +140,11 @@ const registerSchema = z.object({
     .min(8, { message: "Must be 8 or more characters" })
     .max(256, { message: "Must be 256 or less characters" })
     .regex(
-      /([!?&-_]+)/g,
+      /([!?&_-]+)/g,
       "Insecure password - Please add one (or more) of (!, ?, &, - or _)",
     )
     .regex(
-      /([0-9]+)/g,
+      /(\d+)/g,
       "Insecure password - Please add one (or more) digit (0-9)",
     ),
   email: z.string().email({ message: "Invalid email address" }),
@@ -351,7 +351,7 @@ authenticator.use(
 
     const user = verification.user;
 
-    if (!user || !user.email) {
+    if (!user.email) {
       throw new FormError("Invalid", {
         payload,
         formErrors: [],
@@ -603,7 +603,7 @@ authenticator.use(
 
     const user = verification.user;
 
-    if (!user || !user.email) {
+    if (!user.email) {
       throw new FormError("Invalid", {
         payload,
         formErrors: [],

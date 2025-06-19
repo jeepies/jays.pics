@@ -34,7 +34,7 @@ export async function applyRateLimit(
   if (!ip) {
     throw new Error("IP not found");
   }
-  const clientIdentifier = identifier || ip;
+  const clientIdentifier = identifier ?? ip;
   const result = await checkRateLimit(rateLimit, clientIdentifier);
 
   if (!result.success) {

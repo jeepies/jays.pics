@@ -70,7 +70,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     email: user.email,
     resent: resent === "true",
-    error: error || null,
+    error: error ?? null,
   });
 }
 

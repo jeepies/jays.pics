@@ -25,7 +25,7 @@ const baseUrl = process.env.BASE_DOMAIN ?? "http://localhost:5173";
 export default function ResetPasswordEmail({
   code = "jp-TOKENHERE-pr",
   userEmail = "user@example.com",
-}: ResetPasswordEmailProps) {
+}: Readonly<ResetPasswordEmailProps>) {
   return (
     <Html>
       <Head />

@@ -58,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
-  const accept = request.headers.get("Accept") || "";
+  const accept = request.headers.get("Accept") ?? "";
   if (accept.includes("application/json")) {
     return json({ ok: true });
   }
