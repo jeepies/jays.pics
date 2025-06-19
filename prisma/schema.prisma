@@ -62,6 +62,11 @@ model User {
   Trigger Trigger[]
 
   Verification Verification[]
+
+  
+  ImageArchiveRequest ImageArchiveRequest[]
+
+  StorageSubscription StorageSubscription[]
 }
 
 model ReferrerProfile {
@@ -329,4 +334,25 @@ model Verification {
   created_at DateTime @default(now())
 
   @@unique([user_id, code])
+}
+
+model ImageArchiveRequest {
+  id         String   @unique @default(cuid())
+  user       User     @relation(fields: [user_id], references: [id])
+  user_id    String
+  created_at DateTime @default(now())
+
+  @@index([user_id])
+}
+
+model StorageSubscription {
+  id                     String    @unique @default(cuid())
+  user                   User      @relation(fields: [user_id], references: [id])
+  user_id                String
+  stripe_subscription_id String    @unique
+  storage                BigInt
+  created_at             DateTime  @default(now())
+  cancelled_at           DateTime?
+
+  @@index([user_id])
 }
