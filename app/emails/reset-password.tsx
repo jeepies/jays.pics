@@ -1,5 +1,6 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
@@ -12,8 +13,9 @@ import {
   Text,
 } from "@react-email/components";
 
-interface VerificationEmailProps {
-  verificationCode?: string;
+interface ResetPasswordEmailProps {
+  code?: string;
+  userEmail?: string;
 }
 
 const baseUrl =
@@ -21,14 +23,15 @@ const baseUrl =
     ? "http://localhost:5173"
     : process.env.BASE_DOMAIN;
 
-export default function VerificationEmail({
-  verificationCode = "JP-12345-V",
-}: VerificationEmailProps) {
+export default function ResetPasswordEmail({
+  code = "jp-TOKENHERE-pr",
+  userEmail = "user@example.com",
+}: ResetPasswordEmailProps) {
   return (
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>Log in with this magic link.</Preview>
+        <Preview>Reset your password for jays.pics</Preview>
         <Container style={container}>
           <Img
             src={`${baseUrl}/logo.png`}
@@ -36,17 +39,39 @@ export default function VerificationEmail({
             height={48}
             alt="jays.pics"
           />
-          <Heading style={heading}>🔑 Your verification code</Heading>
+          <Heading style={heading}>🔐 Reset your password</Heading>
           <Section style={body}>
-            <code style={code}>{verificationCode}</code>
+            <Text style={paragraph}>Hello,</Text>
             <Text style={paragraph}>
-              If you didn't request this, ignore this email, or use the key and
-              get some free image hosting.
+              Someone recently requested a password change for your jays.pics
+              account (<strong>{userEmail}</strong>). If this was you, you can
+              set a new password by clicking the button below.
+            </Text>
+            <Button
+              style={button}
+              href={`${baseUrl}/reset-password?token=${code}`}
+            >
+              Reset Password
+            </Button>
+            <Text style={paragraph}>
+              If the button above doesn't work, you can copy and paste the
+              following link into your browser:
+            </Text>
+            <code
+              style={codeBlock}
+            >{`${baseUrl}/reset-password?token=${code}`}</code>
+            <Text style={paragraph}>
+              If you don't want to change your password or didn't request this,
+              just ignore and delete this message.
+            </Text>
+            <Text style={paragraph}>
+              This password reset link will expire in 24 hours for security
+              reasons.
             </Text>
           </Section>
           <Text style={paragraph}>
-            Welcome and thank you for joining jays.pics,
-            <br />- jays.pics Team
+            Stay secure,
+            <br />- The jays.pics Team
           </Text>
           <Hr style={hr} />
           <Img
@@ -100,15 +125,34 @@ const paragraph = {
   lineHeight: "26px",
 };
 
-const code = {
+const codeBlock = {
   fontFamily: "monospace",
   fontWeight: "700",
-  padding: "1px 4px",
-  backgroundColor: "#dfe1e4",
-  letterSpacing: "-0.3px",
-  fontSize: "21px",
+  padding: "12px 20px",
+  backgroundColor: "#f0f0f0",
   borderRadius: "4px",
-  color: "#3c4149",
+  color: "#000000",
+  fontSize: "16px",
+  textDecoration: "none",
+  textAlign: "center" as const,
+  display: "block",
+  width: "200px",
+  margin: "20px auto",
+};
+
+const button = {
+  fontFamily: "monospace",
+  fontWeight: "700",
+  padding: "12px 20px",
+  backgroundColor: "#007ee6",
+  borderRadius: "4px",
+  color: "#ffffff",
+  fontSize: "16px",
+  textDecoration: "none",
+  textAlign: "center" as const,
+  display: "block",
+  width: "200px",
+  margin: "20px auto",
 };
 
 const hr = {

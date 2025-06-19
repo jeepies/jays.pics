@@ -6,39 +6,46 @@ export const redis = new Redis({
   token: process.env.UPSTASH_TOKEN,
 });
 
+// Rate limit for email verification requests (resend verification)
 export const emailVerificationRateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(3, "1 h"),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(5, "1 h"), // 5 requests per hour
   prefix: "ratelimit:email-verification",
 });
 
+// Rate limit for login attempts (per IP)
 export const loginRateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(5, "15 m"),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(10, "15 m"), // 10 attempts per 15 minutes
   prefix: "ratelimit:login",
 });
 
+// Rate limit for registration attempts (per IP)
 export const registrationRateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(2, "1 h"),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(3, "1 h"), // 3 registrations per hour per IP
   prefix: "ratelimit:registration",
 });
 
+// Rate limit for file uploads
 export const uploadRateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(50, "1 h"),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(50, "1 h"), // 50 uploads per hour
   prefix: "ratelimit:upload",
 });
 
+// Rate limit for API calls
 export const apiRateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(100, "1 m"),
-  analytics: true,
+  limiter: Ratelimit.slidingWindow(100, "1 m"), // 100 requests per minute
   prefix: "ratelimit:api",
+});
+
+// Rate limit for email verification code attempts (per user)
+export const verificationCodeRateLimit = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(10, "1 h"), // 10 verification attempts per hour per user
+  prefix: "ratelimit:verification-code",
 });
 
 export async function checkRateLimit(

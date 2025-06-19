@@ -1,4 +1,3 @@
-// app/routes/authorization.tsx
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -14,6 +13,10 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  if (url.pathname === "/verify" || url.pathname === "/verify/resend") {
+    return null;
+  }
   return redirectIfUser(request);
 }
 
