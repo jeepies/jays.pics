@@ -18,10 +18,7 @@ interface ResetPasswordEmailProps {
   userEmail?: string;
 }
 
-const baseUrl =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:5173"
-    : process.env.BASE_DOMAIN;
+const baseUrl = process.env.BASE_DOMAIN ?? "http://localhost:5173";
 
 export default function ResetPasswordEmail({
   code = "jp-TOKENHERE-pr",
