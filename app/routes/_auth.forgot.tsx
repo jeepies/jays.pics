@@ -1,5 +1,6 @@
 import { ActionFunctionArgs } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
+import { AuthorizationError } from "remix-auth";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -85,7 +86,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return await authenticator.authenticate("forgot-password", request);
   } catch (error) {
     if (error instanceof Response) throw error;
-    if (error instanceof FormError) return error.data;
+    if (error instanceof AuthorizationError) {
+      if (error.cause instanceof FormError) return error.cause.data;
+    }
     throw error;
   }
 }

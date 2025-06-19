@@ -20,7 +20,6 @@ model User {
   email String? @unique
 
   avatar_url String?
-  email_verified Boolean @default(false)
 
   is_admin Boolean @default(false)
 
@@ -61,12 +60,11 @@ model User {
 
   Trigger Trigger[]
 
-  Verification Verification[]
-
-  
   ImageArchiveRequest ImageArchiveRequest[]
 
   StorageSubscription StorageSubscription[]
+
+  Verification Verification[]
 }
 
 model ReferrerProfile {
@@ -314,26 +312,14 @@ enum ErrorStatus {
 }
 
 model SiteError {
-  id        String   @unique @default(cuid())
-  code      String   @unique
-  message   String
-  stack     String?
-  user_ids  String[] @default([])
-  status    ErrorStatus @default(OPEN)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-}
-
-model Verification {
-  id String @unique @default(cuid())
-  user_id String
-  user User @relation(fields: [user_id], references: [id])
-
-  code String
-  expires_at DateTime
-  created_at DateTime @default(now())
-
-  @@unique([user_id, code])
+  id         String      @unique @default(cuid())
+  code       String      @unique
+  message    String
+  stack      String?
+  user_ids   String[]    @default([])
+  status     ErrorStatus @default(OPEN)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
 }
 
 model ImageArchiveRequest {
@@ -355,4 +341,16 @@ model StorageSubscription {
   cancelled_at           DateTime?
 
   @@index([user_id])
+}
+
+model Verification {
+  id String @unique @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+
+  code String
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  @@unique([user_id, code])
 }

@@ -4,6 +4,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
+import { AuthorizationError } from "remix-auth";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -126,6 +127,9 @@ export async function action({ request }: ActionFunctionArgs) {
       successRedirect: "/login?message=success",
     });
   } catch (error) {
+    if (error instanceof AuthorizationError) {
+      if (error.cause instanceof FormError) return error.cause.data;
+    }
     if (error instanceof Response) throw error;
     if (error instanceof FormError) return error.data;
     throw error;

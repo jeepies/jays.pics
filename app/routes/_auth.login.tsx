@@ -1,5 +1,5 @@
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form, Link, useActionData } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
 import { AuthorizationError } from "remix-auth";
 
 import { Button } from "~/components/ui/button";
@@ -11,67 +11,46 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
 
   return (
-    <div className="space-y-4 dark text-white">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Login</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your username and password to login.
-        </p>
+    <Form className="space-y-4 dark text-white" method="post">
+      <div className="space-y-1">
+        <Label htmlFor="username">Username</Label>
+        <Input
+          id="username"
+          name="username"
+          type="text"
+          placeholder="Username"
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.username}
+        </div>
       </div>
-
-      {actionData && (
-        <div className="p-3 rounded-md bg-red-50 border border-red-200">
-          <p className="text-sm text-red-800">{actionData.fieldErrors.form}</p>
+      <div className="space-y-1">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+        />
+        <div className="text-red-500 text-sm">
+          {actionData?.fieldErrors.password}
         </div>
-      )}
-      <Form className="space-y-4" method="post">
-        <div className="space-y-1">
-          <Label htmlFor="username">
-            Username or Email{" "}
-            <span className="text-red-500 text-sm dark">*</span>
-          </Label>
-          <Input
-            id="username"
-            name="username"
-            type="text"
-            placeholder="Username or Email"
-            required
-          />
-          <div className="text-red-500 text-sm">
-            {actionData?.fieldErrors.username}
-          </div>
-        </div>
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">
-              Password <span className="text-red-500 text-sm dark">*</span>
-            </Label>
-            <Button variant="link" asChild>
-              <Link to="/forgot">Forgot password?</Link>
-            </Button>
-          </div>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <div className="text-red-500 text-sm">
-            {actionData?.fieldErrors.password}
-          </div>
-        </div>
-        <Button className="w-full" type="submit">
-          Login
-        </Button>
-        <p className="mt-4 text-sm">
-          Don&apos;t have an account?
-          <Button variant="link" asChild>
-            <Link to="/register">Sign up</Link>
-          </Button>
-        </p>
-      </Form>
-    </div>
+      </div>
+      <Button className="w-full" type="submit">
+        Login
+      </Button>
+      <p className="mt-4 text-center text-sm">
+        Don&apos;t have an account?
+        <a
+          href="/register"
+          className="ml-1 text-primary hover:underline focus:outline-none"
+        >
+          Sign up
+        </a>
+      </p>
+    </Form>
   );
 }
 
