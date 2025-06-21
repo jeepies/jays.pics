@@ -42,7 +42,7 @@ export async function redirectIfUser(request: Request) {
 
 const loginSchema = z.object({
   username: z
-    .string({ required_error: "Username or email is required" })
+    .string({ required_error: "Username is required" })
     .min(3, "Must be 3 or more characters"),
   password: z
     .string({ required_error: "Password is required" })
@@ -88,12 +88,8 @@ authenticator.use(
       });
     }
 
-    const isEmail = result.data.username.includes("@");
-
     const user = await prisma.user.findFirst({
-      where: isEmail
-        ? { email: result.data.username }
-        : { username: result.data.username },
+      where: { username: result.data.username },
     });
 
     if (user === null) {
@@ -101,9 +97,7 @@ authenticator.use(
         payload,
         formErrors: [],
         fieldErrors: {
-          username: isEmail
-            ? "No account found with this email address"
-            : "This username does not exist",
+          username: "This username does not exist",
           password: "",
         },
       });
