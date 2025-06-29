@@ -1,5 +1,5 @@
 import { EyeClosedIcon } from "@radix-ui/react-icons";
-import { CloudUpload, Eye } from "lucide-react";
+import { CloudUpload, Eye, Wrench } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -38,6 +38,15 @@ export default function UploadSettings() {
               )}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mb-8">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle>Configs</CardTitle>
+          <Wrench className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="space-y-2">
           <div className="flex space-x-2">
             <Button>
               <a href={`/api/sharex/${data?.user.id}`}>ShareX</a>
