@@ -58,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
-  const accept = request.headers.get("Accept") ?? "";
+  const accept = request.headers.get("Accept") || "";
   if (accept.includes("application/json")) {
     return json({ ok: true });
   }
@@ -79,6 +79,14 @@ export default function Embed() {
   const [colour, setColour] = useState(
     data!.user.upload_preferences?.embed_colour,
   );
+  const [useDomainHack, setUseDomainHack] = useState(
+    data!.user.upload_preferences?.domain_hack,
+  );
+  const [url, setUrl] = useState(
+    useDomainHack
+      ? "https://jays.pics/"
+      : "https://jays.pics/i/cmbzo760j000fk5lbk3gr7hpg",
+  );
   const [templates, setTemplates] = useState<Record<string, string>>({});
   const footer = "Hosted with 🩵 at jays.pics";
 
@@ -96,8 +104,8 @@ export default function Embed() {
 
   function applyTemplates(text: string): string {
     return text.replace(
-      /{{\s*([a-zA-Z0-9_.-]+)\s*}}/g,
-      (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? "",
+      /{{(.*?)}}/g,
+      (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? `{{${key}}}`,
     );
   }
 
@@ -109,6 +117,11 @@ export default function Embed() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (useDomainHack) setUrl("https://jays.pics/");
+    else setUrl("https://jays.pics/i/cmbzo760j000fk5lbk3gr7hpg");
+  }, [useDomainHack]);
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -138,6 +151,7 @@ export default function Embed() {
                     {data!.user.username}
                   </p>
                 </div>
+                <div className="text-blue-500">{url}</div>
                 <div
                   className="border rounded p-4"
                   style={{ borderLeftWidth: "4px", borderLeftColor: colour }}
@@ -212,6 +226,7 @@ export default function Embed() {
                   <Checkbox
                     name="domain_hack"
                     defaultChecked={data?.user.upload_preferences?.domain_hack}
+                    onCheckedChange={(checked) => setUseDomainHack(!!checked)}
                   >
                     Invisible Extension
                   </Checkbox>
