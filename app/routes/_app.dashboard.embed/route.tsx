@@ -105,7 +105,7 @@ export default function Embed() {
   function applyTemplates(text: string): string {
     return text.replace(
       /{{(.*?)}}/g,
-      (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? "",
+      (_, key) => TEMPLATE_EXAMPLES[key.trim()] ?? `{{${key}}}`,
     );
   }
 
