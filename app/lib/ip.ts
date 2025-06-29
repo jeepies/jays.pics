@@ -12,7 +12,7 @@ export function getIP(request: Request, fallback?: string): string {
     return fallback;
   }
 
-  throw new Error("IP not found");
+  return "0.0.0.0";
 }
 
 export function baseURL() {
