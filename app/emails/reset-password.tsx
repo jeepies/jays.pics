@@ -72,19 +72,9 @@ export default function ResetPasswordEmail({
             <br />- The jays.pics Team
           </Text>
           <Hr className="hr" />
-          <Img
-            src={`${baseUrl}/logo.png`}
-            width={32}
-            height={32}
-            style={{
-              WebkitFilter: "grayscale(100%)",
-              filter: "grayscale(100%)",
-              margin: "20px 0",
-            }}
-          />
           <Text className="footer">jays.pics</Text>
           <Text className="footer">
-            <Link href={`${baseUrl}/terms`}>Terms of Service</Link> |{" "}
+            <Link href={`${baseUrl}/tos`}>Terms of Service</Link> |{" "}
             <Link href={`${baseUrl}/privacy`}>Privacy Policy</Link> |{" "}
             <Link href="https://github.com/jeepies/jays.pics">GitHub</Link>
           </Text>
