@@ -51,6 +51,8 @@ export async function getUserBySession(session: Session) {
 
   if (!user) return null;
 
+  // if (!user.email || !user.email_verified) return null;
+
   return {
     ...user,
     max_space: Number(user.max_space),
@@ -64,11 +66,13 @@ export async function getUserBySession(session: Session) {
 }
 
 export async function getUserByID(id: string) {
-  return await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: id },
     select: {
       id: true,
       username: true,
+      email: true,
+      email_verified: true,
       images: true,
       created_at: true,
       badges: true,
@@ -77,6 +81,12 @@ export async function getUserByID(id: string) {
       avatar_url: true,
     },
   });
+
+  if (!user) return null;
+
+  // if (!user.email || !user.email_verified) return null;
+
+  return user;
 }
 
 export async function getAllReferrals(referrer_id: string) {

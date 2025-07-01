@@ -1,6 +1,7 @@
 import { json } from "@remix-run/node";
 import { Resend } from "resend";
 
+import ChangeEmail from "~/emails/change-email";
 import ResetPasswordEmail from "~/emails/reset-password";
 import VerificationEmail from "~/emails/verification";
 import { CodeCharacterType, generateCode } from "~/lib/code";
@@ -100,7 +101,6 @@ export async function sendResetPasswordEmail(
     suffix: "-pr",
   });
 
-  // Clean up any existing expired reset password codes for this user
   await prisma.verification.deleteMany({
     where: {
       user: {
@@ -112,7 +112,6 @@ export async function sendResetPasswordEmail(
     },
   });
 
-  // Create the new verification code
   await prisma.verification.create({
     data: {
       user: {
@@ -133,6 +132,77 @@ export async function sendResetPasswordEmail(
     react: ResetPasswordEmail({
       code: code,
       userEmail: email,
+    }),
+  });
+
+  if (error) {
+    console.error("Error sending reset password email", error);
+    return json(
+      { error: "Failed to send reset password email, please try again." },
+      400,
+    );
+  }
+
+  return data;
+}
+
+export async function sendChangeEmail(
+  email: string,
+  newEmail: string,
+  applyRateLimit: boolean = true,
+) {
+  const baseDomain = process.env.BASE_DOMAIN ?? "jays.pics";
+
+  if (applyRateLimit) {
+    const rateLimitResult = await checkRateLimit(
+      emailVerificationRateLimit,
+      email,
+    );
+
+    if (!rateLimitResult.success) {
+      return;
+    }
+  }
+
+  const code = generateCode({
+    codeLength: 32,
+    characterType: CodeCharacterType.ALPHABETIC_UPPER,
+    prefix: "jp-",
+    suffix: "-ce",
+  });
+
+  await prisma.verification.deleteMany({
+    where: {
+      user: {
+        email: email,
+      },
+      expires_at: {
+        lt: new Date(),
+      },
+    },
+  });
+
+  await prisma.verification.create({
+    data: {
+      user: {
+        connect: {
+          email: email,
+        },
+      },
+      code: code,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+    },
+  });
+
+  const { data, error } = await resend.emails.send({
+    from: `jays.pics <noreply@${baseDomain}>`,
+    replyTo: `jays.pics <noreply@${baseDomain}>`,
+    to: email,
+    subject: "Confirm your new email",
+    react: ChangeEmail({
+      code: code,
+      userEmail: email,
+      newEmail: newEmail,
     }),
   });
 

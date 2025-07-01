@@ -29,6 +29,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const resent = url.searchParams.get("resent");
   const error = url.searchParams.get("error");
+  const isChangeEmail = url.searchParams.get("token");
+
+  if (
+    isChangeEmail &&
+    isChangeEmail.length !== 36 &&
+    !isChangeEmail.startsWith("jp-") &&
+    !isChangeEmail.endsWith("-ce")
+  ) {
+    throw redirect("/dashboard/index");
+  }
 
   if (!session.has("userID")) {
     return redirect("/login");
@@ -40,7 +50,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/login");
   }
 
-  if (user.email_verified) {
+  if (user.email_verified && !isChangeEmail) {
     return redirect("/dashboard/index");
   }
 
@@ -48,42 +58,51 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/login");
   }
 
-  const verification = await prisma.verification.findFirst({
-    where: {
-      user_id: user.id,
-    },
-  });
-
-  if (!verification && !user.email_verified && user.email) {
-    await sendVerificationEmail(user.email.toLowerCase(), false);
-  }
-
-  if (verification?.expires_at && verification.expires_at < new Date()) {
-    await prisma.verification.delete({
+  if (!isChangeEmail) {
+    const verification = await prisma.verification.findFirst({
       where: {
-        id: verification.id,
+        user_id: user.id,
       },
     });
-    await sendVerificationEmail(user.email.toLowerCase(), false);
+
+    if (!verification && !user.email_verified && user.email) {
+      await sendVerificationEmail(user.email.toLowerCase(), false);
+    }
+
+    if (verification?.expires_at && verification.expires_at < new Date()) {
+      await prisma.verification.delete({
+        where: {
+          id: verification.id,
+        },
+      });
+      await sendVerificationEmail(user.email.toLowerCase(), false);
+    }
   }
 
   return json({
     email: user.email.toLowerCase(),
     resent: resent === "true",
     error: error ?? null,
+    isChangeEmail,
   });
 }
 
-export default function Verify() {
-  const { email, resent, error } = useLoaderData<typeof loader>();
+export default function VerifyEmail() {
+  const { email, resent, error, isChangeEmail } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const [code, setCode] = useState("");
 
+  const codeLength = isChangeEmail ? 36 : 6;
   const isSubmitting = navigation.state === "submitting";
-  const isCodeComplete = code.length === 6;
-  const isValidCode = /^\d{6}$/.test(code);
-  const hasInvalidCharacters = code.length > 0 && !/^\d*$/.test(code);
+  const isCodeComplete = code.length === codeLength;
+  const isValidCode = isChangeEmail
+    ? /^jp-[A-Z]{32}-ce$/.test(code)
+    : /^\d{6}$/.test(code);
+  const hasInvalidCharacters =
+    code.length > 0 &&
+    (isChangeEmail ? !/^jp-[A-Z0-9-]*$/.test(code) : !/^\d*$/.test(code));
 
   const hasFieldErrors = actionData && "fieldErrors" in actionData;
 
@@ -91,11 +110,23 @@ export default function Verify() {
     <div className="space-y-4 dark text-white">
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-bold">Check your email</h1>
+          <h1 className="text-2xl font-bold">
+            {isChangeEmail ? "Verify your new email" : "Check your email"}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            We sent a verification code to{" "}
-            <span className="font-medium">{email}</span>. Enter the 6-digit code
-            below to verify your account.
+            {isChangeEmail ? (
+              <>
+                We sent a verification code to your{" "}
+                <span className="font-medium">new email</span>. Enter the code
+                below to verify your new email address.
+              </>
+            ) : (
+              <>
+                We sent a verification code to{" "}
+                <span className="font-medium">{email}</span>. Enter the 6-digit
+                code below to verify your account.
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -127,19 +158,16 @@ export default function Verify() {
           </Label>
           <div className="flex justify-center">
             <InputOTP
-              maxLength={6}
+              maxLength={codeLength}
               name="code"
               value={code}
               onChange={(value) => setCode(value)}
               disabled={isSubmitting}
             >
               <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
+                {Array.from({ length: codeLength }).map((_, i) => (
+                  <InputOTPSlot key={i} index={i} />
+                ))}
               </InputOTPGroup>
             </InputOTP>
           </div>
@@ -153,12 +181,16 @@ export default function Verify() {
             )}
           {hasInvalidCharacters && (
             <p className="text-sm text-amber-600 mt-1 text-center">
-              Verification code must contain only numbers
+              {isChangeEmail
+                ? "Verification code must be a valid change email code (jp-...-ce, uppercase letters)"
+                : "Verification code must contain only numbers"}
             </p>
           )}
           {isCodeComplete && !isValidCode && !hasInvalidCharacters && (
             <p className="text-sm text-amber-600 mt-1 text-center">
-              Verification code must be exactly 6 digits
+              {isChangeEmail
+                ? "Verification code must be exactly 36 characters, start with jp-, end with -ce, and use uppercase letters."
+                : "Verification code must be exactly 6 digits"}
             </p>
           )}
         </div>
@@ -174,13 +206,10 @@ export default function Verify() {
 
       <div className="space-y-4 text-center">
         <p className="text-sm text-muted-foreground">
-          {"Didn't receive the code?"}
+          {isChangeEmail
+            ? "Didn't receive the code for your new email?"
+            : "Didn't receive the code?"}
         </p>
-        <Form method="post" action="/verify/resend">
-          <Button variant="link" type="submit" disabled={isSubmitting}>
-            Resend Code
-          </Button>
-        </Form>
       </div>
     </div>
   );
@@ -188,7 +217,7 @@ export default function Verify() {
 
 export async function action({ request }: ActionFunctionArgs) {
   try {
-    return await authenticator.authenticate("verify", request, {
+    return await authenticator.authenticate("verify-change-email", request, {
       successRedirect: "/dashboard/index",
     });
   } catch (error) {

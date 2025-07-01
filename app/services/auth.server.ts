@@ -13,7 +13,11 @@ import {
   registrationRateLimit,
   verificationCodeRateLimit,
 } from "./redis.server";
-import { sendResetPasswordEmail, sendVerificationEmail } from "./resend.server";
+import {
+  sendChangeEmail,
+  sendResetPasswordEmail,
+  sendVerificationEmail,
+} from "./resend.server";
 import { getUserBySession, sessionStorage } from "./session.server";
 
 export class FormError extends AuthorizationError {
@@ -189,7 +193,11 @@ authenticator.use(
       });
     }
 
-    if (await prisma.user.findFirst({ where: { email: result.data.email } })) {
+    if (
+      await prisma.user.findFirst({
+        where: { email: result.data.email.toLowerCase() },
+      })
+    ) {
       throw new FormError("Exists", {
         payload,
         formErrors: [],
@@ -235,6 +243,18 @@ authenticator.use(
         { name: "user", text: "User" },
         { name: "early", text: "Early" },
       ]);
+    }
+
+    const emailExists = await prisma.user.findFirst({
+      where: { email: result.data.email.toLowerCase() },
+    });
+
+    if (emailExists) {
+      throw new FormError("Exists", {
+        payload,
+        formErrors: [],
+        fieldErrors: { email: "This email is already in use" },
+      });
     }
 
     const user = await prisma.user.create({
@@ -306,6 +326,30 @@ authenticator.use(
       });
     }
 
+    const session = await sessionStorage.getSession(
+      request.headers.get("Cookie"),
+    );
+
+    if (!session.has("userID")) {
+      throw new FormError("Unauthorized", {
+        payload: {},
+        formErrors: [],
+        fieldErrors: {
+          form: "You must be logged in to resend verification",
+        },
+      });
+    }
+
+    const user = await getUserBySession(session);
+
+    if (!user || !user.email) {
+      throw new FormError("User not found", {
+        payload: {},
+        formErrors: [],
+        fieldErrors: { form: "User not found. Please log in again." },
+      });
+    }
+
     const verification = await prisma.verification.findFirst({
       where: {
         code: result.data.code,
@@ -343,16 +387,6 @@ authenticator.use(
       });
     }
 
-    const user = verification.user;
-
-    if (!user.email) {
-      throw new FormError("Invalid", {
-        payload,
-        formErrors: [],
-        fieldErrors: { code: "Invalid verification code" },
-      });
-    }
-
     if (user.email_verified) {
       await prisma.verification.delete({
         where: { id: verification.id },
@@ -386,8 +420,8 @@ authenticator.use(
         where: { id: user.id },
         data: { email_verified: true, last_login_at: new Date() },
       }),
-      prisma.verification.deleteMany({
-        where: { user_id: user.id },
+      prisma.verification.delete({
+        where: { id: verification.id },
       }),
     ]);
 
@@ -464,14 +498,21 @@ authenticator.use(
       where: { user_id: user.id },
     });
 
-    if (existingVerifications.length > 0) {
-      await prisma.verification.deleteMany({
-        where: { user_id: user.id },
-      });
+    for (const verification of existingVerifications) {
+      if (verification.expires_at < new Date()) {
+        await prisma.verification.delete({
+          where: { id: verification.id },
+        });
+      }
+      if (verification.code.length === 6) {
+        await prisma.verification.delete({
+          where: { id: verification.id },
+        });
+      }
     }
 
     try {
-      await sendVerificationEmail(user.email, false);
+      await sendVerificationEmail(user.email.toLowerCase(), false);
     } catch (error) {
       console.error("Failed to send verification email:", error);
       throw new FormError("Send failed", {
@@ -507,7 +548,7 @@ authenticator.use(
     }
 
     const user = await prisma.user.findFirst({
-      where: { email: result.data.email },
+      where: { email: result.data.email.toLowerCase() },
     });
 
     if (!user) {
@@ -528,7 +569,7 @@ authenticator.use(
 const resetPasswordSchema = z.object({
   token: z
     .string({ required_error: "Reset password token is required" })
-    .min(32, "Reset password token must be 32 characters")
+    .min(36, "Reset password token must be 36 characters")
     .refine((token) => token.startsWith("jp-"), {
       message: "Invalid reset password token",
     })
@@ -620,14 +661,126 @@ authenticator.use(
         where: { id: user.id },
         data: { password: hashedPassword },
       }),
-      prisma.verification.deleteMany({
-        where: { user_id: user.id },
+      prisma.verification.delete({
+        where: { id: verification.id },
       }),
     ]);
 
     return user.id;
   }),
   "reset-password",
+);
+
+const verifyChangeEmailSchema = z.object({
+  code: z
+    .string({ required_error: "Verification code is required" })
+    .length(36, "Verification code must be exactly 36 characters")
+    .regex(/^jp-/, "Verification code must start with jp-")
+    .regex(/-ce$/, "Verification code must end with -ce"),
+});
+
+authenticator.use(
+  new FormStrategy(async ({ form, request }) => {
+    const payload = Object.fromEntries(form) as Record<string, string>;
+    const result = verifyChangeEmailSchema.safeParse(payload);
+
+    if (!result.success) {
+      const error = result.error.flatten();
+      throw new FormError("Validation", {
+        payload,
+        formErrors: error.formErrors,
+        fieldErrors: error.fieldErrors as Record<string, string | undefined>,
+      });
+    }
+
+    const verification = await prisma.verification.findFirst({
+      where: {
+        code: result.data.code,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            email_verified: true,
+          },
+        },
+      },
+    });
+
+    if (!verification) {
+      throw new FormError("Invalid", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Invalid verification code" },
+      });
+    }
+
+    if (verification.expires_at < new Date()) {
+      await prisma.verification.delete({
+        where: { id: verification.id },
+      });
+
+      throw new FormError("Expired", {
+        payload,
+        formErrors: [],
+        fieldErrors: {
+          code: "Verification code has expired. Please request a new one.",
+        },
+      });
+    }
+
+    const user = verification.user;
+
+    if (!user.email) {
+      throw new FormError("Invalid", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Invalid verification code" },
+      });
+    }
+
+    if (user.email_verified) {
+      await prisma.verification.delete({
+        where: { id: verification.id },
+      });
+
+      throw new FormError("Already verified", {
+        payload,
+        formErrors: [],
+        fieldErrors: { code: "Email is already verified" },
+      });
+    }
+
+    const rateLimitResult = await applyRateLimit(
+      request,
+      verificationCodeRateLimit,
+      user.id.toString(),
+    );
+
+    if (isRateLimitResponse(rateLimitResult)) {
+      throw new FormError("Rate limit exceeded", {
+        payload: {},
+        formErrors: [],
+        fieldErrors: {
+          form: `Too many verification attempts. You can try again at ${rateLimitResult}`,
+        },
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { email_verified: true, last_login_at: new Date() },
+      }),
+      prisma.verification.delete({
+        where: { id: verification.id },
+      }),
+    ]);
+
+    return user.id;
+  }),
+  "verify-change-email",
 );
 
 export async function logout(request: Request) {
