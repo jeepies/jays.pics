@@ -27,6 +27,8 @@ export async function getUserBySession(session: Session) {
     select: {
       id: true,
       username: true,
+      email: true,
+      email_verified: true,
       images: true,
       referrer_profile: true,
       upload_preferences: true,
@@ -38,7 +40,6 @@ export async function getUserBySession(session: Session) {
       space_used: true,
       pinned_images: true,
       avatar_url: true,
-      email: true,
       StorageSubscription: true,
       notifications: {
         where: {
@@ -49,6 +50,8 @@ export async function getUserBySession(session: Session) {
   });
 
   if (!user) return null;
+
+  // if (!user.email || !user.email_verified) return null;
 
   return {
     ...user,
@@ -63,11 +66,13 @@ export async function getUserBySession(session: Session) {
 }
 
 export async function getUserByID(id: string) {
-  return await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: id },
     select: {
       id: true,
       username: true,
+      email: true,
+      email_verified: true,
       images: true,
       created_at: true,
       badges: true,
@@ -76,24 +81,18 @@ export async function getUserByID(id: string) {
       avatar_url: true,
     },
   });
+
+  if (!user) return null;
+
+  // if (!user.email || !user.email_verified) return null;
+
+  return user;
 }
 
 export async function getAllReferrals(referrer_id: string) {
   return await prisma.referral.findMany({
     where: { referrer_id: referrer_id },
   });
-}
-
-export function getClientIP(request: Request): string | null {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
-  const cf = request.headers.get("cf-connecting-ip");
-  if (cf) return cf;
-  const real = request.headers.get("x-real-ip");
-  if (real) return real;
-  return null;
 }
 
 export const { getSession, commitSession, destroySession } = sessionStorage;
