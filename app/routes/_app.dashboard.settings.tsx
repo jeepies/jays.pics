@@ -116,6 +116,15 @@ export async function action({ request }: ActionFunctionArgs) {
     if (Object.keys(fieldErrors).length > 0) {
       return json({ ok: false, fieldErrors }, { status: 400 });
     }
+
+    await sendChangeEmail(user.email.toLowerCase(), email.toLowerCase(), true);
+
+    const verification = await prisma.verification.findFirst({
+      where: { user_id: user.id },
+      orderBy: { created_at: "desc" },
+    });
+
+    // Now update the user's email
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -124,8 +133,12 @@ export async function action({ request }: ActionFunctionArgs) {
         last_login_at: new Date(),
       },
     });
-    await sendChangeEmail(user.email.toLowerCase(), email.toLowerCase(), true);
-    return json({ ok: true });
+
+    if (verification) {
+      return redirect(`/verify-email?token=${verification.code}`);
+    }
+
+    return redirect("/verify-email");
   }
 
   // Avatar update
@@ -328,16 +341,18 @@ export default function Settings() {
               className="space-y-2"
               onSubmit={(e) => {
                 e.preventDefault();
+                if (email === data.user.email?.toLowerCase()) {
+                  setEditingEmail(false);
+                  showToast("You can't change to the same email", "error");
+                  return;
+                }
                 const fd = new FormData(e.currentTarget);
                 setEditingEmail(false);
                 fetcher.submit(fd, {
                   method: "post",
                   encType: "multipart/form-data",
                 });
-                showToast(
-                  "Email updated - check your email, including your spam folder.",
-                  "info",
-                );
+                // No toast needed - we'll redirect to verification page
               }}
             >
               <Input type="hidden" name="type" value="update_email" />
