@@ -35,6 +35,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     });
 
+  // Check if user's email is verified, redirect to verify page if not
+  if (!user.email_verified) {
+    return redirect("/verify");
+  }
+
   const now = Date.now();
 
   return { user, now, version: process.env.VERSION ?? "0.0.0" };
