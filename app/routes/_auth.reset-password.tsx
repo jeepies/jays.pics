@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect("/forgot");
   }
 
-  if (code.length !== 36 || !code.startsWith("jp-") || !code.endsWith("-rp")) {
+  if (code.length !== 38 || !code.startsWith("jp-") || !code.endsWith("-pr")) {
     throw redirect("/forgot");
   }
 
