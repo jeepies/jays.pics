@@ -352,7 +352,6 @@ export default function Settings() {
                   method: "post",
                   encType: "multipart/form-data",
                 });
-                // No toast needed - we'll redirect to verification page
               }}
             >
               <Input type="hidden" name="type" value="update_email" />
@@ -368,9 +367,6 @@ export default function Settings() {
                         value={email}
                         onChange={(e) => {
                           setEmail(e.target.value);
-                          if (e.target.value.length === 0) {
-                            setEmail("Set your email");
-                          }
                         }}
                         readOnly={!editingEmail}
                       />
