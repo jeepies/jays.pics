@@ -3,6 +3,8 @@ import { json, redirect } from "@remix-run/node";
 import { Form, useFetcher } from "@remix-run/react";
 import prettyBytes from "pretty-bytes";
 import { useMemo, useState } from "react";
+import { z } from "zod";
+import { FormError } from "~/services/auth.server";
 
 import { useToast } from "~/components/toast";
 import { Button } from "~/components/ui/button";
@@ -34,59 +36,137 @@ import {
   UserPen,
   X,
 } from "lucide-react";
+import { sendChangeEmail } from "~/services/resend.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("userID")) return redirect("/login");
 
   const user = await getUserBySession(session);
+  if (!user || !user.email) return redirect("/login");
   const formData = await request.formData();
   const type = formData.get("type");
-  let updated = false;
 
+  // Username update
   if (type === "update_username") {
-    const username = formData.get("username");
-    if (typeof username === "string" && username.length > 0) {
-      const changedAt = Date.parse(
-        user!.username_changed_at as unknown as string,
-      );
-      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      if (changedAt < sevenDaysAgo) {
-        await prisma.user.update({
-          where: { id: user!.id },
-          data: {
-            username,
-            username_changed_at: new Date(),
-            username_history: JSON.stringify([
-              username,
-              ...JSON.parse(user!.username_history as unknown as string),
-            ]),
-          },
-        });
-        updated = true;
+    const usernameSchema = z
+      .string()
+      .min(3, "Must be 3 or more characters")
+      .max(20, "Must be 20 or less characters")
+      .regex(/^[a-z0-9_]+$/gim, "Invalid username");
+    const usernameEntry = formData.get("username");
+    const username = typeof usernameEntry === "string" ? usernameEntry : "";
+    let fieldErrors: Record<string, string | undefined> = {};
+    if (typeof username !== "string" || username.length === 0) {
+      fieldErrors.username = "Username is required";
+    } else {
+      const result = usernameSchema.safeParse(username);
+      if (!result.success) {
+        fieldErrors.username = result.error.errors[0].message;
+      } else {
+        const changedAt = Date.parse(
+          user.username_changed_at as unknown as string,
+        );
+        const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        if (changedAt >= sevenDaysAgo) {
+          fieldErrors.username =
+            "You can only change your username every 7 days.";
+        } else if (await prisma.user.findFirst({ where: { username } })) {
+          fieldErrors.username = "This username already exists";
+        }
       }
     }
+    if (Object.keys(fieldErrors).length > 0) {
+      return json({ ok: false, fieldErrors }, { status: 400 });
+    }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        username: username,
+        username_changed_at: new Date(),
+        username_history: JSON.stringify([
+          username,
+          ...JSON.parse(user.username_history as unknown as string),
+        ]),
+      },
+    });
+    return json({ ok: true });
   }
 
+  // Email update
+  if (type === "update_email") {
+    const emailSchema = z.string().email("Invalid email address");
+    const emailEntry = formData.get("email");
+    const email = typeof emailEntry === "string" ? emailEntry : "";
+    let fieldErrors: Record<string, string | undefined> = {};
+    if (email.length === 0) {
+      fieldErrors.email = "Email is required";
+    } else {
+      const result = emailSchema.safeParse(email);
+      if (!result.success) {
+        fieldErrors.email = result.error.errors[0].message;
+      } else if (user.email.toLowerCase() === email.toLowerCase()) {
+        fieldErrors.email = "This is already your email.";
+      } else if (
+        await prisma.user.findFirst({ where: { email: email.toLowerCase() } })
+      ) {
+        fieldErrors.email = "This email is already in use.";
+      }
+    }
+    if (Object.keys(fieldErrors).length > 0) {
+      return json({ ok: false, fieldErrors }, { status: 400 });
+    }
+
+    await sendChangeEmail(user.email.toLowerCase(), email.toLowerCase(), true);
+
+    const verification = await prisma.verification.findFirst({
+      where: { user_id: user.id },
+      orderBy: { created_at: "desc" },
+    });
+
+    // Now update the user's email
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        email: (email || "").toLowerCase(),
+        email_verified: false,
+        last_login_at: new Date(),
+      },
+    });
+
+    if (verification) {
+      return redirect(`/verify-email?token=${verification.code}`);
+    }
+
+    return redirect("/verify-email");
+  }
+
+  // Avatar update
   if (type === "update_avatar") {
-    const file = formData.get("avatar");
-    if (file && file instanceof File && file.size > 0) {
-      const ext = file.type.split("/")[1] ?? "png";
-      const key = `avatars/${user!.id}.${ext}`;
-      const response = await uploadToS3(file, key);
-      if (response?.$metadata.httpStatusCode === 200) {
-        await prisma.user.update({
-          where: { id: user!.id },
-          data: { avatar_url: key },
-        });
-        updated = true;
-      }
+    const fileEntry = formData.get("avatar");
+    let fieldErrors: Record<string, string | undefined> = {};
+    if (!fileEntry || !(fileEntry instanceof File) || fileEntry.size === 0) {
+      fieldErrors.avatar = "Please select an image to upload.";
     }
-  }
-
-  const accept = request.headers.get("Accept") || "";
-  if (accept.includes("application/json")) {
-    return json({ ok: updated });
+    if (Object.keys(fieldErrors).length > 0) {
+      return json({ ok: false, fieldErrors }, { status: 400 });
+    }
+    const file = fileEntry as File;
+    const ext = file.type.split("/")[1] ?? "png";
+    const key = `avatars/${user.id}.${ext}`;
+    const response = await uploadToS3(file, key);
+    if (response?.$metadata.httpStatusCode === 200) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { avatar_url: key },
+      });
+      return json({ ok: true });
+    } else {
+      return json(
+        { ok: false, fieldErrors: { avatar: "Failed to upload avatar." } },
+        { status: 500 },
+      );
+    }
   }
 
   return redirect("/dashboard/settings");
@@ -99,9 +179,20 @@ export default function Settings() {
   const deleteFetcher = useFetcher();
   const { showToast } = useToast();
   const [username, setUsername] = useState(data.user.username);
-  const [email, setEmail] = useState(data.user.email);
+  const [email, setEmail] = useState(
+    data.user.email?.toLowerCase() ?? "Set your email",
+  );
   const [editingUsername, setEditingUsername] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
+
+  // Error helpers
+  const fieldErrors: Record<string, string | undefined> =
+    fetcher.data &&
+    typeof fetcher.data === "object" &&
+    "fieldErrors" in fetcher.data &&
+    fetcher.data.fieldErrors
+      ? (fetcher.data.fieldErrors as Record<string, string | undefined>)
+      : {};
 
   const changedAt = Date.parse(data!.user.username_changed_at);
   const sevenDaysAgo = Date.parse(
@@ -234,31 +325,49 @@ export default function Settings() {
                           </Button>
                         ))}
                     </div>
+                    {fieldErrors?.username && (
+                      <div className="text-red-500 text-sm mt-1">
+                        {fieldErrors.username}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </fetcher.Form>
 
             <fetcher.Form
+              method="post"
+              encType="multipart/form-data"
+              className="space-y-2"
               onSubmit={(e) => {
                 e.preventDefault();
+                if (email === data.user.email?.toLowerCase()) {
+                  setEditingEmail(false);
+                  showToast("You can't change to the same email", "error");
+                  return;
+                }
+                const fd = new FormData(e.currentTarget);
                 setEditingEmail(false);
-                showToast("Sorry - you can't do this yet!", "error");
-                return;
+                fetcher.submit(fd, {
+                  method: "post",
+                  encType: "multipart/form-data",
+                });
               }}
             >
               <Input type="hidden" name="type" value="update_email" />
               <div className="flex space-x-2">
                 <div className="flex-1 space-y-2">
                   <div>
-                    <Label htmlFor="username">Email</Label>
+                    <Label htmlFor="email">Email</Label>
                     <div className="flex items-center space-x-2 mt-1 w-full">
                       <Input
-                        id="username"
-                        name="username"
+                        id="email"
+                        name="email"
                         className="flex-1"
-                        value={data.user.email ?? ""}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                        }}
                         readOnly={!editingEmail}
                       />
                       {editingEmail ? (
@@ -271,7 +380,7 @@ export default function Settings() {
                             variant="ghost"
                             size="icon"
                             onClick={() => {
-                              setEmail(data.user.username);
+                              setEmail(data.user.email!);
                               setEditingEmail(false);
                             }}
                           >
@@ -289,6 +398,11 @@ export default function Settings() {
                         </Button>
                       )}
                     </div>
+                    {fieldErrors?.email && (
+                      <div className="text-red-500 text-sm mt-1">
+                        {fieldErrors.email}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -308,11 +422,11 @@ export default function Settings() {
                   e.preventDefault();
                   return;
                 }
-                showToast("Avatar updated", "success");
                 fetcher.submit(fd, {
                   method: "post",
                   encType: "multipart/form-data",
                 });
+                showToast("Avatar updated", "success");
                 e.preventDefault();
               }}
             >
@@ -333,6 +447,11 @@ export default function Settings() {
                         <Check className="h-4 w-4" />
                       </Button>
                     </div>
+                    {fieldErrors?.avatar && (
+                      <div className="text-red-500 text-sm mt-1">
+                        {fieldErrors.avatar}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -12,6 +12,14 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  if (
+    url.pathname === "/verify" ||
+    url.pathname === "/verify/resend" ||
+    url.pathname === "/verify-email"
+  ) {
+    return null;
+  }
   return redirectIfUser(request);
 }
 
