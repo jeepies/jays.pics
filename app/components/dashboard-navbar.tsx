@@ -30,9 +30,17 @@ export function DashboardNavbar({
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
             <Menu className="h-4 w-4" />
           </Button>
-          <Link to="/dashboard/index" className="font-bold">
-            jays.pics
-          </Link>
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="jays.pics"
+              className="h-4 w-4 rounded-full"
+            />
+            <Link to="/dashboard/index" className="font-bold">
+              jays.pics{" "}
+              <span className="text-xs text-muted-foreground">v{version}</span>
+            </Link>
+          </div>
         </div>
       </header>
       <AnimatePresence>
