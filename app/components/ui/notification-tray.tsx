@@ -31,7 +31,7 @@ export function NotificationTray({
   return (
     <div
       className={cn(
-        "absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow",
+        "absolute inset-x-0 top-12 w-full border rounded bg-background p-2 shadow-sm",
         className,
       )}
     >

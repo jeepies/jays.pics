@@ -70,7 +70,7 @@ export default function Application() {
         version={version}
         className="border-r hidden md:block"
       />
-      <div className="flex-grow rounded w-full h-full overflow-auto">
+      <div className="grow rounded w-full h-full overflow-auto">
         <Outlet />
       </div>
       <StorageLimitBanner

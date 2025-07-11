@@ -63,7 +63,7 @@ export default function Index() {
                 🎉 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
                 <span
                   className={cn(
-                    `inline animate-gradient bg-gradient-to-r from-primary via-secondary to-primary bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`,
+                    `inline animate-gradient bg-linear-to-r from-primary via-secondary to-primary bg-size-[var(--bg-size)_100%] bg-clip-text text-transparent`,
                   )}
                 >
                   jays.pics v2
@@ -82,7 +82,7 @@ export default function Index() {
               </h2>
 
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start text-lg">
-                <div className="rounded-md shadow">
+                <div className="rounded-md shadow-sm">
                   <Link to="/register">
                     <Button size="lg" className="group text-white">
                       Get Started
@@ -107,7 +107,7 @@ export default function Index() {
               <h1 className="text-sm text-muted-foreground text-balance font-semibold tracking-tigh uppercase relative z-20">
                 Statistics
               </h1>
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-gradient-to-r from-transparent via-background to-transparent z-10"></div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-linear-to-r from-transparent via-background to-transparent z-10"></div>
               <FlickeringGrid
                 className="z-0 absolute inset-0 size-full"
                 squareSize={4}
@@ -165,7 +165,7 @@ export default function Index() {
               <h1 className="text-sm text-muted-foreground text-balance font-semibold tracking-tigh uppercase relative z-20">
                 Features
               </h1>
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-gradient-to-r from-transparent via-background to-transparent z-10"></div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-linear-to-r from-transparent via-background to-transparent z-10"></div>
               <FlickeringGrid
                 className="z-0 absolute inset-0 size-full"
                 squareSize={4}
@@ -214,7 +214,7 @@ export default function Index() {
               <h1 className="text-sm text-muted-foreground text-balance font-semibold tracking-tigh uppercase relative z-20">
                 Frequently Asked Questions (FAQ)
               </h1>
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-gradient-to-r from-transparent via-background to-transparent z-10"></div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-full w-full bg-linear-to-r from-transparent via-background to-transparent z-10"></div>
               <FlickeringGrid
                 className="z-0 absolute inset-0 size-full"
                 squareSize={4}

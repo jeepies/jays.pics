@@ -58,7 +58,7 @@ export default function Register() {
         Already have an account?
         <a
           href="/login"
-          className="ml-1 text-primary hover:underline focus:outline-none"
+          className="ml-1 text-primary hover:underline focus:outline-hidden"
         >
           Log in
         </a>

@@ -53,7 +53,7 @@ export default function Login() {
         Don&apos;t have an account?
         <a
           href="/register"
-          className="ml-1 text-primary hover:underline focus:outline-none"
+          className="ml-1 text-primary hover:underline focus:outline-hidden"
         >
           Sign up
         </a>

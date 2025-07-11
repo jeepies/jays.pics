@@ -43,7 +43,7 @@ export function Pagination(props: Readonly<PaginationProps>) {
       {pages.map((num) => (
         <Link key={num} to={`${props.path}?page=${num}${q}`}>
           <Button
-            variant={num === props.currentPage ? "default" : "outline"}
+            variant={num === props.currentPage ? "default" : "outline-solid"}
             size="sm"
           >
             {num}

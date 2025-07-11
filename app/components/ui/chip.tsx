@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "~/lib/utils";
 
 const chipVariants = cva(
-  "inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium focus:outline-none",
+  "inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium focus:outline-hidden",
   {
     variants: {
       variant: {
