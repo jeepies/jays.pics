@@ -123,5 +123,9 @@
   "lint-staged": {
     "*.{js,cjs,ts}": "eslint --cache --fix",
     "*.{js,css,md,tsx,ts,cjs}": "prettier --write"
-  }
+  },
+  "trustedDependencies": [
+    "aws-sdk",
+    "unrs-resolver"
+  ]
 }
