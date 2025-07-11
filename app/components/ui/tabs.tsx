@@ -7,7 +7,7 @@ import { cn } from "~/lib/utils";
 import { useDirection } from "@radix-ui/react-direction";
 
 const tabsVariants = cva(
-  "relative inline-flex items-center justify-center rounded-lg-ele transition-all duration-300 w-full",
+  "relative inline-flex items-center justify-center rounded-lg transition-all duration-300 w-full",
   {
     variants: {
       variant: {
@@ -29,7 +29,7 @@ const tabsVariants = cva(
 );
 
 const tabTriggerVariants = cva(
-  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md-ele px-3 py-1.5 text-sm font-medium transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1",
+  "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1",
   {
     variants: {
       variant: {
@@ -79,7 +79,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
       defaultValue,
       value,
       onValueChange,
-      indicatorColor = "hsl(var(--hu-accent))",
+      indicatorColor = "hsl(var(--accent))",
       ...props
     },
     ref,
@@ -147,12 +147,12 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
             "absolute z-10",
             variant === "underline"
               ? "bottom-0 h-0.5 rounded-none"
-              : "top-1 bottom-1 rounded-md-ele",
+              : "top-1 bottom-1 rounded-md",
           )}
           style={{
             backgroundColor:
               variant === "underline"
-                ? "hsl(var(--hu-foreground))"
+                ? "hsl(var(--foreground))"
                 : indicatorColor,
           }}
           initial={false}

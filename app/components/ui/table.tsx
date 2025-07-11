@@ -193,7 +193,7 @@ export function DataTable<T extends Record<string, any>>({
     return (
       <div
         className={cn(
-          "w-full bg-card rounded-ele overflow-hidden",
+          "w-full bg-card rounded-lg overflow-hidden",
           bordered && "border border-border",
           className,
         )}
@@ -207,7 +207,7 @@ export function DataTable<T extends Record<string, any>>({
           )}
 
           {/* Table skeleton */}
-          <div className="border border-border rounded-ele overflow-hidden">
+          <div className="border border-border rounded-lg overflow-hidden">
             {/* Header skeleton */}
             <div
               className={cn(
@@ -266,7 +266,7 @@ export function DataTable<T extends Record<string, any>>({
                       ) : colIndex === columns.length - 1 ? (
                         // Last column - often actions
                         <div className="flex justify-end">
-                          <Skeleton className="h-8 w-8 rounded-ele" />
+                          <Skeleton className="h-8 w-8 rounded-lg" />
                         </div>
                       ) : (
                         // Middle columns
@@ -294,11 +294,11 @@ export function DataTable<T extends Record<string, any>>({
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <Skeleton className="h-4 w-48" />
               <div className="flex items-center gap-2">
-                <Skeleton className="h-9 w-20 rounded-ele" />
-                <Skeleton className="h-9 w-9 rounded-ele" />
-                <Skeleton className="h-9 w-9 rounded-ele" />
-                <Skeleton className="h-9 w-9 rounded-ele" />
-                <Skeleton className="h-9 w-16 rounded-ele" />
+                <Skeleton className="h-9 w-20 rounded-lg" />
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <Skeleton className="h-9 w-16 rounded-lg" />
               </div>
             </div>
           )}
@@ -310,7 +310,7 @@ export function DataTable<T extends Record<string, any>>({
   return (
     <div
       className={cn(
-        "w-full bg-card rounded-ele overflow-hidden",
+        "w-full bg-card rounded-lg overflow-hidden",
         bordered && "border border-border",
         variant === "minimal" && "bg-transparent border-none",
         className,
@@ -360,9 +360,9 @@ export function DataTable<T extends Record<string, any>>({
       <div
         className={cn(
           "overflow-hidden",
-          variant === "bordered" && "border border-border rounded-ele",
+          variant === "bordered" && "border border-border rounded-lg",
           variant === "minimal" && "border-none",
-          !searchable && variant !== "minimal" && "rounded-ele",
+          !searchable && variant !== "minimal" && "rounded-lg",
         )}
       >
         <div className="overflow-x-auto">
@@ -384,7 +384,7 @@ export function DataTable<T extends Record<string, any>>({
                       size === "default" && "px-4 py-3 text-sm",
                       size === "lg" && "px-6 py-4 text-base",
                       column.sortable &&
-                        "cursor-pointer hover:bg-muted/30 hover:rounded-ele transition-colors",
+                        "cursor-pointer hover:bg-muted/30 hover:rounded-lg transition-colors",
                       column.align === "center" && "text-center",
                       column.align === "right" && "text-end",
                       column.width && `w-[${column.width}]`,

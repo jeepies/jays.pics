@@ -16,7 +16,7 @@ export default function AnimatedGradientText({
   return (
     <div
       className={cn(
-        "group relative flex max-w-fit flex-row items-center rounded-2xl-ele bg-white/40 px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#8fdfff1f] backdrop-blur-xs transition-shadow duration-500 ease-out [--bg-size:300%] hover:shadow-[inset_0_-5px_10px_#8fdfff3f] dark:bg-black/40",
+        "group relative flex max-w-fit flex-row items-center rounded-sm bg-white/40 px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#8fdfff1f] backdrop-blur-xs transition-shadow duration-500 ease-out [--bg-size:300%] hover:shadow-[inset_0_-5px_10px_#8fdfff3f] dark:bg-black/40",
         {
           "mx-auto": align === "center",
           "mr-auto": align === "left",

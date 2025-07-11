@@ -117,7 +117,7 @@ const Progress = React.forwardRef<
                 cx={circleSize / 2}
                 cy={circleSize / 2}
                 r={radius}
-                stroke="hsl(var(--hu-secondary))"
+                stroke="hsl(var(--secondary))"
                 strokeWidth={strokeWidth || 8}
                 fill="transparent"
                 className="opacity-20"
@@ -129,12 +129,12 @@ const Progress = React.forwardRef<
                 r={radius}
                 stroke={
                   variant === "destructive"
-                    ? "hsl(var(--hu-destructive))"
+                    ? "hsl(var(--destructive))"
                     : variant === "secondary"
-                      ? "hsl(var(--hu-secondary-foreground))"
+                      ? "hsl(var(--secondary-foreground))"
                       : variant === "outline"
-                        ? "hsl(var(--hu-foreground))"
-                        : "hsl(var(--hu-primary))"
+                        ? "hsl(var(--foreground))"
+                        : "hsl(var(--primary))"
                 }
                 strokeWidth={strokeWidth || 8}
                 fill="transparent"
