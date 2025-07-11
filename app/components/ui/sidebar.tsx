@@ -102,7 +102,7 @@ export function Sidebar({
               <Link to="/dashboard/images" className="flex items-center gap-2">
                 <Image className="h-4 w-4" />
                 Images
-                <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
+                <span className="ml-auto bg-secondary text-secondary-foreground rounded-md-ele px-2 py-0.5 text-xs">
                   {formatNumber(
                     user.images.filter((img) => !img.deleted_at).length,
                   )}
@@ -195,7 +195,7 @@ export function Sidebar({
                   >
                     <GitBranch className="h-4 w-4" />
                     Triggers
-                    <span className="ml-auto bg-secondary text-secondary-foreground rounded-md px-2 py-0.5 text-xs">
+                    <span className="ml-auto bg-secondary text-secondary-foreground rounded-md-ele px-2 py-0.5 text-xs">
                       BETA
                     </span>
                   </Link>
