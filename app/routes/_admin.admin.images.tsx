@@ -100,7 +100,7 @@ export default function AdminImages() {
                     <TableCell>{image.ImageReport.length}</TableCell>
                     <TableCell className="text-right">
                       <Link to={`/admin/image/${image.id}`}>
-                        <Button variant={"outline"}>Review</Button>
+                        <Button variant={"outline-solid"}>Review</Button>
                       </Link>
                     </TableCell>
                   </TableRow>

@@ -108,7 +108,7 @@ export default function AdminUsers() {
                     <TableCell>{user.reports}</TableCell>
                     <TableCell className="text-right">
                       <Link to={`/admin/user/${user.id}`}>
-                        <Button variant={"outline"}>Profile</Button>
+                        <Button variant={"outline-solid"}>Profile</Button>
                       </Link>
                     </TableCell>
                   </TableRow>

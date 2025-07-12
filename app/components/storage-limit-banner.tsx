@@ -30,7 +30,7 @@ export function StorageLimitBanner({
   if (!visible) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-md border bg-background/90 backdrop-blur p-4 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 text-sm">
+    <div className="fixed top-4 left-1/2 z-40 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-md border bg-background/90 backdrop-blur-sm p-4 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 text-sm">
       <span className="text-foreground">
         You're using {prettyBytes(spaceUsed)} of {prettyBytes(maxSpace)}{" "}
         storage. Please consider{" "}

@@ -46,7 +46,7 @@ export default function AdminDashboard() {
     <div className="flex h-screen overflow-hidden flex-col md:flex-row">
       <AdminNavbar user={user} />
       <SidebarAdmin user={user} className="border-r hidden md:block" />
-      <div className="flex-grow rounded w-full h-full overflow-auto">
+      <div className="grow rounded w-full h-full overflow-auto">
         <div className="container mx-auto px-4 py-8">
           <Outlet />
         </div>

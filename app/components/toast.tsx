@@ -62,7 +62,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
               className={cn(
-                "px-4 py-2 rounded shadow text-white",
+                "px-4 py-2 rounded shadow-sm text-white",
                 toast.variant === "success" && "bg-green-600",
                 toast.variant === "error" && "bg-red-600",
                 toast.variant === "info" && "bg-gray-800",

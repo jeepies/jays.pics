@@ -23,7 +23,7 @@ export function AdminNavbar({ user }: Readonly<DashboardNavbarProps>) {
 
   return (
     <>
-      <header className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
         <div className="px-4 flex h-14 items-center justify-between">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
             <Menu className="h-4 w-4" />

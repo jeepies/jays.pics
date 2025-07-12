@@ -25,14 +25,22 @@ export function DashboardNavbar({
 
   return (
     <>
-      <header className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60">
         <div className="px-4 flex h-14 items-center justify-between">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
             <Menu className="h-4 w-4" />
           </Button>
-          <Link to="/dashboard/index" className="font-bold">
-            jays.pics
-          </Link>
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="jays.pics"
+              className="h-4 w-4 rounded-full"
+            />
+            <Link to="/dashboard/index" className="font-bold">
+              jays.pics{" "}
+              <span className="text-xs text-muted-foreground">v{version}</span>
+            </Link>
+          </div>
         </div>
       </header>
       <AnimatePresence>
