@@ -59,6 +59,8 @@
   --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 10.1961% / 0.4);
   --tracking-normal: -0.025em;
   --spacing: 0.25rem;
+  --discord-primary: oklch(0.5774 0.2091 273.85);
+  --discord-background: oklch(0.9221 0.0381 280.77);
 }
 
 .dark {
@@ -116,6 +118,8 @@
     0px 2px 3px 0px hsl(0 0% 10.1961% / 0.16),
     0px 8px 10px -1px hsl(0 0% 10.1961% / 0.16);
   --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 10.1961% / 0.4);
+  --color-discord-primary: oklch(0.5774 0.2091 273.85);
+  --color-discord-background: oklch(0.2452 0.0075 285.83);
 }
 
 @theme inline {
@@ -176,6 +180,10 @@
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+
+  /* Brands */
+  --color-discord-primary: var(--color-discord-primary);
+  --color-discord-background: var(--color-discord-background);
 }
 
 /*

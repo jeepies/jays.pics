@@ -131,51 +131,59 @@ export default function Embed() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="flex items-center justify-center bg-discordbg rounded p-2">
-              <div className="w-full max-w-sm space-y-2">
-                <div className="flex items-start space-x-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={
-                        data!.user.avatar_url
-                          ? `/avatar/${data!.user.id}`
-                          : `https://api.dicebear.com/6.x/initials/svg?seed=${data!.user.username}`
-                      }
-                      alt={data!.user.username}
-                    />
-                    <AvatarFallback>
-                      {data!.user.username.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="font-medium text-sm leading-8">
-                    {data!.user.username}
-                  </p>
-                </div>
-                <div className="text-blue-500">{url}</div>
-                <div
-                  className="border rounded p-4"
-                  style={{ borderLeftWidth: "4px", borderLeftColor: colour }}
-                >
+            <div className="w-full max-w-md bg-[#313338] rounded-lg p-0 border border-[#232428] shadow-md">
+              <div className="flex items-center px-4 pt-4 pb-1">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={
+                      data!.user.avatar_url
+                        ? `/avatar/${data!.user.id}`
+                        : `https://api.dicebear.com/6.x/initials/svg?seed=${data!.user.username}`
+                    }
+                    alt={data!.user.username}
+                  />
+                  <AvatarFallback>
+                    {data!.user.username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="ml-3 font-semibold text-white text-sm">
+                  {data!.user.username}
+                </span>
+              </div>
+              <div className="px-4 pb-2 text-blue-400 text-sm">{url}</div>
+              <div
+                className="flex flex-col bg-[#2b2d31] rounded-lg mx-4 mb-4 mt-1 border-l-4"
+                style={{ borderLeftColor: colour }}
+              >
+                <div className="px-4 pt-3 pb-2">
                   {author && (
-                    <div className="text-sm text-muted-foreground mb-1">
+                    <div className="text-xs text-[#b5bac1] mb-1">
                       {applyTemplates(author)}
                     </div>
                   )}
                   {title && (
-                    <div className="font-semibold text-lg">
+                    <div className="font-semibold text-white text-base mb-1">
                       {applyTemplates(title)}
                     </div>
                   )}
+                  <div className="text-xs text-blue-400 mb-2 break-all">
+                    {url}
+                  </div>
                   <img
                     src="/logo.png"
                     alt="example"
-                    className="mt-2 w-full rounded bg-discordbg"
+                    className="mt-2 w-full rounded bg-[#232428] border border-[#232428]"
                   />
-                  {footer && (
-                    <div className="text-xs text-muted-foreground mt-2">
+                  {/* {footer && ( @ TODO: Add footer editing in form
+                    <div className="flex items-center mt-3 text-xs text-[#b5bac1]">
+                      <img
+                        src="/favicon.ico"
+                        alt="icon"
+                        className="w-4 h-4 mr-2 rounded"
+                      />
                       {footer}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>
